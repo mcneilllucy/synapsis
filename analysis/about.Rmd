@@ -1,0 +1,39 @@
+---
+title: "About"
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+## *Cardelino* : Integrating whole exomes and single-cell transcriptomes to reveal phenotypic impact of somatic variants
+
+**Key findings:**
+
+* A new approach for integrating DNA-seq and single-cell RNA-seq data to reconstruct clonal substructure and single-cell transcriptomes.
+* A new computational method to map single-cell RNA-seq profiles to clones.
+* Evidence for non-neutral evolution of clonal populations in human fibroblasts.
+* Proliferation and cell cycle pathways are commonly distorted in mutated clonal populations, with implications for cancer and ageing. 
+
+
+**Abstract**
+
+Decoding the clonal substructures of somatic tissues sheds light on cell growth, development and differentiation in health, ageing and disease. DNA-sequencing, either using bulk or using single-cell assays, has enabled the reconstruction of clonal trees from somatic variants. However, approaches to characterize phenotypic and functional variations between clones are not established. 
+
+Here we present cardelino (https://github.com/PMBio/cardelino), a computational method to assign single-cell transcriptome profiles to somatic clones using variant information contained in  single-cell RNA-seq (scRNA-seq) data. After validating our model using simulations, we apply cardelino to matched scRNA-seq and exome sequencing data from 32 human dermal fibroblast lines
+
+We identify hundreds of differentially expressed genes between cells assigned to different clones. These genes were frequently enriched for the cell cycle and pathways related to cell proliferation, and our data point to clone gene expression phenotypes that support previous work showing non-neutral somatic evolution in nominally healthy human skin cells.
+
+
+## Authors
+
+The full author list is as follows:
+
+Davis J. McCarthy<sup>1,4,\*</sup>, Raghd Rostom<sup>1,2,\*</sup>, Yuanhua Huang<sup>1,\*</sup>, Daniel J. Kunz<sup>2,5,6</sup>, Petr Danecek<sup>2</sup>, Marc Jan Bonder<sup>1</sup>, Tzachi Hagai<sup>1,2</sup>, HipSci Consortium, Wenyi Wang<sup>8</sup>, Daniel J. Gaffney<sup>2</sup>, Benjamin D. Simons<sup>5,6,7</sup>, Oliver Stegle<sup>1,3,9,#</sup>, Sarah A. Teichmann<sup>1,2,5,#</sup>
+
+<sup>1</sup>European Molecular Biology Laboratory, European Bioinformatics Institute, Wellcome Genome Campus, CB10 1SD
+Hinxton, Cambridge, UK; <sup>2</sup>Wellcome Sanger Institute, Wellcome Genome Campus, Hinxton, CB10 1SA, UK; <sup>3</sup>European Molecular Biology Laboratory, Genome Biology Unit, 69117 Heidelberg, Germany; <sup>4</sup>St Vincent’s Institute of Medical Research, Fitzroy, Victoria 3065, Australia. <sup>5</sup>Cavendish Laboratory, Department of Physics, JJ Thomson Avenue, Cambridge, CB3 0HE, UK. <sup>6</sup>The Wellcome Trust/Cancer Research UK Gurdon Institute, University of Cambridge, Cambridge, CB2 1QN, UK. <sup>7</sup>The Wellcome Trust/Medical Research Council Stem Cell Institute, University of Cambridge, Cambridge, UK. <sup>8</sup>Department of Bioinformatics and Computational Biology, The University of Texas MD Anderson Cancer Center, Houston, Texas 77030, USA. <sup>9</sup>Division of Computational Genomics and Systems Genetics, German Cancer Research Center (DKFZ), 69120, Heidelberg, Germany.
+
+<sup>*</sup> These authors contributed equally to this work.
+
+<sup>#</sup> Corresponding authors. 
+

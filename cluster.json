@@ -1,0 +1,11 @@
+{
+    "__default__" : 
+    {
+        "memory" : "8000",
+        "n" : 1,
+        "queue" : "research",
+        "name" : "EUUI_2019_sceQTL-Workflow.{rule}.{wildcards}",
+        "output" : "logs/{rule}.out",
+        "error" : "logs/{rule}.err"
+    }
+}

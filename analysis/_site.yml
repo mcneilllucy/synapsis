@@ -1,0 +1,21 @@
+name: "aaaa-2021-Project-Template"
+output_dir: "../public"
+navbar:
+  title: "aaaa-2021-Project-Template"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+    - text: "License"
+      href: license.html
+  right:
+    - icon: fa-gitlab
+      href: https://gitlab.svi.edu.au/dna-repair-and-recombination-lab/aaaa-2021-project-template
+output:
+  workflowr::wflow_html:
+    toc: true
+    toc_float: true
+    theme: journal
+    highlight: pygments
+    code_folding: hide

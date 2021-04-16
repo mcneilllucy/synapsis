@@ -1,0 +1,34 @@
+#+TITLE: AAAA_2019_Project-Template
+
+* TODO Organise roadmap for project [2019-2-2 Sat]
+
+* Kanban 
+
+| Backlog         | Waiting On | Planned | Doing | Done |
+|-----------------+------------+---------+-------+------|
+| [[Update template]] |            |         |       |      |
+| [[Reproducibility]] |            |         |       |      |
+|                 |            |         |       |      |
+  
+
+* [#C] Update template <<Update template>> [0%]
+
+** TODO Specify the way to cite the project in the `CITATION` file. 
+ This will likely need updating over the course of the project.
+- [ ] Update in `analysis/license.Rmd` too
+
+** TODO Check that the `LICENSE` file is appropriate.
+ Unless there is good reason to prefer something different, we strongly prefer
+ open, permissive licenses to make our work as widely accessible and useable as
+ possible.
+- [ ] Update in `analysis/license.Rmd` too
+
+
+* [#B] Make project reproducible <<Reproducibility>>
+
+** TODO Rewrite `Snakefile` file that defines the Snakemake workflow
+The included file in this template provides a useful starting point and some
+handy patterns to exploit.
+
+
+
