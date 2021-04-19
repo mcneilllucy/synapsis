@@ -1,1 +1,33 @@
 # Using synapsis
+
+```{r}
+
+ packages = c("rmarkdown","BiocManager","imager")
+
+ package.check <- lapply(
+  packages,
+   FUN = function(x) {
+     if (!require(x, character.only = TRUE)) {
+       install.packages(x, dependencies = TRUE)
+       library(x, character.only = TRUE)
+     }
+   }
+ )
+ 
+library(knitr)
+library(rmarkdown)
+#BiocManager::install("EBImage")
+library(EBImage)
+library(ggplot2)
+path = "~/Documents/svi/imaging/data-folder/test-folder/all-WT"
+files <- list.files(path)
+setwd("~/Documents/synapsis/synapsis/R")
+source("auto_crop.R")
+# call routine to crop images, and display their "cell number"
+crop(files, path)
+# Call for KO folder, call for WT folder.
+
+# call same routine, but excluding those which are cropped badly.
+
+
+```
