@@ -19,12 +19,39 @@ library(rmarkdown)
 #BiocManager::install("EBImage")
 library(EBImage)
 library(ggplot2)
-path = "~/Documents/svi/imaging/data-folder/test-folder/all-WT"
-files <- list.files(path)
-setwd("~/Documents/synapsis/synapsis/R")
-source("auto_crop.R")
+ 
+## comment out if you have crops..
+
+#path = "~/Documents/svi/imaging/data-folder/test-folder/all-KO"
+#files <- list.files(path)
+#setwd("~/Documents/synapsis/synapsis/R")
+#source("auto_crop.R")
 # call routine to crop images, and display their "cell number"
-crop(files, path)
+#crop(files, path, "regular")
+
+
+#### make sure that these are output in a new folder.
+
+### call the next functions on the new folder.
+
+# call get_pachytene()
+#path = "~/Documents/svi/imaging/data-folder/test-folder/all-KO/crops"
+#source("~/Documents/synapsis/synapsis/R/get_pachytene.R")
+#files <- list.files(path)
+#get_pachytene(files,path)
+
+### only keep BW filter
+
+# call count_foci() on the pachytene files only.
+
+path = "~/Documents/svi/imaging/data-folder/test-folder/all-KO/crops/pachytene"
+source("~/Documents/synapsis/synapsis/R/count_foci.R")
+files <- list.files(path)
+foci_counts <- count_foci(files,path)
+
+column_2 <- as.data.frame(foci_counts)
+write.csv(column_2, "temp.csv",row.names = FALSE)
+
 # Call for KO folder, call for WT folder.
 
 # call same routine, but excluding those which are cropped badly.
