@@ -44,10 +44,10 @@ get_pachytene <- function(file_list, img_path)
       localBackground = filter2(new_img, disc)
 
       # lax
-      # offset = 0.1
+       offset = 0.1
 
       # strict
-      offset = 0.2
+      #offset = 0.2
       nucBadThresh_crop = (new_img - localBackground > offset)
       strands <- bwlabel(nucBadThresh_crop)
       color_img_strands<- colorLabels(strands, normalize = TRUE)

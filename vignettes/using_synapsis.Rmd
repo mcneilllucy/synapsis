@@ -22,7 +22,7 @@ library(ggplot2)
  
 ## comment out if you have crops..
 
-#path = "~/Documents/svi/imaging/data-folder/test-folder/all-KO"
+#path = "~/Documents/svi/imaging/data-folder/test-folder/all-WT"
 #files <- list.files(path)
 #setwd("~/Documents/synapsis/synapsis/R")
 #source("auto_crop.R")
@@ -35,7 +35,7 @@ library(ggplot2)
 ### call the next functions on the new folder.
 
 # call get_pachytene()
-#path = "~/Documents/svi/imaging/data-folder/test-folder/all-KO/crops"
+#path = "~/Documents/svi/imaging/data-folder/test-folder/all-WT/crops"
 #source("~/Documents/synapsis/synapsis/R/get_pachytene.R")
 #files <- list.files(path)
 #get_pachytene(files,path)
@@ -55,6 +55,13 @@ write.csv(column_2, "temp.csv",row.names = FALSE)
 # Call for KO folder, call for WT folder.
 
 # call same routine, but excluding those which are cropped badly.
+
+### now that you have all the pachytene crop files, measure the distances. 
+
+#path = "~/Documents/svi/imaging/data-folder/test-folder/all-WT/some/crops/pachytene"
+#source("~/Documents/synapsis/synapsis/R/measure_distances.R")
+#files <- list.files(path)
+#measure_distances(files,path,2)
 
 
 ```
