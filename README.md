@@ -54,13 +54,13 @@ output:
 
 ## Analysis
 
-![cropping-hist](output/count_foci_histogram.png =100x100)
+![cropping-hist](output/count_foci_histogram.png)
 
-![cropping-box](output/count_foci_boxplot.png=100x100)
+![cropping-box](output/count_foci_boxplot.png)
 
-![distance-hist](output/measure_distances_histogram.png=100x100)
+![distance-hist](output/measure_distances_histogram.png)
 
-![distance-box](output/measure_distances_boxplot.png=100x100)
+![distance-box](output/measure_distances_boxplot.png)
 
 ## Project organisation and management
 
