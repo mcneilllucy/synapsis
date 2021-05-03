@@ -95,13 +95,21 @@ Once we have the foci counts (count_foci) and/or distance between foci along syn
 
 ![cropping-hist](output/count_foci_histogram.png)
 
+*Figure 5: Histogram of foci counts per cell (procedure in Figures 2 and 3) as a function of genotype (wildtype in orange, mutant in blue). The populations are significantly different (p value < 0.05 with anova test) with the mutant having 20 percent more foci per cell (on average).*
+
 <img src="output/measure_distances_histogram.png" width="700" height="500">
+
+*Figure 6: Histogram of (fractional) distances between foci on an SC (procedure summary in Figure 4) as a function of genotype (wildtype in orange, mutant in blue). The groups are not significantly different and could reasonably have come from the same population.*
 
 - Boxplots
 
 ![cropping-box](output/count_foci_boxplot.png)
 
+*Figure 7: Boxplot of foci counts per cell as a function of genotype (wildtype in orange, mutant in blue). The populations are significantly different (p value < 0.05 with anova test) with the mutant having 20 percent more foci per cell (on average).*
+
 <img src="output/measure_distances_boxplot.png" width="550" height="500">
+
+*Figure 8: Boxplot of (fractional) distances between foci on an SC (procedure summary in Figure 4) as a function of genotype (wildtype in orange, mutant in blue). The groups are not significantly different and could reasonably have come from the same population.*
 
 - Measures of statistical significance
 
