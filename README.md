@@ -46,6 +46,8 @@ input: crops of dna and foci channels in pachytene phase (from get_pachytene)
 
 output: number of foci counts of synamtonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
 
+![cropping](resources/figures/counting_procedure.png)
+
 ### measure_distances
 
 input:
@@ -71,8 +73,6 @@ Once we have the foci counts (count_foci) and/or distance between foci along syn
 - Measures of statistical significance
 
 with e.g. ANOVA testing.
-
-
 
 
 
