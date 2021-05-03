@@ -28,23 +28,23 @@ We summarise them in the following subsections:
 
 ### auto_crop
 
-input:
+input: Original grey scale image files of (1) Synaptonemal complexes (e.g. SYCP3 anti-body) and (2) Foci (e.g. MLH1, MLH3 anti-body) channels from e.g. Nikon .nd2 files.
 
-output:
+output: crops in channels (1) '*dna.jpeg' and (2) '*foci.jpeg' around individual cells.
 
 ![cropping](resources/figures/cropping_procedure.png)
 
 ### get_pachytene
 
-input:
+input: crops in channels (1) '*dna.jpeg' and (2) '*foci.jpeg' around individual cells, from previous auto_crop.
 
-output:
+output: only keeps crops if cells are in pachytene phase (based on channel (1))
 
 ### count_foci
 
-input:
+input: crops of dna and foci channels in pachytene phase (from get_pachytene)
 
-output:
+output: number of foci counts of synamtonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
 
 ### measure_distances
 
@@ -53,6 +53,14 @@ input:
 output:
 
 ## Analysis
+
+![cropping-hist](output/count_foci_histogram.png)
+
+![cropping-box](output/count_foci_boxplot.png)
+
+![distance-hist](output/measure_distances_histogram.png)
+
+![distance-box](output/measure_distances_boxplot.png)
 
 ## Project organisation and management
 
