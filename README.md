@@ -60,7 +60,7 @@ output:
 
 ![distance-hist](output/measure_distances_histogram.png)
 
-![distance-box](output/measure_distances_boxplot.png)
+![distance-box](output/measure_distances_boxplot.png){:height="700px" width="400px"}
 
 ## Project organisation and management
 
