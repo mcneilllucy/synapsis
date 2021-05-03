@@ -62,6 +62,8 @@ output:
 
 ![distance-box](output/measure_distances_boxplot.png|width=100px)
 
+<img src="output/measure_distances_boxplot.png" width="100" height="100">
+
 ## Project organisation and management
 
 Please issue bug reports through GitLab.
