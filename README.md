@@ -60,7 +60,7 @@ output:
 
 <img src="output/measure_distances_histogram.png" width="700" height="500">
 
-<img src="output/measure_distances_boxplot.png" width="600" height="500">
+<img src="output/measure_distances_boxplot.png" width="550" height="500">
 
 ## Project organisation and management
 
