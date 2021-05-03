@@ -2,7 +2,20 @@
 
 ## Project overview
 
-synapsis is an R package for analysing fluorescent microscopy images.
+synapsis is an R package for analysing fluorescent microscopy images. In particular, its intended use is for analysing meiotic processes in mammals.
+
+The main goal is to objectively count the number of meiotic crossovers on a per cell basis, in line with recent developments in ImageJ software. However, unlike using ImageJ, synapsis does not require a scientist to manually crop images around cells of interest.
+
+Instead, synapsis identifies "good" cells in all images of a data set, crops around each per image, and then performs counting.
+
+A single two channel image might look like the left colour image in the following figure:
+
+![two-channel](resources/figures/2-channel.png)
+
+which can also be separated into the two channels (greyscale, right).
+
+
+[comment]: <> (examples with this file MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_725--_slide01_018.nd2)
 
 ## Contributors
 
@@ -73,7 +86,6 @@ Once we have the foci counts (count_foci) and/or distance between foci along syn
 - Measures of statistical significance
 
 with e.g. ANOVA testing.
-
 
 
 ## Project organisation and management
