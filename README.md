@@ -28,6 +28,14 @@ Wayne Crismani, St Vincent's Institute of Medical Research and the University of
 
 ## Compatibility
 
+synapsis relies heavily on the bioconductor package EBImage, which currently supports jpeg, png and tiff image files.
+
+Currently, synapsis also supports
+
+- [x] .nd2 (NIKON), see [nd2converter.py][], which converts a three channel image into three separate jpegs of foci, SC and DAPI (unused) channels from original .nd2 files.
+
+
+
 ## Using synapsis
 
 synapsis has four main functions. These are:
@@ -44,15 +52,15 @@ We summarise them in the following subsections:
 
 ### auto_crop
 
-input: Original grey scale image files of (1) Synaptonemal complexes (e.g. SYCP3 anti-body) and (2) Foci (e.g. MLH1, MLH3 anti-body) channels from e.g. Nikon .nd2 files.
+input: Original grey scale image files of (1) Synaptonemal complexes ("SC", e.g. SYCP3 anti-body) and (2) foci (e.g. MLH1, MLH3 anti-body) channels from e.g. Nikon .nd2 files.
 
-output: crops in channels (1) '*dna.jpeg' and (2) '*foci.jpeg' around individual cells.
+output: crops in SC (red) and foci (green) around individual cells.
 
 ![cropping](resources/figures/cropping_procedure.png)
 
 ### get_pachytene
 
-input: crops in channels (1) '*dna.jpeg' and (2) '*foci.jpeg' around individual cells, from previous auto_crop.
+input: crops in channels (1) (red) and (2) (green) around individual cells, from previous auto_crop.
 
 output: only keeps crops if cells are in pachytene phase (based on channel (1))
 
@@ -105,3 +113,5 @@ This project is a [workflowr][] project, where we make use of a [project templat
 [project template]: https://gitlab.svi.edu.au/biocellgen-public/aaaa_2019_project-template
 
 [issue]: https://gitlab.svi.edu.au/lmcneill/synapsis/-/issues
+
+[nd2converter.py]: https://gitlab.svi.edu.au/lmcneill/synapsis/source/nd2converter.py
