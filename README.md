@@ -7,6 +7,7 @@ synapsis is an R package for analysing fluorescent microscopy images.
 ## Contributors
 
 Lucy McNeill, St Vincent's Institute of Medical Research
+
 Wayne Crismani, St Vincent's Institute of Medical Research and the University of Melbourne
 
 ## Compatibility
