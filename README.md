@@ -54,13 +54,27 @@ output:
 
 ## Analysis
 
-![cropping-hist](output/count_foci_histogram.png)
+Once we have the foci counts (count_foci) and/or distance between foci along synaptonemal complexes (measure_distances), we can generate
 
-![cropping-box](output/count_foci_boxplot.png)
+- Histograms
+
+![cropping-hist](output/count_foci_histogram.png)
 
 <img src="output/measure_distances_histogram.png" width="700" height="500">
 
+- Boxplots
+
+![cropping-box](output/count_foci_boxplot.png)
+
 <img src="output/measure_distances_boxplot.png" width="550" height="500">
+
+- Measures of statistical significance
+
+with e.g. ANOVA testing.
+
+
+
+
 
 ## Project organisation and management
 
