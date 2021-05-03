@@ -11,6 +11,7 @@ Instead, synapsis identifies "good" cells in all images of a data set, crops aro
 A single two channel image might look like the left colour image in the following figure:
 
 ![two-channel](resources/figures/2-channel.png)
+*Figure 1: a two channel image of a meiotic spread. Antibody stains are SYCP3 (red, illuminates synaptonemal complexes) and MLH3 (green, illuminates sites of meiotic crossovers).
 
 which can also be separated into the two channels (greyscale, right).
 
