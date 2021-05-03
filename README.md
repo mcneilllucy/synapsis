@@ -24,6 +24,36 @@ synapsis has four main functions. These are:
 
 - measure_distances
 
+We summarise them in the following subsections:
+
+### auto_crop
+
+input:
+
+output:
+
+![cropping](resources/figures/cropping_procedure.png)
+
+### get_pachytene
+
+input:
+
+output:
+
+### count_foci
+
+input:
+
+output:
+
+### measure_distances
+
+input:
+
+output:
+
+## Analysis
+
 ## Project organisation and management
 
 Please issue bug reports through GitLab.
