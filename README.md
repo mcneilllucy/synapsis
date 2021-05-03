@@ -11,6 +11,7 @@ Instead, synapsis identifies "good" cells in all images of a data set, crops aro
 A single two channel image might look like the left colour image in the following figure:
 
 ![two-channel](resources/figures/2-channel.png)
+
 *Figure 1: a two channel image of a meiotic spread. Antibody stains are SYCP3 (red, illuminates synaptonemal complexes) and MLH3 (green, illuminates sites of meiotic crossovers).*
 
 which can also be separated into the two channels (greyscale, right).
@@ -57,6 +58,7 @@ input: Original grey scale image files of (1) Synaptonemal complexes ("SC", e.g.
 output: crops in SC (red) and foci (green) around individual cells.
 
 ![cropping](resources/figures/cropping_procedure.png)
+*Figure 2: workflow for the auto_crop function. We start with the SC channel (red in Figure 1), and after a series of gaussian smoothing and thresholding, we create a "mask" for each viable cell, i.e. based on brightness. Next we delete candidate cells which are too large (overlapping cells), too small, too oblong (cells on the edge, too dim) etc. Then, we apply each mask on both the SC channel, and the foci channel (green in Figure 1) to isolate single cells of interest. Finally, for each remaining viable single cell, we crop both the SC and foci channel around each single cell.*
 
 ### get_pachytene
 
@@ -71,6 +73,7 @@ input: crops of dna and foci channels in pachytene phase (from get_pachytene)
 output: number of foci counts of synamtonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
 
 ![cropping](resources/figures/counting_procedure.png)
+*Figure 3: workflow for the auto_crop function. We start with the two crops of the foci and SC channels found in Figure 2. These are also subject to gaussian smoothing followed by thresholding, and then the overlap of these two masks is determined (right, multicoloured spots). The function returns the number of coincident foci.*
 
 ### measure_distances
 
@@ -114,4 +117,4 @@ This project is a [workflowr][] project, where we make use of a [project templat
 
 [issue]: https://gitlab.svi.edu.au/lmcneill/synapsis/-/issues
 
-[nd2converter.py]: https://gitlab.svi.edu.au/lmcneill/synapsis/source/nd2converter.py
+[nd2converter.py]: https://gitlab.svi.edu.au/lmcneill/synapsis/-/tree/master/source
