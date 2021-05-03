@@ -14,6 +14,8 @@ A single two channel image might look like the left colour image in the followin
 
 which can also be separated into the two channels (greyscale, right).
 
+Synapsis can take this image (or folders of images like this) and determine the number of coincident foci (green) with synaptonemal complexes (SCs, red) per cell.
+
 
 [comment]: <> (examples with this file MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_725--_slide01_018.nd2)
 
