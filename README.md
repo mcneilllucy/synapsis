@@ -75,7 +75,7 @@ output: number of foci counts of synamtonemal complexes per cell (i.e. channel 1
 
 ![cropping](resources/figures/counting_procedure.png)
 
-*Figure 3: workflow for the auto_crop function. We start with the two crops of the foci and SC channels found in Figure 2. These are also subject to gaussian smoothing followed by thresholding, and then the overlap of these two masks is determined (right, multicoloured spots). The function returns the number of coincident foci.*
+*Figure 3: workflow for the auto_crop function. We start with the two crops of the foci and SC channels found in Figure 2. These are also subject to gaussian smoothing followed by thresholding, and then the overlap of these two masks is determined (upper right, multicoloured spots). The function returns the number of coincident foci for this cell.*
 
 ### measure_distances
 
