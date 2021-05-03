@@ -58,11 +58,9 @@ output:
 
 ![cropping-box](output/count_foci_boxplot.png)
 
-![distance-hist](output/measure_distances_histogram.png)
+<img src="output/measure_distances_histogram.png" width="500" height="500">
 
-![distance-box](output/measure_distances_boxplot.png|width=100px)
-
-<img src="output/measure_distances_boxplot.png" width="100" height="100">
+<img src="output/measure_distances_boxplot.png" width="500" height="500">
 
 ## Project organisation and management
 
