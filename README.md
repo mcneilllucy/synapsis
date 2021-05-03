@@ -12,7 +12,7 @@ A single two channel image might look like the left colour image in the followin
 
 ![two-channel](resources/figures/2-channel.png)
 
-*Figure 1: a two channel image of a meiotic spread. Antibody stains are SYCP3 (red, illuminates synaptonemal complexes) and MLH3 (green, illuminates sites of meiotic crossovers).*
+*Figure 1: a two channel image of a meiotic spread. Antibody stains are SYCP3 (red, illuminates synaptonemal complexes) and MLH3 (green, illuminates sites of meiotic crossovers). Image taken by Vanessa Tsui in 2020.*
 
 which can also be separated into the two channels (greyscale, right).
 
@@ -73,15 +73,19 @@ input: crops of dna and foci channels in pachytene phase (from get_pachytene)
 
 output: number of foci counts of synamtonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
 
-![cropping](resources/figures/counting_procedure.png)
+![counting](resources/figures/counting_procedure.png)
 
 *Figure 3: workflow for the auto_crop function. We start with the two crops of the foci and SC channels found in Figure 2. These are also subject to gaussian smoothing followed by thresholding, and then the overlap of these two masks is determined (upper right, multicoloured spots). The function returns the number of coincident foci for this cell.*
 
 ### measure_distances
 
-input:
+input: crops of dna and foci channels in pachytene phase (from get_pachytene)
 
-output:
+output: a measure of the separation between two foci in the case that they are on the same synaptonemal complex in the SC channel (red).
+
+![measuring](resources/figures/measuring_procedure.png)
+
+*Figure 4: Input and output of the measuring_distance function, for the four SCs that synapsis identifies as having two foci per SC, in this cell. The total length (in pixels) of an SC (white line) is calculated, and the closest point on this line to the foci locations in the original image (left) are drawn with magenta crosshairs. The pixel distance between the two magenta foci locations is calculated. Finally, the function outputs a measure of the distance relative to its own length, i.e. (distance between foci)/(total length of SC).*
 
 ## Analysis
 
