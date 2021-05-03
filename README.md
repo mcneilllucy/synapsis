@@ -92,7 +92,7 @@ with e.g. ANOVA testing.
 
 ## Project organisation and management
 
-Please issue bug reports through GitLab.
+Please [issue][] bug reports through GitLab.
 
 
 ## Acknowledgements
@@ -102,3 +102,5 @@ This project is a [workflowr][] project, where we make use of a [project templat
 [workflowr]: https://github.com/jdblischak/workflowr
 
 [project template]: https://gitlab.svi.edu.au/biocellgen-public/aaaa_2019_project-template
+
+[issue]: https://gitlab.svi.edu.au/lmcneill/synapsis/-/issues
