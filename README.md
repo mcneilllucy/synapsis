@@ -57,6 +57,8 @@ input: Original grey scale image files of (1) Synaptonemal complexes ("SC", e.g.
 
 output: crops in SC (red) and foci (green) around individual cells.
 
+In the following figure, we show how synapsis automatically crops around a single "good" cell, from start to finish.
+
 ![cropping](resources/figures/cropping_procedure.png)
 
 *Figure 2: workflow for the auto_crop function. We start with the SC channel (red in Figure 1), and after a series of gaussian smoothing and thresholding, we create a "mask" for each viable cell, i.e. based on brightness. Next we delete candidate cells which are too large (overlapping cells), too small, too oblong (cells on the edge, too dim) etc. Then, we apply each mask on both the SC channel, and the foci channel (green in Figure 1) to isolate single cells of interest. Finally, for each remaining viable single cell, we crop both the SC and foci channel around each single cell.*
