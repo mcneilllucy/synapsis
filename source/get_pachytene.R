@@ -31,12 +31,6 @@ get_pachytene <- function(file_list, img_path)
       pair <- 1
     }
     if(pair ==1){
-
-      print("I have a pair of images")
-      display(img_orig)
-      display(img_orig_foci)
-
-
       new_img<-img_orig
       #### now see which have the right amount of strands
       disc = makeBrush(21, "disc")
@@ -53,12 +47,9 @@ get_pachytene <- function(file_list, img_path)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
-
       #### segment the strands
       if (width(num_strands)<22 && width(num_strands)>5){
         ### identified a good image. count foci
-        #print(file)
-        print("following had correct number of strands")
         display(new_img)
         display(strands)
         pachytene_count <- pachytene_count + 1

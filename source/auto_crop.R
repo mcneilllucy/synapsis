@@ -19,7 +19,7 @@ crop <- function(file_list, img_path, crop_method = "regular")
       file_dna = file
       image_count <- image_count +1
       image <- readImage(file_dna)
-      img_orig <- channel(image, "grey")
+      img_orig <- channel(2*image, "grey")
       pair <- 0
     }
     if(grepl("*foci.jpeg$", file)){
@@ -88,34 +88,18 @@ get_blobs <- function(img_orig, crop_method = "regular"){
   # output:
 
   ## subfunction: get signals and make BW mask
-  w = makeBrush(size = 101, shape = 'gaussian', sigma = 51)
-  img_flo = filter2(img_orig, w)
-  disc = makeBrush(51, "disc")
-  disc = disc / sum(disc)
-  localBackground = filter2(img_orig, w)
   ### default offset
-  offset = 0.2
-  nucBadThresh = (img_orig - localBackground > offset)
-
-
-
   nucBadThresh <- 10*img_orig
-
-
   # subfunction: big blur to blobs
   img_tmp_dna <- img_orig
   img_tmp <- nucBadThresh
   w = makeBrush(size = 51, shape = 'gaussian', sigma = 15)
   img_flo = filter2(img_tmp, w)
-
-
-
   ## default amplification
   bg <- mean(10*img_tmp)
   offset = 0.2
   if(crop_method == "regular"){
     blob_th = 10*img_flo > bg + offset
-
   }
 
   if(crop_method == "watershed"){

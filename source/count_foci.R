@@ -4,8 +4,6 @@ count_foci <- function(file_list, img_path)
 
   # output : a bunch of output jpegs? Or save them all?
 
-
-
   #BiocManager::install("EBImage")
   library(EBImage)
   cell_count <- 0
@@ -32,11 +30,8 @@ count_foci <- function(file_list, img_path)
     }
     if(pair ==1){
 
-      #print("I have a pair of images")
-      #display(img_orig)
-      #display(img_orig_foci)
-
       new_img<-img_orig
+      display(new_img)
       #### now see which have the right amount of strands
       disc = makeBrush(21, "disc")
       disc = disc / sum(disc)
@@ -44,31 +39,20 @@ count_foci <- function(file_list, img_path)
       offset = 0.2
       nucBadThresh_crop = (new_img - localBackground > offset)
       strands <- bwlabel(nucBadThresh_crop)
+      display(strands)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
-
       foci_mask_crop <- img_orig_foci
-
       bg <- mean(img_orig_foci)
-
       orig_mean <- mean(img_orig_foci)
       mean_factor <- 0.05/orig_mean
       img_orig_foci <- img_orig_foci*mean_factor
       display(img_orig_foci)
-
       #### normalise the foci image
-
-
-
-
       if(bg < 1 && bg > 0){
-        #display(img_orig_foci)
-        #display(foci_mask)
         offset = 2*bg
         foci_th = foci_mask_crop > bg + offset
-
-        #display(foci_th)
         ### smooth it
         ### maybe up the contrast first??
         img_tmp_contrast = foci_mask_crop
@@ -89,58 +73,38 @@ count_foci <- function(file_list, img_path)
         display(foci_th)
         foci_label = bwlabel(foci_th)
         foci_label <- channel(foci_label, "grey")
-        #display(strands)
-        #display(foci_label)
-
+        display(colorLabels(strands))
+        num_strands <- computeFeatures.shape(strands)
+        num_strands <- data.frame(num_strands)
 
         ##### print properties of the images
 
-
-
         ### multiply strands by foci_label
-        display(rgbImage(strands,foci_label,foci_label))
+        display(rgbImage(strands,foci_label,0*foci_label))
         coincident_foci <- bwlabel(foci_label*strands)
         display(colorLabels(coincident_foci))
         overlap_no = table(coincident_foci)
         foci_per_cell <-  length(overlap_no)
+        print(foci_per_cell)
         #print(file)
 
         image_mat <- as.matrix(foci_mask_crop)
         image_mat <- image_mat[image_mat > 1e-06]
         hist(image_mat)
-        print("mean/ median are")
-
-        print(mean(image_mat))
-        print(median(image_mat))
-
-        #print("SD is")
-        #print(sd(image_mat))
-        #print(quantile(image_mat, 0.25))
-        #print(quantile(image_mat, 0.75))
-        #print("IQR is")
-        #print(quantile(image_mat, 0.75)-quantile(image_mat, 0.25))
-        #print("foci count was:")
-        #print(foci_per_cell)
-        print("mean of foci image was")
-        print(mean(image_mat))
 
         mean_ratio <- median(image_mat)/mean(image_mat)
         skew <- (median(image_mat)-mean(image_mat))/sd(image_mat)
-        #print("ratio is")
-        #print(mean_ratio)
-        #print("non parametric skew is")
-        #print(skew)
 
         ### look at properties of the foci.
         foci_candidates <- computeFeatures.shape(foci_label)
         foci_candidates <- data.frame(foci_candidates)
         foci_areas <- foci_candidates$s.area
-        print("SD is")
-        print(sd(foci_areas))
-        print(quantile(foci_areas, 0.25))
-        print(quantile(foci_areas, 0.75))
-        print("IQR is")
-        print(quantile(foci_areas, 0.75)-quantile(foci_areas, 0.25))
+        #print("SD is")
+        #print(sd(foci_areas))
+        #print(quantile(foci_areas, 0.25))
+        #print(quantile(foci_areas, 0.75))
+        #print("IQR is")
+        #print(quantile(foci_areas, 0.75)-quantile(foci_areas, 0.25))
 
 
         #if (skew < -0.2){
