@@ -4,7 +4,7 @@
 
 synapsis is an R package for analysing fluorescent microscopy images. In particular, its intended use is for analysing meiotic processes in mammals.
 
-The main goal is to objectively count the number of meiotic crossovers on a per cell basis, in line with recent developments in ImageJ software. However, unlike using ImageJ, synapsis does not require a scientist to manually crop images around cells of interest.
+The main goal is to objectively count the number of meiotic crossovers on a per cell basis, in line with recent developments in ImageJ software. However, unlike using ImageJ, synapsis does not require a scientist to manually crop images around cells of interest in order to count "foci" (crossover sites).
 
 Instead, synapsis identifies "good" cells in all images of a data set, crops around each per image, and then performs counting.
 
@@ -57,11 +57,11 @@ input: Original grey scale image files of (1) Synaptonemal complexes ("SC", e.g.
 
 output: crops in SC (red) and foci (green) around individual cells.
 
-In the following figure, we show how synapsis automatically crops around a single "good" cell, from start to finish.
+In the following figure, we show how synapsis automatically crops around a single "good" cell, starting with the original images of the two channels in Figure 1, from start to finish.
 
 ![cropping](resources/figures/cropping_procedure.png)
 
-*Figure 2: workflow for the auto_crop function. We start with the SC channel (red in Figure 1), and after a series of gaussian smoothing and thresholding, we create a "mask" for each viable cell, i.e. based on brightness. Next we delete candidate cells which are too large (overlapping cells), too small, too oblong (cells on the edge, too dim) etc. Then, we apply each mask on both the SC channel, and the foci channel (green in Figure 1) to isolate single cells of interest. Finally, for each remaining viable single cell, we crop both the SC and foci channel around each single cell.*
+*Figure 2: workflow for the auto_crop function. We start with the SC channel (red in Figure 1), and after gaussian smoothing and thresholding, we create a "mask" for each viable cell, i.e. based on brightness. Next we delete candidate cells which are too large (overlapping cells), too small, too oblong (cells on the edge, too dim) etc. Then, we apply each mask on both the SC channel, and the foci channel (green in Figure 1) to isolate single cells of interest. Finally, for each remaining viable single cell, we crop both the SC and foci channel around each single cell.*
 
 ### get_pachytene
 
@@ -69,15 +69,25 @@ input: crops in channels (1) (red) and (2) (green) around individual cells, from
 
 output: only keeps crops if cells are in pachytene phase (based on channel (1))
 
+get_pachytene makes a mask of the SC channel (red in Figure 1), and then excludes images which have more objects compared to the expected number of synaptonemal complexes present (22 for mice).
+
+In summary, get_pachytene filters out any "good" cells determined by auto_crop (Figure 2) which are not during the pachytene phase, since the procedure favours bright, uniform intensity SC channels. These steps are shown in the following figure.
+
+![pachytene](resources/figures/pachytene_procedure.png)
+
+*Figure 3: workflow for the get_pachytene function. We start with the SC channel (red in Figure 1). After gaussian smoothing, followed by thresholding, we create a "mask" for the synaptonemal complexes (SCs), which during pachytene phase are (uniformly) bright. Then, the number of SCs (identified individual SCs are coloured in unique colours) is counted. If it exceeds the expected number for the species (22 for mice) then we discard it. This works, because the SCs in discarded images (during other phases) are generally less bright/ uniform/ uniformly bright, and smoothing and thresholding leaves (grainy) strands being identified as multiple objects.*
+
 ### count_foci
 
 input: crops of dna and foci channels in pachytene phase (from get_pachytene)
 
-output: number of foci counts of synamtonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
+output: number of foci counts of synaptonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
+
+In the next figure, we summarise how synapsis counts foci for a cell. It takes the two crops around single "good" cells in SC and foci channel (bottom left two panels in Figure 2), from auto_crop and get_pachytene functions. Then, each channel is gaussian smoothed and thresholded. A new mask is created from the overlap of these two masks, i.e. white corresponds to a foci colocalised onto an SC. Finally, individual objects in the mask are identified and counted.
 
 ![counting](resources/figures/counting_procedure.png)
 
-*Figure 3: workflow for the auto_crop function. We start with the two crops of the foci and SC channels found in Figure 2. These are also subject to gaussian smoothing followed by thresholding, and then the overlap of these two masks is determined (upper right, multicoloured spots). The function returns the number of coincident foci for this cell.*
+*Figure 4: workflow for the count_foci function. We start with the two crops of the foci and SC channels found in Figure 3. These are also subject to gaussian smoothing followed by thresholding, and then the overlap of these two masks is determined (upper right, multicoloured spots). The function returns the number of coincident foci for this cell.*
 
 ### measure_distances
 
@@ -85,9 +95,11 @@ input: crops of dna and foci channels in pachytene phase (from get_pachytene)
 
 output: a measure of the separation between two foci in the case that they are on the same synaptonemal complex in the SC channel (red).
 
+The following figure shows a summary of the measure_distances function. Once we have masks of both the SC and foci channel (Figure 3), we take all the objectsin the SC channel which colocalise with TWO foci (circled in magenta). Then, for each of these SCs (four in total in Figure 5), synapsis locates a bright spot on the SC to start drawing a line from. Walkers in two directions move awa from this point, guided by the direction of maximum brightness. Eventually, a white line is traced out that runs through the middle of an SC. Then, the locations on this line which are closest to the foci on the SC are calculated, and shown with magenta crosshairs. The total distance (in pixels) of the SC (white line) is calculated (by ascribing a value of 1 to horizontal and vertical movements, and sqrt(2) to diagonal movements between pixels) and then the pixel distance between foci is also measured. 
+
 ![measuring](resources/figures/measuring_procedure.png)
 
-*Figure 4: Input and output of the measuring_distance function, for the four SCs that synapsis identifies as having two foci per SC, in this cell. The total length (in pixels) of an SC (white line) is calculated, and the closest point on this line to the foci locations in the original image (left) are drawn with magenta crosshairs. The pixel distance between the two magenta foci locations is calculated. Finally, the function outputs a measure of the distance relative to its own length, i.e. (distance between foci)/(total length of SC).*
+*Figure 5: Input and output of the measuring_distance function, for the four SCs that synapsis identifies as having two foci per SC, in this cell. The total length (in pixels) of an SC (white line) is calculated, and the closest point on this line to the foci locations in the original image (left) are drawn with magenta crosshairs. The pixel distance between the two magenta foci locations is calculated. Finally, the function outputs a measure of the distance relative to its own length, i.e. (distance between foci)/(total length of SC).*
 
 ## Analysis
 
@@ -97,21 +109,21 @@ Once we have the foci counts (count_foci) and/or distance between foci along syn
 
 ![cropping-hist](output/count_foci_histogram.png)
 
-*Figure 5: Histogram of foci counts per cell (procedure in Figures 2 and 3) as a function of genotype (wildtype in orange, mutant in blue). The populations are significantly different (p value < 0.05 with anova test) with the mutant having 20 percent more foci per cell (on average).*
+*Figure 6: Histogram of foci counts per cell (procedure in Figures 2 and 3) as a function of genotype (wildtype in orange, mutant in blue). The populations are significantly different (p value < 0.05 with anova test) with the mutant having 20 percent more foci per cell (on average).*
 
 <img src="output/measure_distances_histogram.png" width="700" height="500">
 
-*Figure 6: Histogram of (fractional) distances between foci on an SC (procedure summary in Figure 4) as a function of genotype (wildtype in orange, mutant in blue). The groups are not significantly different and could reasonably have come from the same population.*
+*Figure 7: Histogram of (fractional) distances between foci on an SC (procedure summary in Figure 5) as a function of genotype (wildtype in orange, mutant in blue). The groups are not significantly different and could reasonably have come from the same population.*
 
 - Boxplots
 
 ![cropping-box](output/count_foci_boxplot.png)
 
-*Figure 7: Boxplot of foci counts per cell as a function of genotype (wildtype in orange, mutant in blue). The populations are significantly different (p value < 0.05 with anova test) with the mutant having 20 percent more foci per cell (on average).*
+*Figure 8: Boxplot of foci counts per cell as a function of genotype (wildtype in orange, mutant in blue). The populations are significantly different (p value < 0.05 with anova test) with the mutant having 20 percent more foci per cell (on average).*
 
 <img src="output/measure_distances_boxplot.png" width="550" height="500">
 
-*Figure 8: Boxplot of (fractional) distances between foci on an SC (procedure summary in Figure 4) as a function of genotype (wildtype in orange, mutant in blue). The groups are not significantly different and could reasonably have come from the same population.*
+*Figure 9: Boxplot of (fractional) distances between foci on an SC (procedure summary in Figure 5) as a function of genotype (wildtype in orange, mutant in blue). The groups are not significantly different and could reasonably have come from the same population.*
 
 - Measures of statistical significance
 
