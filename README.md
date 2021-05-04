@@ -69,7 +69,7 @@ input: crops in channels (1) (red) and (2) (green) around individual cells, from
 
 output: only keeps crops if cells are in pachytene phase (based on channel (1))
 
-get_pachytene makes a mask of the SC channel (red in Figure 1), and then excludes images which have more objects compared to the expected number of synaptonemal complexes present (22 for mice).
+get_pachytene makes a mask of the SC channel (red in Figure 1), and then excludes images which have more objects compared to the expected number of synaptonemal complexes expected (22 for mice).
 
 In summary, get_pachytene filters out any "good" cells determined by auto_crop (Figure 2) which are not during the pachytene phase, since the procedure favours bright, uniform intensity SC channels. These steps are shown in the following figure.
 
