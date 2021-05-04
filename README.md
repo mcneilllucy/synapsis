@@ -79,7 +79,7 @@ In summary, get_pachytene filters out any "good" cells determined by auto_crop (
 
 ### count_foci
 
-input: crops of dna and foci channels in pachytene phase (from get_pachytene)
+input: crops of SC and foci channels in pachytene phase (from get_pachytene)
 
 output: number of foci counts of synaptonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
 
@@ -91,11 +91,11 @@ In the next figure, we summarise how synapsis counts foci for a cell. It takes t
 
 ### measure_distances
 
-input: crops of dna and foci channels in pachytene phase (from get_pachytene)
+input: crops of SC and foci channels in pachytene phase (from get_pachytene)
 
 output: a measure of the separation between two foci in the case that they are on the same synaptonemal complex in the SC channel (red).
 
-The following figure shows a summary of the measure_distances function. Once we have masks of both the SC and foci channel (Figure 3), we take all the objects in the SC channel which colocalise with TWO foci (circled in magenta). Then, for each of these SCs (four in total in Figure 5), synapsis locates a bright spot on the SC to start drawing a line from. Walkers in two directions move awa from this point, guided by the direction of maximum brightness. Eventually, a white line is traced out that runs through the middle of an SC. Then, the locations on this line which are closest to the foci on the SC are calculated, and shown with magenta crosshairs. The total distance (in pixels) of the SC (white line) is calculated (by ascribing a value of 1 to horizontal and vertical movements, and sqrt(2) to diagonal movements between pixels) and then the pixel distance between foci is also measured.
+The following figure shows a summary of the measure_distances function. Once we have masks of both the SC and foci channel (Figure 3), we take all the objects in the SC channel which colocalise with TWO foci (circled in magenta). Then, for each of these SCs (four in total in Figure 5), synapsis locates a bright spot on the SC to start drawing a line from. Walkers in two directions move away from this point, guided by the direction of maximum brightness. Eventually, a white line is traced out that runs through the middle of an SC. Then, the locations on this line which are closest to the foci on the SC are calculated, and shown with magenta crosshairs. The total distance (in pixels) of the SC (white line) is calculated (by ascribing a value of 1 to horizontal and vertical movements, and sqrt(2) to diagonal movements between pixels) and then the pixel distance between foci is also measured.
 
 ![measuring](resources/figures/measuring_procedure.png)
 
