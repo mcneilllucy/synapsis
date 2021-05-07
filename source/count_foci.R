@@ -46,7 +46,7 @@ count_foci <- function(file_list, img_path)
       foci_mask_crop <- img_orig_foci
       bg <- mean(img_orig_foci)
       orig_mean <- mean(img_orig_foci)
-      mean_factor <- 0.05/orig_mean
+      mean_factor <- 0.01/orig_mean
       img_orig_foci <- img_orig_foci*mean_factor
       display(img_orig_foci)
       #### normalise the foci image
@@ -56,6 +56,7 @@ count_foci <- function(file_list, img_path)
         ### smooth it
         ### maybe up the contrast first??
         img_tmp_contrast = foci_mask_crop
+
         print("cell counter is")
         print(cell_count)
         #display(foci_mask_crop)
@@ -99,21 +100,10 @@ count_foci <- function(file_list, img_path)
         foci_candidates <- computeFeatures.shape(foci_label)
         foci_candidates <- data.frame(foci_candidates)
         foci_areas <- foci_candidates$s.area
-        #print("SD is")
-        #print(sd(foci_areas))
-        #print(quantile(foci_areas, 0.25))
-        #print(quantile(foci_areas, 0.75))
-        #print("IQR is")
-        #print(quantile(foci_areas, 0.75)-quantile(foci_areas, 0.25))
 
-
-        #if (skew < -0.2){
-        #if (mean_ratio < 0.9 ){
         if (sd(foci_areas)<20 && foci_per_cell >0){
           foci_counts <- append(foci_counts,foci_per_cell)
         }
-
-
 
       }
 
