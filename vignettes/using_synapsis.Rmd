@@ -44,13 +44,13 @@ library(ggplot2)
 
 # call count_foci() on the pachytene files only.
 
-path = "~/Documents/svi/imaging/data-folder/test-folder/all-KO/crops/pachytene"
-source("~/Documents/synapsis/synapsis/R/count_foci.R")
-files <- list.files(path)
-foci_counts <- count_foci(files,path)
+#path = "~/Documents/svi/imaging/data-folder/test-folder/all-KO/crops/pachytene"
+#source("~/Documents/synapsis/synapsis/R/count_foci.R")
+#files <- list.files(path)
+#foci_counts <- count_foci(files,path)
 
-column_2 <- as.data.frame(foci_counts)
-write.csv(column_2, "temp.csv",row.names = FALSE)
+#column_2 <- as.data.frame(foci_counts)
+#write.csv(column_2, "temp.csv",row.names = FALSE)
 
 # Call for KO folder, call for WT folder.
 
@@ -58,10 +58,10 @@ write.csv(column_2, "temp.csv",row.names = FALSE)
 
 ### now that you have all the pachytene crop files, measure the distances. 
 
-#path = "~/Documents/svi/imaging/data-folder/test-folder/all-WT/some/crops/pachytene"
-#source("~/Documents/synapsis/synapsis/R/measure_distances.R")
-#files <- list.files(path)
-#measure_distances(files,path,2)
+path = "~/Documents/svi/imaging/data-folder/test-folder/all-WT/some/crops/pachytene"
+source("~/Documents/synapsis/synapsis/R/measure_distances_2.R")
+files <- list.files(path)
+measure_distances_2(files,path)
 
 
 ```

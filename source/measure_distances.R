@@ -71,12 +71,16 @@ measure_distances_2 <- function(file_list, img_path)
 
       ### only deal with foci channels worth counting
       if (sd(foci_areas)<20 && foci_per_cell >0){
-        display(rgbImage(strands,foci_label,foci_label))
-        display(colorLabels(coincident_foci))
+        #display(rgbImage(strands,foci_label,foci_label))
+        #display(colorLabels(coincident_foci))
         cell_count <- cell_count +1
         print(cell_count)
         ################ distance starts (make function later)
+
         dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, dimensionless_dist, SC_lengths, foci_count_strand, strand_iter)
+        #print("dimensionless distance")
+        #print(dimensionless_dist)
+
         ################ distance ends
         ##### do the strand stuff
       }
@@ -85,14 +89,16 @@ measure_distances_2 <- function(file_list, img_path)
 
 
   }
+  print("showing histograms etc")
   hist(dimensionless_dist, main = "Knock out", col = c("#E7B800"), xlab = "fraction between foci")
   hist(dimensionless_dist, main = "Wild type", col = c("#00AFBB"), xlab = "fraction between foci")
   print(mean(dimensionless_dist))
   print(median(dimensionless_dist))
   print(sd(dimensionless_dist))
   print(dimensionless_dist)
-  #column_2 <- as.data.frame(dimensionless_dist)
-  #write.csv(column_2, "WT-dist.csv",row.names = FALSE)
+
+  column_2 <- as.data.frame(dimensionless_dist)
+  write.csv(column_2, "WT-dist.csv",row.names = FALSE)
 }
 
 
@@ -103,8 +109,6 @@ threshold_SC_crop <- function(image, offset = 0.2){
   nucBadThresh_crop = (image - localBackground > offset)
   strands <- bwlabel(nucBadThresh_crop)
   return(strands)
-
-
 }
 
 threshold_foci_crop <- function(image, offset_factor = 2){
@@ -132,7 +136,7 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
     while(strand_count<no_strands){
       strand_count <- strand_count + 1
       # if area less than 150 pixels.. or not an outlier... keep
-      if (as.numeric(num_strands$s.area[strand_count])<120 & as.numeric(num_strands$s.area[strand_count])>50){
+      if (as.numeric(num_strands$s.area[strand_count])<200 & as.numeric(num_strands$s.area[strand_count])>10){
         tmp_img <- strands
         counter_single <- 0
         # looping over all other objects to crop
@@ -144,12 +148,12 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
 
           }
         }
-        ##display(tmp_img)
+        #display(tmp_img)
         noise_gone <- bwlabel(tmp_img)*as.matrix(new_img)
         #display(noise_gone)
         ## here is where you would muliply with foci channel. Count foci on each strand. add to list.
         # multiply tmp_img by current foci mask (foci_label)
-        display(foci_label)
+        #display(foci_label)
         per_strand <- bwlabel(tmp_img)*as.matrix(foci_label)
         per_strand_obj <- computeFeatures.shape(bwlabel(per_strand))
         foci_count_strand <- append(foci_count_strand,width(per_strand_obj))
@@ -164,587 +168,148 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
         cx <- moment_info$m.cx
         cy <- moment_info$m.cy
         ## might actually want to find the real centre first..
-        if(moment_info$m.eccentricity > 0.5){
-          ## draw box around the middle
-          ### find max, locally
 
-          ### use noise_gone as original
-          walkers <- 0*noise_gone
-          ###
-          noise_gone <- 2*noise_gone
-          window <- 2
-          window2 <- window*3
+        if (is.integer(width(per_strand_obj))){
+          if(moment_info$m.eccentricity > 0.6 && width(per_strand_obj) ==2){
+            ## draw box around the middle
+            ### find max, locally
 
-          ### start function here
-          bright_loc <- find_start(window,noise_gone,cx,cy)
-          mean_x = as.numeric(bright_loc[1,1]) +cx -window2-1
-          mean_y = as.numeric(bright_loc[1,2]) +cy-window2-1
+            ### use noise_gone as original
+            walkers <- 0*noise_gone
+            ###
+            noise_gone <- 2*noise_gone
+            window <- 2
+            window2 <- window*3
 
-          ##
-          ix <- (round(mean_x)-window):(round(mean_x)+window)
-          iy <- (round(mean_y)-window):(round(mean_y)+window)
+            ### start function here
+            bright_loc <- find_start(window,noise_gone,cx,cy)
+            mean_x = as.numeric(bright_loc[1,1]) +cx -window2-1
+            mean_y = as.numeric(bright_loc[1,2]) +cy-window2-1
 
-          chosen_dir <- get_first_dir(noise_gone,ix,iy,window)
+            ##
+            ix <- (round(mean_x)-window):(round(mean_x)+window)
+            iy <- (round(mean_y)-window):(round(mean_y)+window)
 
-          walkers[round(mean(ix)),round(mean(iy))] = 1
-          ix1 <- ix
-          ix2 <- ix
-          iy1 <- iy
-          iy2 <- iy
+            chosen_dir <- get_first_dir(noise_gone,ix,iy,window)
 
-          distance_strand <- 0
-          distance_strand_2 <- 0
+            walkers[round(mean(ix)),round(mean(iy))] = 1
+            ix1 <- ix
+            ix2 <- ix
+            iy1 <- iy
+            iy2 <- iy
 
-
-          first_step <- first_shot_out(chosen_dir, ix1,ix2,iy1,iy2,distance_strand, distance_strand_2)
-
-          next_cord <- 2*window+1
-
-          ix1 <- first_step[1:next_cord]
-          ix2 <- first_step[(next_cord+1):(2*next_cord)]
-          iy1 <- first_step[(2*next_cord+1):(3*next_cord)]
-          iy2 <- first_step[(3*next_cord+1):(4*next_cord)]
-          distance_strand <- first_step[(4*next_cord+1)]
-          distance_strand_2 <- first_step[(4*next_cord+2)]
-          dir_1 <- first_step[(4*next_cord+3)]
-          dir_2 <- first_step[(4*next_cord+4)]
+            distance_strand <- 0
+            distance_strand_2 <- 0
 
 
-          new_square_1 <-  noise_gone[ix1,iy1]
-          new_square_2 <-  noise_gone[ix2,iy2]
+            first_step <- first_shot_out(chosen_dir, ix1,ix2,iy1,iy2,distance_strand, distance_strand_2)
 
-          walkers[round(mean(ix1)),round(mean(iy1))] = 1
-          walkers[round(mean(ix2)),round(mean(iy2))] = 1
+            next_cord <- 2*window+1
 
-          ## take step in the opposite direction. record new coordinates.
-          ## now loop in both directions
-          ## set directions to "not done yet" = 0. "done" = 1
-          first_dir <- 0
-          second_dir <- 0
-          start_dir <- chosen_dir
-          ###########################################################################################
-          ### first dir only deals with one half. But not a specific number...
-          while(first_dir == 0){
-            start_x <- round(mean(ix1))
-            start_y <- round(mean(iy1))
+            ix1 <- first_step[1:next_cord]
+            ix2 <- first_step[(next_cord+1):(2*next_cord)]
+            iy1 <- first_step[(2*next_cord+1):(3*next_cord)]
+            iy2 <- first_step[(3*next_cord+1):(4*next_cord)]
+            distance_strand <- first_step[(4*next_cord+1)]
+            distance_strand_2 <- first_step[(4*next_cord+2)]
+            dir_1 <- first_step[(4*next_cord+3)]
+            dir_2 <- first_step[(4*next_cord+4)]
 
-            ### call get_first
 
-            dir_1_out <- get_next_first_dir(new_square_1,ix1,iy1,dir_1,window,chosen_dir,distance_strand,first_dir)
-
-            ## return(c(ix1,iy1,dir_1,distance_strand,first_dir))
-            ix1 <- dir_1_out[1:next_cord]
-            iy1 <- dir_1_out[(next_cord+1):(2*next_cord)]
-            distance_strand <- dir_1_out[(2*next_cord+2)]
-            dir_1 <- dir_1_out[(2*next_cord+1)]
-            first_dir <- dir_1_out[(2*next_cord+3)]
-            start_dir <- dir_1_out[(2*next_cord+4)]
+            new_square_1 <-  noise_gone[ix1,iy1]
+            new_square_2 <-  noise_gone[ix2,iy2]
 
             walkers[round(mean(ix1)),round(mean(iy1))] = 1
-            ## make the new cropped image.
-            new_square_1 <-  noise_gone[ix1,iy1]
-            if(distance_strand >100){
-              first_dir <- 1
-            }
-
-
-
-
-          }
-
-          while(second_dir == 0){
-
-            ##
-            start_x2 <- round(mean(ix2))
-            start_y2 <- round(mean(iy2))
-            dir_2_out <- get_next_second_dir(new_square_2,ix2,iy2,dir_2,window,chosen_dir,distance_strand_2,second_dir)
-
-            ## return(c(ix1,iy1,dir_1,distance_strand,first_dir))
-            ix2 <- dir_2_out[1:next_cord]
-            iy2 <- dir_2_out[(next_cord+1):(2*next_cord)]
-            distance_strand <- dir_1_out[(2*next_cord+2)]
-            dir_1 <- dir_1_out[(2*next_cord+1)]
-            second_dir <- dir_2_out[(2*next_cord+3)]
-            start_dir2 <- dir_2_out[(2*next_cord+4)]
-
             walkers[round(mean(ix2)),round(mean(iy2))] = 1
-            ## make the new cropped image.
-            new_square_2 <-  noise_gone[ix2,iy2]
-            if(distance_strand_2 >100){
-              second_dir <- 1
-            }
 
-            ##
-          }
+            ## take step in the opposite direction. record new coordinates.
+            ## now loop in both directions
+            ## set directions to "not done yet" = 0. "done" = 1
+            first_dir <- 0
+            second_dir <- 0
+            start_dir <- chosen_dir
+            ###########################################################################################
+            ### first dir only deals with one half. But not a specific number...
+            while(first_dir == 0){
+              start_x <- round(mean(ix1))
+              start_y <- round(mean(iy1))
 
-          SC_lengths <- append(SC_lengths,distance_strand+ distance_strand_2)
+              ### call get_first
 
+              dir_1_out <- get_next_first_dir(new_square_1,ix1,iy1,dir_1,window,chosen_dir,distance_strand,first_dir)
 
+              ## return(c(ix1,iy1,dir_1,distance_strand,first_dir))
+              ix1 <- dir_1_out[1:next_cord]
+              iy1 <- dir_1_out[(next_cord+1):(2*next_cord)]
+              distance_strand <- dir_1_out[(2*next_cord+2)]
+              dir_1 <- dir_1_out[(2*next_cord+1)]
+              first_dir <- dir_1_out[(2*next_cord+3)]
+              start_dir <- dir_1_out[(2*next_cord+4)]
 
-          # this loop is a single strand.... multiple foci channel here?
-          if (width(per_strand_obj) ==2){
-            print("we have a strand with two foci")
-            strand_info <- computeFeatures.moment(bwlabel(per_strand),as.matrix(foci_label))
-            strand_info <- as.data.frame(strand_info)
-            foci_1_x <- strand_info$m.cx[1]
-            foci_1_y <- strand_info$m.cy[1]
-            foci_2_x <- strand_info$m.cx[2]
-            foci_2_y <- strand_info$m.cy[2]
-            print(c(foci_1_x,foci_1_y,foci_2_x,foci_2_y))
-
-            print("total distance is")
-            print(distance_strand+ distance_strand_2)
-
-            #display(noise_gone)
-            #text(x = foci_1_x, y = foci_1_y, label = "+", col = "red", cex = 2)
-            #text(x = foci_2_x, y = foci_2_y, label = "+", col = "blue", cex = 2)
-
-
-
-
-            ch1 = bwlabel(walkers)
-            ch1 <- channel(ch1, "grey")
-            ch2 = bwlabel(noise_gone)
-            ch2 <-channel(noise_gone,"grey")
-            ch3 = bwlabel(per_strand)
-            ch3 <- channel(per_strand,"grey")
-            bluered <- rgbImage(ch2, ch1, ch3)
-            #print("break")
-            display(bluered)
-            bluered <- rgbImage(ch2, ch1, ch1)
-            #print("break")
-            display(bluered)
-            print(file)
-            text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
-            text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
-            text(x = cx, y = cy, label = "+", col = "blue", cex = 2)
-            text(x = mean_x, y = mean_y, label = "+", col = "magenta", cex = 2)
-            #bluered <- rgbImage(ch2, ch3, 0*ch3)
-            #display(bluered)
-
-            #### here is where you can identify the lengths.
-
-            ### get the walkers matrix. Loop over, only if value = 1, assign a                    distance for a new matrix
-            ### you've got a single strand here. try and count distance between foci.
-            ### now loop over matrix
-            my_walkers_matrix <- t(as.matrix(walkers))
-            my_distance_matrix_f1 <- 0*my_walkers_matrix+100
-            my_distance_matrix_f2 <- 0*my_walkers_matrix+100
-            for(row in 1:nrow(my_walkers_matrix)) {
-              for(col in 1:ncol(my_walkers_matrix)) {
-                if(my_walkers_matrix[row, col]==1){
-                  my_distance_matrix_f1[row, col] <- (row-foci_1_y)^2+(col-foci_1_x)^2
-                  my_distance_matrix_f2[row, col] <- (row-foci_2_y)^2+(col-foci_2_x)^2
-                }
-              }
-            }
-
-
-            #### find max. plot these onto the images.
-            bright_loc_f1 <- which(my_distance_matrix_f1 == min(my_distance_matrix_f1),arr.ind = TRUE)
-            mean_x_f1 = as.numeric(bright_loc_f1[1,1])
-            mean_y_f1 = as.numeric(bright_loc_f1[1,2])
-            #display(channel(my_distance_matrix_f1/100, "grey"))
-            #text(x = mean_x_f1, y = mean_y_f1, label = "+", col = "magenta", cex = 2)
-
-            ###
-            bright_loc_f2 <- which(my_distance_matrix_f2 == min(my_distance_matrix_f2),arr.ind = TRUE)
-            mean_x_f2 = as.numeric(bright_loc_f2[1,1])
-            mean_y_f2 = as.numeric(bright_loc_f2[1,2])
-            #display(channel(my_distance_matrix_f2/100, "grey"))
-            #text(x = mean_x_f2, y = mean_y_f2, label = "+", col = "green", cex = 2)
-
-
-            display(bluered)
-            text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
-            text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
-            text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
-            text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "green", cex = 2)
-            text(x = start_x2, y = start_y2, label = "+", col = "blue", cex = 2)
-            text(x = start_x, y = start_y, label = "+", col = "blue", cex = 2)
-            ### now that you have the exact positions of the foci on the walker channel, we want to count distances.
-
-            ### start at start_x
-            x_curr <- start_x
-            y_curr <- start_y
-            dir_curr <- start_dir
-
-            if (dir_curr <5){
-              dir_curr <- dir_curr +4
-            }
-            else{
-              dir_curr <- dir_curr -4
-            }
-
-
-            looping <- 1
-
-            test_walker <-  0*my_walkers_matrix
-            length_walker <- 1
-            test_walker[x_curr,y_curr] <- 1
-
-            ## measuring foci
-            dist_between_foci <- 0
-            measuring_distance <- 0
-            foci_out_2 <- 0
-            #while(x_curr != start_x2 & y_curr != start_y2){
-            #while(length_walker < 100){
-            while(looping == 1){
-              length_walker <- length_walker + 1
-
-
-              if(x_curr == start_x2){
-                if(y_curr == start_y2){
-                  looping <- 0
-                }
-              }
-
-              if (length_walker > 150){
-                print("probably an infinite loop")
-                looping <- 0
+              walkers[round(mean(ix1)),round(mean(iy1))] = 1
+              ## make the new cropped image.
+              new_square_1 <-  noise_gone[ix1,iy1]
+              if(distance_strand >100){
+                first_dir <- 1
               }
 
 
-
-              ###
-              if(x_curr == mean_y_f1 && y_curr == mean_x_f1 | x_curr == mean_y_f2 && y_curr == mean_x_f2 ){
-                print("found a foci")
-                foci_out_2 <- foci_out_2+1
-              }
-
-              if(foci_out_2 == 1){
-                measuring_distance <- 1
-              }
-
-              if(foci_out_2 > 1){
-                measuring_distance <- 0
-              }
-
-              test_walker[x_curr,y_curr] <- 1
-              ### do stuff
-              ### do the opposite of the travelling direction
-
-              if(dir_curr == 1){
-                # 8 position
-                if(walkers[x_curr-1,y_curr-1]==1){
-                  y_curr <- y_curr -1
-                  x_curr <- x_curr -1
-                  dir_curr <- 8
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-                # 1 position
-                else if(walkers[x_curr,y_curr-1]==1){
-                  y_curr <- y_curr -1
-                  dir_curr <- 1
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-
-                # 2 position
-                else if(walkers[x_curr+1,y_curr-1]==1){
-                  y_curr <- y_curr -1
-                  x_curr <- x_curr +1
-                  dir_curr <- 2
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-
-              }
-
-              else if(dir_curr == 2){
-                #}
-                # 1 position
-                if(walkers[x_curr,y_curr-1]==1){
-                  y_curr <- y_curr -1
-                  dir_curr <- 1
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-
-                # 2 position
-                else if(walkers[x_curr+1,y_curr-1]==1){
-                  y_curr <- y_curr -1
-                  x_curr <- x_curr +1
-                  dir_curr <- 2
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-
-                }
-
-                # 3 position
-                else if(walkers[x_curr+1,y_curr]==1){
-                  x_curr <- x_curr +1
-                  dir_curr <- 3
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-
-              }
-              else if(dir_curr == 3){
-                # 2 position
-                if(walkers[x_curr+1,y_curr-1]==1){
-                  y_curr <- y_curr -1
-                  x_curr <- x_curr +1
-                  dir_curr <- 2
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-
-                # 3 position
-                else if(walkers[x_curr+1,y_curr]==1){
-                  x_curr <- x_curr +1
-                  dir_curr <- 3
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-                # 4 position
-                else if(walkers[x_curr+1,y_curr+1]==1){
-                  y_curr <- y_curr +1
-                  x_curr <- x_curr +1
-                  dir_curr <- 4
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-
-              }
-              else if(dir_curr == 4){
-                # 3 position
-                if(walkers[x_curr+1,y_curr]==1){
-                  x_curr <- x_curr +1
-                  dir_curr <- 3
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-                # 4 position
-                else if(walkers[x_curr+1,y_curr+1]==1){
-                  y_curr <- y_curr +1
-                  x_curr <- x_curr +1
-                  dir_curr <- 4
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-                # 5 position
-                else if(walkers[x_curr,y_curr+1]==1){
-                  y_curr <- y_curr +1
-                  dir_curr <- 5
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-              }
-              else if(dir_curr == 5){
-                # 4 position
-                if(walkers[x_curr+1,y_curr+1]==1){
-                  y_curr <- y_curr +1
-                  x_curr <- x_curr +1
-                  dir_curr <- 4
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-                # 5 position
-                else if(walkers[x_curr,y_curr+1]==1){
-                  y_curr <- y_curr +1
-                  dir_curr <- 5
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-                # 6 position
-                else if(walkers[x_curr-1,y_curr+1]==1){
-                  x_curr <- x_curr -1
-                  y_curr <- y_curr +1
-                  dir_curr <- 6
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-              }
-              else if(dir_curr == 6){
-                # 5 position
-                if(walkers[x_curr,y_curr+1]==1){
-                  y_curr <- y_curr +1
-                  dir_curr <- 5
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-                # 6 position
-                else if(walkers[x_curr-1,y_curr+1]==1){
-                  x_curr <- x_curr -1
-                  y_curr <- y_curr +1
-                  dir_curr <- 6
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-                # 7 position
-                else if(walkers[x_curr-1,y_curr]==1){
-                  x_curr <- x_curr -1
-                  dir_curr <- 7
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-
-              }
-              else if(dir_curr == 7){
-                # 6 position
-                if(walkers[x_curr-1,y_curr+1]==1){
-                  x_curr <- x_curr -1
-                  y_curr <- y_curr +1
-                  dir_curr <- 6
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-                # 7 position
-                else if(walkers[x_curr-1,y_curr]==1){
-                  x_curr <- x_curr -1
-                  dir_curr <- 7
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-                # 8 position
-                else if(walkers[x_curr-1,y_curr-1]==1){
-                  x_curr <- x_curr -1
-                  y_curr <- y_curr -1
-                  dir_curr <- 8
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-
-              }
-              else if(dir_curr == 8){
-                # 7 position
-                if(walkers[x_curr-1,y_curr]==1){
-                  x_curr <- x_curr -1
-                  dir_curr <- 7
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-                # 8 position
-                else if(walkers[x_curr-1,y_curr-1]==1){
-                  x_curr <- x_curr -1
-                  y_curr <- y_curr -1
-                  dir_curr <- 8
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + sqrt(2)
-                  }
-                }
-                # 1 position
-                else if(walkers[x_curr,y_curr-1]==1){
-                  y_curr <- y_curr -1
-                  dir_curr <- 1
-                  length_walker <- length_walker + 1
-                  if(measuring_distance == 1){
-                    dist_between_foci <- dist_between_foci + 1
-                  }
-                }
-              }
-
-
-              ### find direction to move i.e. find the closest 1.
-              ## just look at the whole crop....
-
-
-
-
-
-
-              ### stop doing stuff
-            }
-            print("achievement so far")
-            display(test_walker)
-            print("all info")
-            display(rgbImage(walkers, test_walker, test_walker))
-            text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
-            text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
-
-            print("distance between foci")
-            print(dist_between_foci)
-            dim_length <- dist_between_foci/(distance_strand+ distance_strand_2)
-            print("dimensionless is")
-            print(dim_length)
-
-            if(length_walker<149){
-              strand_iter <- strand_iter +1
-              print("on iteration")
-              print(strand_iter)
-              # for KO bad strands
-              #if(strand_iter != 1 && strand_iter != 23 && strand_iter != 33 && strand_iter != 46 && strand_iter != 57 && strand_iter != 59){
-              #if(strand_iter != 1 && strand_iter != 23 && strand_iter != 57 && strand_iter != 59){
-              ## for bad WT strands
-
-              if (dim_length >1e-6 && dim_length < 1){
-                dimensionless_dist <- append(dimensionless_dist,dim_length)
-              }
-              #if (strand_iter != 16 && strand_iter != 19 && strand_iter != 20 && strand_iter != 21 && strand_iter != 25 && strand_iter != 26){
-              return(dimensionless_dist)
-              #}
-              #else{
-              #  print("not including the strand plotted above")
-              #}
 
 
             }
 
+            while(second_dir == 0){
+
+              ##
+              start_x2 <- round(mean(ix2))
+              start_y2 <- round(mean(iy2))
+              dir_2_out <- get_next_second_dir(new_square_2,ix2,iy2,dir_2,window,chosen_dir,distance_strand_2,second_dir)
+
+              ## return(c(ix1,iy1,dir_1,distance_strand,first_dir))
+              ix2 <- dir_2_out[1:next_cord]
+              iy2 <- dir_2_out[(next_cord+1):(2*next_cord)]
+              distance_strand <- dir_1_out[(2*next_cord+2)]
+              dir_1 <- dir_1_out[(2*next_cord+1)]
+              second_dir <- dir_2_out[(2*next_cord+3)]
+              start_dir2 <- dir_2_out[(2*next_cord+4)]
+
+              walkers[round(mean(ix2)),round(mean(iy2))] = 1
+              ## make the new cropped image.
+              new_square_2 <-  noise_gone[ix2,iy2]
+              if(distance_strand_2 >100){
+                second_dir <- 1
+              }
+
+              ##
+            }
+
+            SC_lengths <- append(SC_lengths,distance_strand+ distance_strand_2)
+
+
+            ### now call distance between 2
+
+            ### loop finishes
 
 
 
-            ## finish at start_x2
+            # this loop is a single strand.... multiple foci channel here?
 
-            ### checking the second arm
+            ### call measure distance between 2
+
+            dimensionless_dist <- get_distance_between_two(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,dimensionless_dist)
+            print("dimensionless distance inside inner most function")
+            print(dimensionless_dist)
 
             ##### ends here
+
+            ### you've got a single strand here. try and count distance between foci.
+
+
+
+
           }
-          ### you've got a single strand here. try and count distance between foci.
-
-
-
 
         }
-
-
-
         ## else: draw big square and find max.
         ###
       }
@@ -757,6 +322,7 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
 
   }
   )
+  return(dimensionless_dist)
 
 }
 
@@ -1452,4 +1018,454 @@ get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,dis
     dir_2 <- 8
   }
   return(c(ix2,iy2,dir_2,distance_strand_2,second_dir,start_dir2))
+}
+
+
+get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,dimensionless_dist){
+  print("we have a strand with two foci")
+  strand_info <- computeFeatures.moment(bwlabel(per_strand),as.matrix(foci_label))
+  strand_info <- as.data.frame(strand_info)
+  foci_1_x <- strand_info$m.cx[1]
+  foci_1_y <- strand_info$m.cy[1]
+  foci_2_x <- strand_info$m.cx[2]
+  foci_2_y <- strand_info$m.cy[2]
+  print(c(foci_1_x,foci_1_y,foci_2_x,foci_2_y))
+
+  print("total distance is")
+  print(distance_strand+ distance_strand_2)
+
+  plot(noise_gone)
+  text(x = foci_1_x, y = foci_1_y, label = "+", col = "red", cex = 2)
+  text(x = foci_2_x, y = foci_2_y, label = "+", col = "blue", cex = 2)
+
+
+
+
+  ch1 = bwlabel(walkers)
+  ch1 <- channel(ch1, "grey")
+  ch2 = bwlabel(noise_gone)
+  ch2 <-channel(noise_gone,"grey")
+  ch3 = bwlabel(per_strand)
+  ch3 <- channel(per_strand,"grey")
+  bluered <- rgbImage(ch2, ch1, ch3)
+  #print("break")
+  #display(bluered)
+  bluered <- rgbImage(ch2, ch1, ch1)
+  #print("break")
+  #display(bluered)
+  print(file)
+
+  ### deleting for now
+  bluered <- rgbImage(ch2, ch3, 0*ch3)
+  display(bluered)
+  text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
+  text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
+  text(x = cx, y = cy, label = "+", col = "blue", cex = 2)
+  text(x = mean_x, y = mean_y, label = "+", col = "magenta", cex = 2)
+
+
+  #### here is where you can identify the lengths.
+
+  ### get the walkers matrix. Loop over, only if value = 1, assign a                    distance for a new matrix
+  ### you've got a single strand here. try and count distance between foci.
+  ### now loop over matrix
+  my_walkers_matrix <- t(as.matrix(walkers))
+  my_distance_matrix_f1 <- 0*my_walkers_matrix+100
+  my_distance_matrix_f2 <- 0*my_walkers_matrix+100
+  for(row in 1:nrow(my_walkers_matrix)) {
+    for(col in 1:ncol(my_walkers_matrix)) {
+      if(my_walkers_matrix[row, col]==1){
+        my_distance_matrix_f1[row, col] <- (row-foci_1_y)^2+(col-foci_1_x)^2
+        my_distance_matrix_f2[row, col] <- (row-foci_2_y)^2+(col-foci_2_x)^2
+      }
+    }
+  }
+
+
+  #### find max. plot these onto the images.
+  bright_loc_f1 <- which(my_distance_matrix_f1 == min(my_distance_matrix_f1),arr.ind = TRUE)
+  mean_x_f1 = as.numeric(bright_loc_f1[1,1])
+  mean_y_f1 = as.numeric(bright_loc_f1[1,2])
+
+  distance_f1 <- (foci_1_y-mean_x_f1)^2 +(foci_1_x-mean_y_f1)^2
+
+  ###
+  bright_loc_f2 <- which(my_distance_matrix_f2 == min(my_distance_matrix_f2),arr.ind = TRUE)
+  mean_x_f2 = as.numeric(bright_loc_f2[1,1])
+  mean_y_f2 = as.numeric(bright_loc_f2[1,2])
+
+
+  distance_f2 <- (foci_2_y-mean_x_f2)^2 +(foci_2_x-mean_y_f2)^2
+  # deleting for now
+  display(bluered)
+  text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
+  text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
+  text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
+  text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "green", cex = 2)
+  text(x = start_x2, y = start_y2, label = "+", col = "blue", cex = 2)
+  text(x = start_x, y = start_y, label = "+", col = "blue", cex = 2)
+  ### now that you have the exact positions of the foci on the walker channel, we want to count distances.
+
+  ### start at start_x
+  x_curr <- start_x
+  y_curr <- start_y
+  dir_curr <- start_dir
+
+  if (dir_curr <5){
+    dir_curr <- dir_curr +4
+  }
+  else{
+    dir_curr <- dir_curr -4
+  }
+
+
+  looping <- 1
+
+  test_walker <-  0*my_walkers_matrix
+  length_walker <- 1
+  test_walker[x_curr,y_curr] <- 1
+
+  ## measuring foci
+  dist_between_foci <- 0
+  measuring_distance <- 0
+  foci_out_2 <- 0
+  #while(x_curr != start_x2 & y_curr != start_y2){
+  #while(length_walker < 100){
+  while(looping == 1){
+    length_walker <- length_walker + 1
+
+
+    if(x_curr == start_x2){
+      if(y_curr == start_y2){
+        looping <- 0
+      }
+    }
+
+    if (length_walker > 150){
+      print("probably an infinite loop")
+      looping <- 0
+    }
+
+
+
+    ###
+    if(x_curr == mean_y_f1 && y_curr == mean_x_f1 | x_curr == mean_y_f2 && y_curr == mean_x_f2 ){
+      foci_out_2 <- foci_out_2+1
+    }
+
+    if(foci_out_2 == 1){
+      measuring_distance <- 1
+    }
+
+    if(foci_out_2 > 1){
+      measuring_distance <- 0
+    }
+
+    test_walker[x_curr,y_curr] <- 1
+    ### do stuff
+    ### do the opposite of the travelling direction
+
+    if(dir_curr == 1){
+      # 8 position
+      if(walkers[x_curr-1,y_curr-1]==1){
+        y_curr <- y_curr -1
+        x_curr <- x_curr -1
+        dir_curr <- 8
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+      # 1 position
+      else if(walkers[x_curr,y_curr-1]==1){
+        y_curr <- y_curr -1
+        dir_curr <- 1
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+
+      # 2 position
+      else if(walkers[x_curr+1,y_curr-1]==1){
+        y_curr <- y_curr -1
+        x_curr <- x_curr +1
+        dir_curr <- 2
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+
+    }
+
+    else if(dir_curr == 2){
+      #}
+      # 1 position
+      if(walkers[x_curr,y_curr-1]==1){
+        y_curr <- y_curr -1
+        dir_curr <- 1
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+
+      # 2 position
+      else if(walkers[x_curr+1,y_curr-1]==1){
+        y_curr <- y_curr -1
+        x_curr <- x_curr +1
+        dir_curr <- 2
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+
+      }
+
+      # 3 position
+      else if(walkers[x_curr+1,y_curr]==1){
+        x_curr <- x_curr +1
+        dir_curr <- 3
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+
+    }
+    else if(dir_curr == 3){
+      # 2 position
+      if(walkers[x_curr+1,y_curr-1]==1){
+        y_curr <- y_curr -1
+        x_curr <- x_curr +1
+        dir_curr <- 2
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+
+      # 3 position
+      else if(walkers[x_curr+1,y_curr]==1){
+        x_curr <- x_curr +1
+        dir_curr <- 3
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+      # 4 position
+      else if(walkers[x_curr+1,y_curr+1]==1){
+        y_curr <- y_curr +1
+        x_curr <- x_curr +1
+        dir_curr <- 4
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+
+    }
+    else if(dir_curr == 4){
+      # 3 position
+      if(walkers[x_curr+1,y_curr]==1){
+        x_curr <- x_curr +1
+        dir_curr <- 3
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+      # 4 position
+      else if(walkers[x_curr+1,y_curr+1]==1){
+        y_curr <- y_curr +1
+        x_curr <- x_curr +1
+        dir_curr <- 4
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+      # 5 position
+      else if(walkers[x_curr,y_curr+1]==1){
+        y_curr <- y_curr +1
+        dir_curr <- 5
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+    }
+    else if(dir_curr == 5){
+      # 4 position
+      if(walkers[x_curr+1,y_curr+1]==1){
+        y_curr <- y_curr +1
+        x_curr <- x_curr +1
+        dir_curr <- 4
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+      # 5 position
+      else if(walkers[x_curr,y_curr+1]==1){
+        y_curr <- y_curr +1
+        dir_curr <- 5
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+      # 6 position
+      else if(walkers[x_curr-1,y_curr+1]==1){
+        x_curr <- x_curr -1
+        y_curr <- y_curr +1
+        dir_curr <- 6
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+    }
+    else if(dir_curr == 6){
+      # 5 position
+      if(walkers[x_curr,y_curr+1]==1){
+        y_curr <- y_curr +1
+        dir_curr <- 5
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+      # 6 position
+      else if(walkers[x_curr-1,y_curr+1]==1){
+        x_curr <- x_curr -1
+        y_curr <- y_curr +1
+        dir_curr <- 6
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+      # 7 position
+      else if(walkers[x_curr-1,y_curr]==1){
+        x_curr <- x_curr -1
+        dir_curr <- 7
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+
+    }
+    else if(dir_curr == 7){
+      # 6 position
+      if(walkers[x_curr-1,y_curr+1]==1){
+        x_curr <- x_curr -1
+        y_curr <- y_curr +1
+        dir_curr <- 6
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+      # 7 position
+      else if(walkers[x_curr-1,y_curr]==1){
+        x_curr <- x_curr -1
+        dir_curr <- 7
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+      # 8 position
+      else if(walkers[x_curr-1,y_curr-1]==1){
+        x_curr <- x_curr -1
+        y_curr <- y_curr -1
+        dir_curr <- 8
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+
+    }
+    else if(dir_curr == 8){
+      # 7 position
+      if(walkers[x_curr-1,y_curr]==1){
+        x_curr <- x_curr -1
+        dir_curr <- 7
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+      # 8 position
+      else if(walkers[x_curr-1,y_curr-1]==1){
+        x_curr <- x_curr -1
+        y_curr <- y_curr -1
+        dir_curr <- 8
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + sqrt(2)
+        }
+      }
+      # 1 position
+      else if(walkers[x_curr,y_curr-1]==1){
+        y_curr <- y_curr -1
+        dir_curr <- 1
+        length_walker <- length_walker + 1
+        if(measuring_distance == 1){
+          dist_between_foci <- dist_between_foci + 1
+        }
+      }
+    }
+
+
+    ### find direction to move i.e. find the closest 1.
+    ## just look at the whole crop....
+    ### stop doing stuff
+  }
+  display(rgbImage(walkers, test_walker, test_walker))
+  # deleting for now
+  text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
+  text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
+
+  dim_length <- dist_between_foci/(distance_strand+ distance_strand_2)
+
+  if(length_walker<149){
+    strand_iter <- strand_iter +1
+    print("on iteration")
+    print(strand_iter)
+    if (dim_length >1e-6 && dim_length < 1){
+
+      if (foci_out_2 >1){
+        if(distance_f1 < 10){
+          if(distance_f2 < 10){
+            dimensionless_dist <- append(dimensionless_dist,dim_length)
+            print("kept this one")
+            display(bluered)
+            text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
+            text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
+            text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
+            text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "green", cex = 2)
+            text(x = start_x2, y = start_y2, label = "+", col = "blue", cex = 2)
+            text(x = start_x, y = start_y, label = "+", col = "blue", cex = 2)
+            print("check that it walked successfully")
+            display(rgbImage(walkers, test_walker, test_walker))
+            # deleting for now
+            text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
+            text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
+          }
+        }
+
+      }
+
+    }
+
+  }
+  ## finish at start_x2
+  return(dimensionless_dist)
+  ### checking the second arm
 }
