@@ -1,4 +1,4 @@
-measure_distances_2 <- function(file_list, img_path)
+measure_distances <- function(file_list, img_path)
 {
   # input :
 
@@ -131,7 +131,7 @@ threshold_foci_crop <- function(image, offset_factor = 2){
 
 get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_dist, SC_lengths, foci_count_strand, strand_iter){
   tryCatch({
-    no_strands <- width(num_strands)
+    no_strands <- nrow(num_strands)
     strand_count<- 0
     while(strand_count<no_strands){
       strand_count <- strand_count + 1
@@ -156,7 +156,7 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
         #display(foci_label)
         per_strand <- bwlabel(tmp_img)*as.matrix(foci_label)
         per_strand_obj <- computeFeatures.shape(bwlabel(per_strand))
-        foci_count_strand <- append(foci_count_strand,width(per_strand_obj))
+        foci_count_strand <- append(foci_count_strand,nrow(per_strand_obj))
 
         ## once you have a single strand, get pixel info. Possibly save this? To delete later?
         single_info <- computeFeatures.shape(bwlabel(tmp_img))
@@ -169,8 +169,8 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
         cy <- moment_info$m.cy
         ## might actually want to find the real centre first..
 
-        if (is.integer(width(per_strand_obj))){
-          if(moment_info$m.eccentricity > 0.6 && width(per_strand_obj) ==2){
+        if (is.integer(nrow(per_strand_obj))){
+          if(moment_info$m.eccentricity > 0.6 && nrow(per_strand_obj) ==2){
             ## draw box around the middle
             ### find max, locally
 
