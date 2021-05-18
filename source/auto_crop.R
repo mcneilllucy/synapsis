@@ -1,3 +1,11 @@
+#' @keywords hello
+#' @export
+#' @import EBImage
+#' @examples
+#' crop()
+
+
+
 crop <- function(file_list, img_path, crop_method = "regular")
 {
   # input :
@@ -51,7 +59,7 @@ crop <- function(file_list, img_path, crop_method = "regular")
 
       x_final <- computeFeatures.shape(removed)
       x_final <- data.frame(x_final)
-      OOI_final <- width(x_final)
+      OOI_final <- nrow(x_final)
 
       counter_final <- 0
       # looping through each object to crop
@@ -76,7 +84,7 @@ print(cell_count)
 print("viable cells")
 }
 
-
+#' @rdname crop
 
 ### add all the functions used here
 
@@ -110,7 +118,10 @@ get_blobs <- function(img_orig, crop_method = "regular"){
 }
 
 #################################### new function ####################################
+
+
 keep_cells <- function(candidate){
+
 
   # input:
 
@@ -122,7 +133,7 @@ keep_cells <- function(candidate){
   colorimg<- colorLabels(candidate, normalize = TRUE)
   x <- computeFeatures.shape(candidate)
   x <- data.frame(x)
-  OOI <- width(x)
+  OOI <- nrow(x)
   counter <- 0
   removed <- candidate
 
@@ -144,7 +155,7 @@ keep_cells <- function(candidate){
   removed <- bwlabel(removed)
   return(removed)
 }
-
+#' @rdname keep_cells
 
 crop_single_object <- function(removed, OOI_final,counter_final,img_orig,img_orig_foci,file,cell_count){
   tmp_img <- removed
@@ -159,6 +170,7 @@ crop_single_object <- function(removed, OOI_final,counter_final,img_orig,img_ori
       tmp_img <- as.numeric(tmp_img)*rmObjects(bwlabel(removed), counter_single, reenumerate = TRUE)
 
     }
+    display(tmp_img)
 
   }
 
