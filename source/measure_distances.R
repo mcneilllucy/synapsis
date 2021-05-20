@@ -1,3 +1,11 @@
+#' \code{measure_distances}
+#'
+#' Measure the distance between foci on a synaptonemal complex
+#' @import EBImage
+#' @param file_list The file list
+#' @param img_path The path
+#' @return Histogram of distances
+
 measure_distances <- function(file_list, img_path)
 {
   # input :
@@ -5,7 +13,7 @@ measure_distances <- function(file_list, img_path)
   # output : a bunch of output jpegs? Or save them all?
 
   #BiocManager::install("EBImage")
-  library(EBImage)
+  #library(EBImage)
   cell_count <- 0
   image_count <-0
   pair <- 0
@@ -101,16 +109,36 @@ measure_distances <- function(file_list, img_path)
   write.csv(column_2, "WT-dist.csv",row.names = FALSE)
 }
 
+#' @rdname measure_distances
 
+#' \code{threshold_SC_crop}
+#'
+#' Creates mask for SC channel
+#'
+#' @param image SC channel image
+#' @param offset offset for an SC signal
+#' @return A black white mask with SCs as objects
+#'
 threshold_SC_crop <- function(image, offset = 0.2){
   disc = makeBrush(21, "disc")
   disc = disc / sum(disc)
   localBackground = filter2(image, disc)
-  nucBadThresh_crop = (image - localBackground > offset)
-  strands <- bwlabel(nucBadThresh_crop)
+  thresh_crop = (image - localBackground > offset)
+  strands <- bwlabel(thresh_crop)
   return(strands)
 }
 
+#' @rdname threshold_SC_crop
+
+
+#' \code{threshold_foci_crop}
+#'
+#' Creates mask for foci channel
+#'
+#' @param image foci channel image
+#' @param offset offset for a foci signal
+#' @return A black white mask with foci as objects
+#'
 threshold_foci_crop <- function(image, offset_factor = 2){
   bg <- mean(image)
   offset = offset_factor*bg
@@ -129,6 +157,22 @@ threshold_foci_crop <- function(image, offset_factor = 2){
   return(foci_label)
 }
 
+#' @rdname threshold_foci_crop
+
+#' \code{get_distance}
+#'
+#' Creates mask for SC channel
+#'
+#' @param strands A black white mask with SCs as objects
+#' @param num_strands offset for an SC signal
+#' @param new_img hello
+#' @param foci_label A black white mask with foci as objects
+#' @param dimensionless_dist hello
+#' @param SC_lengths hello
+#' @param foci_count_strand hello
+#' @param strand_iter hello
+#' @return A list of distances
+#'
 get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_dist, SC_lengths, foci_count_strand, strand_iter){
   tryCatch({
     no_strands <- nrow(num_strands)
@@ -326,7 +370,17 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
 
 }
 
+#' @rdname get_distance
 
+#' \code{find_start}
+#'
+#' Finds an appropriate place to start counting along an SC by looking in a window around the "centre of intensity"
+#'
+#' @param window window size that we want to look in
+#' @param noise_gone The SC of interest without background
+#' @param cx,cy The location of the "centre of intensity" using computeFeatures (not necessarily on SC)
+#' @return The location of the starting point (on the SC)
+#'
 find_start <- function(window,noise_gone,cx,cy){
   window2 <- window*3
   ix <- (round(cx)-window):(round(cx)+window)
@@ -341,6 +395,18 @@ find_start <- function(window,noise_gone,cx,cy){
 
 }
 
+#' @rdname get_start
+
+
+#' \code{get_first_dir}
+#'
+#' Finds an appropriate place to start counting along an SC by looking in a window around the "centre of intensity"
+#'
+#' @param window window size where we compute local gradients
+#' @param noise_gone The SC of interest without background
+#' @param ix,iy The location of the starting point (on the SC)
+#' @return string: The direction of brightest intensity from starting point
+#'
 get_first_dir <- function(noise_gone,ix,iy,window){
   sub_square2 <- noise_gone[ix,iy]
   ## shoot out vertical and horizontal lines
@@ -371,6 +437,14 @@ get_first_dir <- function(noise_gone,ix,iy,window){
   return(chosen_dir)
 }
 
+#' @rdname get_first_dir
+
+#' \code{first_shot_out}
+#'
+#' Moves one pixel away from the starting point
+#'
+#' @param chosen_dir The brightest direction of a line passing through starting point
+#' @return New sub square for first and second branch
 
 first_shot_out <- function(chosen_dir, ix1,ix2,iy1,iy2,distance_strand, distance_strand_2){
   ### take step in one side of the direction chosen from mean.
@@ -435,6 +509,15 @@ first_shot_out <- function(chosen_dir, ix1,ix2,iy1,iy2,distance_strand, distance
   return(c(ix1,ix2,iy1,iy2,distance_strand,distance_strand_2,dir_1,dir_2))
 }
 
+#' @rdname first_shot_out
+
+#' \code{get_next_first_dir}
+#'
+#' Moves one pixel away one first branch
+#'
+#' @param chosen_dir The brightest direction of the previous step
+#' @return New sub square for first branch after taking one step
+#'
 get_next_first_dir <- function(new_square_1,ix1,iy1,dir_1,window,chosen_dir,distance_strand,first_dir){
   start_x <- round(mean(ix1))
   start_y <- round(mean(iy1))
@@ -754,6 +837,16 @@ get_next_first_dir <- function(new_square_1,ix1,iy1,dir_1,window,chosen_dir,dist
 
 }
 
+#' @rdname get_next_first_dir
+
+#' \code{get_next_second_dir}
+#'
+#' Moves one pixel away one second branch. Terminates if at the end of the SC.
+#'
+#' @param chosen_dir The brightest direction of the previous step
+#' @return New sub square for second branch after taking one step
+#'
+
 get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,distance_strand_2,second_dir){
   start_dir2 <- dir_2
   start_x2 <- round(mean(ix2))
@@ -1020,7 +1113,15 @@ get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,dis
   return(c(ix2,iy2,dir_2,distance_strand_2,second_dir,start_dir2))
 }
 
+#' @rdname get_next_second_dir
 
+#' \code{get_distance_between_two}
+#'
+#' Calculates the pixel distance
+#'
+#' @param chosen_dir The brightest direction of the previous step
+#' @return List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
+#'
 get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,dimensionless_dist){
   print("we have a strand with two foci")
   strand_info <- computeFeatures.moment(bwlabel(per_strand),as.matrix(foci_label))
@@ -1433,17 +1534,18 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
 
   dim_length <- dist_between_foci/(distance_strand+ distance_strand_2)
+  px_length <- dist_between_foci
 
   if(length_walker<149){
     strand_iter <- strand_iter +1
     print("on iteration")
     print(strand_iter)
-    if (dim_length >1e-6 && dim_length < 1){
+    if (dim_length >1e-6 && dim_length < 1 && (distance_strand+ distance_strand_2) > 20){
 
       if (foci_out_2 >1){
         if(distance_f1 < 10){
           if(distance_f2 < 10){
-            dimensionless_dist <- append(dimensionless_dist,dim_length)
+            dimensionless_dist <- append(dimensionless_dist,px_length)
             print("kept this one")
             display(bluered)
             text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
@@ -1469,3 +1571,5 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   return(dimensionless_dist)
   ### checking the second arm
 }
+
+#' @rdname get_distance_between_two

@@ -1,3 +1,13 @@
+#' \code{get_pachytene}
+#'
+#' Identifies crops in pachytene
+#'
+#' @import EBImage
+#' @param file_list The file list
+#' @param img_path The path
+#' @return Pairs of foci and SC channel crops for pachytene
+
+
 get_pachytene <- function(file_list, img_path)
 {
   # input :
@@ -42,13 +52,13 @@ get_pachytene <- function(file_list, img_path)
 
       # strict
       #offset = 0.2
-      nucBadThresh_crop = (new_img - localBackground > offset)
-      strands <- bwlabel(nucBadThresh_crop)
+      thresh_crop = (new_img - localBackground > offset)
+      strands <- bwlabel(thresh_crop)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
       #### segment the strands
-      if (width(num_strands)<22 && width(num_strands)>5){
+      if (nrow(num_strands)<22 && nrow(num_strands)>5){
         ### identified a good image. count foci
         display(new_img)
         display(strands)
@@ -61,8 +71,6 @@ get_pachytene <- function(file_list, img_path)
         writeImage(img_orig_foci, filename_crop_foci)
 
       }
-
-
       ###
     }
 
@@ -70,3 +78,5 @@ get_pachytene <- function(file_list, img_path)
 print("number of cells kept")
 print(pachytene_count)
 }
+
+#' @rdname get_pachytene
