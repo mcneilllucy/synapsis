@@ -1,4 +1,4 @@
-#' \code{get_pachytene}
+#' get_pachytene
 #'
 #' Identifies crops in pachytene
 #'
@@ -79,4 +79,3 @@ print("number of cells kept")
 print(pachytene_count)
 }
 
-#' @rdname get_pachytene

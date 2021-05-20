@@ -1,3 +1,12 @@
+#' count_foci
+#'
+#' Measure the distance between foci on a synaptonemal complex
+#'
+#' @import EBImage
+#' @export
+#' @param file_list list of files
+#' @return foci count per cell
+
 count_foci <- function(file_list, img_path)
 {
   # input :
@@ -37,8 +46,8 @@ count_foci <- function(file_list, img_path)
       disc = disc / sum(disc)
       localBackground = filter2(new_img, disc)
       offset = 0.2
-      nucBadThresh_crop = (new_img - localBackground > offset)
-      strands <- bwlabel(nucBadThresh_crop)
+      thresh_crop = (new_img - localBackground > offset)
+      strands <- bwlabel(thresh_crop)
       display(strands)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
       num_strands <- computeFeatures.shape(strands)
@@ -119,3 +128,7 @@ count_foci <- function(file_list, img_path)
   return(foci_counts)
 
 }
+
+
+
+

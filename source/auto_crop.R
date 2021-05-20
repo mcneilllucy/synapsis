@@ -1,12 +1,14 @@
-#' @keywords hello
-#' @export
+#' auto_crop
+#'
+#' Measure the distance between foci on a synaptonemal complex
+#'
 #' @import EBImage
-#' @examples
-#' crop()
+#' @export
+#' @param file_list The file list
+#' @param img_path The path
+#' @return cropped SC and foci channels around single cells, regardless of stage
 
-
-
-crop <- function(file_list, img_path, crop_method = "regular")
+auto_crop <- function(file_list, img_path, crop_method = "regular")
 {
   # input :
 
@@ -49,7 +51,7 @@ crop <- function(file_list, img_path, crop_method = "regular")
 
       ## function: remove things that aren't cells
 
-      removed <- keep_cells(candidate)
+      retained <- keep_cells(candidate)
 
       ### crop over each cell
       ## function: crop around every single viable cell
@@ -57,7 +59,7 @@ crop <- function(file_list, img_path, crop_method = "regular")
       ## Loop over all objects in this final "removed" image
 
 
-      x_final <- computeFeatures.shape(removed)
+      x_final <- computeFeatures.shape(retained)
       x_final <- data.frame(x_final)
       OOI_final <- nrow(x_final)
 
@@ -68,7 +70,7 @@ crop <- function(file_list, img_path, crop_method = "regular")
 
 
         cell_count <- cell_count +1
-        crop_single_object(removed,OOI_final,counter_final,img_orig,img_orig_foci,file_dna,cell_count)
+        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,file_dna,cell_count)
 
         print("cell count for above crop is")
         print(cell_count)
@@ -84,9 +86,17 @@ print(cell_count)
 print("viable cells")
 }
 
-#' @rdname crop
 
 ### add all the functions used here
+
+#' get_blobs
+#'
+#' Measure the distance between foci on a synaptonemal complex
+#'
+#' @import EBImage
+#' @export
+#' @param img_orig Original image
+#' @return Mask with cell candidates
 
 #################################### new function ####################################
 get_blobs <- function(img_orig, crop_method = "regular"){
@@ -97,10 +107,10 @@ get_blobs <- function(img_orig, crop_method = "regular"){
 
   ## subfunction: get signals and make BW mask
   ### default offset
-  nucBadThresh <- 10*img_orig
+  thresh <- 10*img_orig
   # subfunction: big blur to blobs
   img_tmp_dna <- img_orig
-  img_tmp <- nucBadThresh
+  img_tmp <- thresh
   w = makeBrush(size = 51, shape = 'gaussian', sigma = 15)
   img_flo = filter2(img_tmp, w)
   ## default amplification
@@ -120,6 +130,14 @@ get_blobs <- function(img_orig, crop_method = "regular"){
 #################################### new function ####################################
 
 
+#' keep_cells
+#'
+#' Measure the distance between foci on a synaptonemal complex
+#'
+#' @import EBImage
+#' @export
+#' @param candidate Mask of individual cell candidates
+#' @return Mask of cell candidates which meet size criteria
 keep_cells <- function(candidate){
 
 
@@ -135,7 +153,7 @@ keep_cells <- function(candidate){
   x <- data.frame(x)
   OOI <- nrow(x)
   counter <- 0
-  removed <- candidate
+  retained <- candidate
 
   while(counter<OOI){
     counter <- counter+1
@@ -144,21 +162,32 @@ keep_cells <- function(candidate){
     semi_min <- x$s.radius.min[counter]
     # if statement checking if it's the wrong area
     if(pixel_area> 20000 | pixel_area < 5000){
-      removed <- as.numeric(removed)*rmObjects(candidate, counter, reenumerate = TRUE)
+      retained <- as.numeric(retained)*rmObjects(candidate, counter, reenumerate = TRUE)
     }
     ## if statement checking that it's not too long i.e. not at edge.
     if(semi_maj/semi_min > 2 & is.na(semi_maj/semi_min)==FALSE){
-      removed <- as.numeric(removed)*rmObjects(candidate, counter, reenumerate = TRUE)
+      retained <- as.numeric(retained)*rmObjects(candidate, counter, reenumerate = TRUE)
     }
 
   }
-  removed <- bwlabel(removed)
-  return(removed)
+  retained <- bwlabel(retained)
+  return(retained)
 }
-#' @rdname keep_cells
 
-crop_single_object <- function(removed, OOI_final,counter_final,img_orig,img_orig_foci,file,cell_count){
-  tmp_img <- removed
+#################################### new function ####################################
+
+
+#' crop_single_object
+#'
+#' Measure the distance between foci on a synaptonemal complex
+#'
+#' @import EBImage
+#' @export
+#' @param retained Mask of cell candidates which meet size criteria
+#' @return Crops aroudn all candidates in both channels
+#'
+crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,file,cell_count){
+  tmp_img <- retained
   ## have a single object
   ### delete all other objects
   counter_single <- 0
@@ -167,7 +196,7 @@ crop_single_object <- function(removed, OOI_final,counter_final,img_orig,img_ori
     counter_single <- counter_single + 1
     # iteratively remove all other objects
     if(counter_single != counter_final){
-      tmp_img <- as.numeric(tmp_img)*rmObjects(bwlabel(removed), counter_single, reenumerate = TRUE)
+      tmp_img <- as.numeric(tmp_img)*rmObjects(bwlabel(retained), counter_single, reenumerate = TRUE)
 
     }
     display(tmp_img)
@@ -257,3 +286,7 @@ crop_single_object <- function(removed, OOI_final,counter_final,img_orig,img_ori
   }
 
 }
+
+
+#################################### new function ####################################
+

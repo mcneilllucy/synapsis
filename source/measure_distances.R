@@ -1,7 +1,9 @@
-#' \code{measure_distances}
+#' measure_distances
 #'
 #' Measure the distance between foci on a synaptonemal complex
+#'
 #' @import EBImage
+#' @export
 #' @param file_list The file list
 #' @param img_path The path
 #' @return Histogram of distances
@@ -109,9 +111,10 @@ measure_distances <- function(file_list, img_path)
   write.csv(column_2, "WT-dist.csv",row.names = FALSE)
 }
 
-#' @rdname measure_distances
 
-#' \code{threshold_SC_crop}
+
+
+#' threshold_SC_crop
 #'
 #' Creates mask for SC channel
 #'
@@ -128,10 +131,10 @@ threshold_SC_crop <- function(image, offset = 0.2){
   return(strands)
 }
 
-#' @rdname threshold_SC_crop
 
 
-#' \code{threshold_foci_crop}
+
+#' threshold_foci_crop
 #'
 #' Creates mask for foci channel
 #'
@@ -157,9 +160,9 @@ threshold_foci_crop <- function(image, offset_factor = 2){
   return(foci_label)
 }
 
-#' @rdname threshold_foci_crop
 
-#' \code{get_distance}
+
+#' get_distance
 #'
 #' Creates mask for SC channel
 #'
@@ -370,9 +373,9 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
 
 }
 
-#' @rdname get_distance
 
-#' \code{find_start}
+
+#' find_start
 #'
 #' Finds an appropriate place to start counting along an SC by looking in a window around the "centre of intensity"
 #'
@@ -395,10 +398,9 @@ find_start <- function(window,noise_gone,cx,cy){
 
 }
 
-#' @rdname get_start
 
 
-#' \code{get_first_dir}
+#' get_first_dir
 #'
 #' Finds an appropriate place to start counting along an SC by looking in a window around the "centre of intensity"
 #'
@@ -437,9 +439,9 @@ get_first_dir <- function(noise_gone,ix,iy,window){
   return(chosen_dir)
 }
 
-#' @rdname get_first_dir
 
-#' \code{first_shot_out}
+
+#' first_shot_out
 #'
 #' Moves one pixel away from the starting point
 #'
@@ -509,9 +511,10 @@ first_shot_out <- function(chosen_dir, ix1,ix2,iy1,iy2,distance_strand, distance
   return(c(ix1,ix2,iy1,iy2,distance_strand,distance_strand_2,dir_1,dir_2))
 }
 
-#' @rdname first_shot_out
 
-#' \code{get_next_first_dir}
+
+
+#' get_next_first_dir
 #'
 #' Moves one pixel away one first branch
 #'
@@ -837,9 +840,10 @@ get_next_first_dir <- function(new_square_1,ix1,iy1,dir_1,window,chosen_dir,dist
 
 }
 
-#' @rdname get_next_first_dir
 
-#' \code{get_next_second_dir}
+
+
+#' get_next_second_dir
 #'
 #' Moves one pixel away one second branch. Terminates if at the end of the SC.
 #'
@@ -1113,9 +1117,9 @@ get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,dis
   return(c(ix2,iy2,dir_2,distance_strand_2,second_dir,start_dir2))
 }
 
-#' @rdname get_next_second_dir
 
-#' \code{get_distance_between_two}
+
+#' get_distance_between_two
 #'
 #' Calculates the pixel distance
 #'
@@ -1572,4 +1576,4 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   ### checking the second arm
 }
 
-#' @rdname get_distance_between_two
+
