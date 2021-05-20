@@ -1,6 +1,6 @@
 #' auto_crop
 #'
-#' Measure the distance between foci on a synaptonemal complex
+#' crop an image around each viable cell candidate.
 #'
 #' @import EBImage
 #' @export
@@ -91,7 +91,7 @@ print("viable cells")
 
 #' get_blobs
 #'
-#' Measure the distance between foci on a synaptonemal complex
+#' Makes mask of all objects bright enough
 #'
 #' @import EBImage
 #' @export
@@ -132,7 +132,7 @@ get_blobs <- function(img_orig, crop_method = "regular"){
 
 #' keep_cells
 #'
-#' Measure the distance between foci on a synaptonemal complex
+#' Deletes objects in mask which are too small, large, oblong i.e. unlikely to be a cell
 #'
 #' @import EBImage
 #' @export
@@ -179,7 +179,7 @@ keep_cells <- function(candidate){
 
 #' crop_single_object
 #'
-#' Measure the distance between foci on a synaptonemal complex
+#' Creates mask for every individual cell candidate in mask
 #'
 #' @import EBImage
 #' @export

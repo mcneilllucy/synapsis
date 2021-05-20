@@ -1,6 +1,6 @@
 #' count_foci
 #'
-#' Measure the distance between foci on a synaptonemal complex
+#' Count coincident foci in cropped SC and foci channel per cell
 #'
 #' @import EBImage
 #' @export
