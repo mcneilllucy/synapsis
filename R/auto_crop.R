@@ -2,42 +2,49 @@
 #'
 #' crop an image around each viable cell candidate.
 #'
+#' @import EBImage
 #' @export
 #' @param file_list The file list
 #' @param img_path The path
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
-auto_crop <- function(file_list, img_path, crop_method = "regular")
+auto_crop_test <- function(img_path, crop_method = "regular")
 {
+  file_list <- list.files(img_path)
+  setwd(img_path)
+  dir.create("crops")
   # input :
 
   # output : a bunch of output jpegs? Or save them all?
 
-
-
   #BiocManager::install("EBImage")
+  library(EBImage)
   cell_count <- 0
   image_count <-0
-  pair <- 0
+  antibody1_store <- 0
+  antibody2_store <- 0
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
     setwd(img_path)
-    if(grepl("*dna.jpeg$", file)){
+    if(grepl("*SYCP3.jpeg$", file)){
+      if(grepl( "++", file, fixed = TRUE) == TRUE){
+        print("got a wild type")
+      }
       file_dna = file
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
-      pair <- 0
+      antibody1_store <- 1
     }
-    if(grepl("*foci.jpeg$", file)){
+    if(grepl("*MLH3.jpeg$", file)){
       file_foci = file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
       # call functions: get
-      pair <- 1
+      antibody2_store <- 1
     }
-    if(pair ==1){
+    if(antibody1_store + antibody2_store ==2){
 
       #### function: blur the image
       ## call it on img_orig, optional offset
@@ -68,13 +75,15 @@ auto_crop <- function(file_list, img_path, crop_method = "regular")
 
 
         cell_count <- cell_count +1
-        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,file_dna,cell_count)
+        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,file_dna,file_foci,cell_count)
 
         print("cell count for above crop is")
         print(cell_count)
       }
+      antibody1_store <- 0
+      antibody2_store <- 0
     }
-    pair <- 0
+
   }
 
 print("out of")
@@ -133,10 +142,6 @@ get_blobs <- function(img_orig, crop_method = "regular"){
 #' Deletes objects in mask which are too small, large, oblong i.e. unlikely to be a cell
 #'
 #' @import EBImage
-#' @import stats
-#' @import graphics
-#' @import utils
-
 #' @export
 #' @param candidate Mask of individual cell candidates
 #' @return Mask of cell candidates which meet size criteria
@@ -188,7 +193,7 @@ keep_cells <- function(candidate){
 #' @param retained Mask of cell candidates which meet size criteria
 #' @return Crops aroudn all candidates in both channels
 #'
-crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,file,cell_count){
+crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,file_dna,file_foci,cell_count){
   tmp_img <- retained
   ## have a single object
   ### delete all other objects
@@ -268,11 +273,15 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
       orig_mean <- mean(new_img)
       mean_factor <- 0.08/orig_mean
       new_img <- new_img*mean_factor
-      filename_crop = paste0("./crops/", file,"-crop",cell_count,"-dna.jpeg")
+      #file_dna <- tools::file_path_sans_ext(file_dna)
+      file_dna <- gsub('-SYCP3.jpeg','', file_dna)
+      filename_crop = paste0("./crops/", file_dna,"-crop-",cell_count,"-SYCP3.jpeg")
       writeImage(new_img, filename_crop)
 
       new_img_foci <- noise_gone_foci[ix, iy]
-      filename_crop_foci = paste0("./crops/", file,"-crop",cell_count,"-foci.jpeg")
+      #file_foci <- tools::file_path_sans_ext(file_foci)
+      file_foci <- gsub('-MLH3.jpeg','', file_foci)
+      filename_crop_foci = paste0("./crops/", file_foci,"-crop-",cell_count,"-MLH3.jpeg")
       writeImage(new_img_foci, filename_crop_foci)
 
 

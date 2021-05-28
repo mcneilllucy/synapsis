@@ -1,0 +1,71 @@
+# Using synapsis
+
+```{r}
+
+ packages = c("rmarkdown","BiocManager","imager")
+
+ package.check <- lapply(
+  packages,
+   FUN = function(x) {
+     if (!require(x, character.only = TRUE)) {
+       install.packages(x, dependencies = TRUE)
+       library(x, character.only = TRUE)
+     }
+   }
+ )
+ 
+library(knitr)
+library(rmarkdown)
+#BiocManager::install("EBImage")
+library(EBImage)
+library(ggplot2)
+ 
+## comment out if you have crops..
+
+path = "~/Documents/svi/imaging/test-data"
+
+source("auto_crop_test.R")
+auto_crop_test(path)
+
+source("~/Documents/synapsis/synapsis/R/get_pachytene.R")
+get_pachytene(path)
+
+source("~/Documents/synapsis/synapsis/R/count_foci.R")
+foci_counts <- count_foci(path,offset_factor = 5, brush_size = 1)
+## Settings that worked for Wayne's single image
+#foci_counts <- count_foci(path,offset_factor = 9, brush_size = 1, brush_sigma = 3)
+
+### comparing groups
+counts <- foci_counts$foci_count
+hist(as.numeric(counts))
+counts_mod <- foci_counts[as.numeric(foci_counts$foci_count) > 0,]
+counts_mod <- counts_mod[as.numeric(counts_mod$sd_foci) < 20,]
+counts <- counts_mod$foci_count
+hist(as.numeric(counts))
+counts_KO <- counts_mod[counts_mod$genotype == "Fancm-/-",]
+counts_WT <- counts_mod[counts_mod$genotype == "Fancm+/+",]
+count_KO <- counts_KO$foci_count
+count_WT <- counts_WT$foci_count
+mean(as.numeric(count_KO), na.rm= TRUE)
+mean(as.numeric(count_WT), na.rm= TRUE)
+sd(as.numeric(count_KO), na.rm= TRUE)
+sd(as.numeric(count_WT), na.rm= TRUE)
+
+
+## anova test
+counts_mod$group <- factor(counts_mod$genotype, c("Fancm-/-", "Fancm+/+"))
+outfit <- lm(foci_count ~ genotype, data=counts_mod)
+outfit
+df.residual(outfit)
+sigma(outfit)
+model.matrix(outfit)
+outfit0 <- lm(foci_count ~ 1, data=counts_mod)
+anova(outfit0, outfit)
+
+
+#source("~/Documents/synapsis/synapsis/R/measure_distances.R")
+#files <- list.files(path)
+#measure_distances(files,path)
+
+
+```

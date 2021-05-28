@@ -7,7 +7,7 @@
 #' @param file_list list of files
 #' @return foci count per cell
 
-count_foci <- function(file_list, img_path)
+count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3)
 {
   # input :
 
@@ -17,27 +17,46 @@ count_foci <- function(file_list, img_path)
   library(EBImage)
   cell_count <- 0
   image_count <-0
-  pair <- 0
   foci_counts <- 0
+  antibody1_store <- 0
+  antibody2_store <- 0
+
+  setwd(img_path)
+
+  img_path_new <- paste0(img_path,"/crops/",stage,"/")
+  print(img_path_new)
+
+  setwd(img_path_new)
+  getwd()
+  file_list <- list.files(img_path_new)
+  print(file_list)
+
+
+  df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px","sd_px")
+  df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
+  colnames(df_cells) <- df_cols
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
-    setwd(img_path)
-    if(grepl("*dna.jpeg$", file)){
+    setwd(img_path_new)
+    if(grepl("*SYCP3.jpeg", file)){
       file_dna = file
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
-      pair <- 0
+      antibody1_store <- 1
     }
-    if(grepl("*foci.jpeg$", file)){
+    if(grepl("*MLH3.jpeg", file)){
       file_foci = file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
       # call functions: get
-      pair <- 1
+      antibody2_store <- 1
     }
-    if(pair ==1){
+    if(  antibody1_store +antibody2_store == 2){
+      antibody1_store <- 0
+      antibody2_store <- 0
+      cell_count <- cell_count + 1
 
       new_img<-img_orig
       display(new_img)
@@ -45,7 +64,7 @@ count_foci <- function(file_list, img_path)
       disc = makeBrush(21, "disc")
       disc = disc / sum(disc)
       localBackground = filter2(new_img, disc)
-      offset = 0.2
+      offset = offset_px
       thresh_crop = (new_img - localBackground > offset)
       strands <- bwlabel(thresh_crop)
       display(strands)
@@ -59,73 +78,102 @@ count_foci <- function(file_list, img_path)
       img_orig_foci <- img_orig_foci*mean_factor
       display(img_orig_foci)
       #### normalise the foci image
-      if(bg < 1 && bg > 0){
-        offset = 2*bg
-        foci_th = foci_mask_crop > bg + offset
-        ### smooth it
-        ### maybe up the contrast first??
-        img_tmp_contrast = foci_mask_crop
 
-        print("cell counter is")
-        print(cell_count)
-        #display(foci_mask_crop)
-        w = makeBrush(size = 3, shape = 'gaussian', sigma = 3)
-        img_flo = filter2(img_tmp_contrast, w)
-        ## only choose objects above bright pixel value
-        #foci_th = foci_mask_crop > 0.2
-        #foci_th = img_flo > 0.2
-        display(img_flo)
 
-        ## smooth foci channel
-        foci_th = img_flo > bg + offset
-        #foci_th = img_flo > 0.05
+      # Wayne: change to 2*bg
+      offset = offset_factor*bg
+      #offset = 6*bg
+      foci_th = foci_mask_crop > bg + offset
+      ### smooth it
+      ### maybe up the contrast first??
+      img_tmp_contrast = foci_mask_crop
 
-        display(foci_th)
-        foci_label = bwlabel(foci_th)
-        foci_label <- channel(foci_label, "grey")
-        display(colorLabels(strands))
-        num_strands <- computeFeatures.shape(strands)
-        num_strands <- data.frame(num_strands)
+      print("cell counter is")
+      print(cell_count)
+      #display(foci_mask_crop)
+      # Wayne: size = 1
+      w = makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
+      #w = makeBrush(size = 1, shape = 'gaussian', sigma = 3)
+      img_flo = filter2(img_tmp_contrast, w)
+      ## only choose objects above bright pixel value
+      #foci_th = foci_mask_crop > 0.2
+      #foci_th = img_flo > 0.2
+      display(img_flo)
 
-        ##### print properties of the images
+      ## smooth foci channel
+      foci_th = img_flo > bg + offset
+      #foci_th = img_flo > 0.05
 
-        ### multiply strands by foci_label
-        display(rgbImage(strands,foci_label,0*foci_label))
-        coincident_foci <- bwlabel(foci_label*strands)
-        display(colorLabels(coincident_foci))
-        overlap_no = table(coincident_foci)
-        foci_per_cell <-  length(overlap_no)
-        print(foci_per_cell)
-        #print(file)
+      display(foci_th)
+      foci_label = bwlabel(foci_th)
+      foci_label <- channel(foci_label, "grey")
+      display(colorLabels(strands))
+      num_strands <- computeFeatures.shape(strands)
+      num_strands <- data.frame(num_strands)
 
-        image_mat <- as.matrix(foci_mask_crop)
-        image_mat <- image_mat[image_mat > 1e-06]
-        hist(image_mat)
+      ##### print properties of the images
 
-        mean_ratio <- median(image_mat)/mean(image_mat)
-        skew <- (median(image_mat)-mean(image_mat))/sd(image_mat)
+      ### multiply strands by foci_label
+      display(rgbImage(strands,foci_label,0*foci_label))
+      coincident_foci <- bwlabel(foci_label*strands)
+      display(colorLabels(coincident_foci))
+      overlap_no = table(coincident_foci)
+      foci_per_cell <-  length(overlap_no)
+      print(foci_per_cell)
+      #print(file)
 
-        ### look at properties of the foci.
-        foci_candidates <- computeFeatures.shape(foci_label)
-        foci_candidates <- data.frame(foci_candidates)
-        foci_areas <- foci_candidates$s.area
+      image_mat <- as.matrix(foci_mask_crop)
+      image_mat <- image_mat[image_mat > 1e-06]
+      hist(image_mat)
 
-        if (sd(foci_areas)<20 && foci_per_cell >0){
-          foci_counts <- append(foci_counts,foci_per_cell)
+      mean_ratio <- median(image_mat)/mean(image_mat)
+      skew <- (median(image_mat)-mean(image_mat))/sd(image_mat)
+
+      ### look at properties of the foci.
+      foci_candidates <- computeFeatures.shape(foci_label)
+      foci_candidates <- data.frame(foci_candidates)
+      foci_areas <- foci_candidates$s.area
+
+
+      tryCatch({
+
+        ### data frame stuff
+
+        if(grepl( "++", file, fixed = TRUE) == TRUE){
+          genotype <- "Fancm+/+"
         }
 
+        if(grepl( "--", file, fixed = TRUE) == TRUE){
+          genotype <- "Fancm-/-"
+        }
+
+
+        ### data frame stuff ends
+
+        df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),sd(image_mat))))
+
+
+
+      },
+      error = function(e) {
+        #what should be done in case of exception?
+        str(e) # #prints structure of exception
+        print("couldn't crop it")
+
       }
+      )
+
+
+
 
 
       ###
     }
 
   }
-  hist(foci_counts, breaks =7 )
-  print(mean(foci_counts))
-  print(median(foci_counts))
-  print(sd(foci_counts))
-  return(foci_counts)
+  colnames(df_cells) <- df_cols
+  return(df_cells)
+
 
 }
 
