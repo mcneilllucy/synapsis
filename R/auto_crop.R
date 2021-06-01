@@ -23,10 +23,17 @@ auto_crop_test <- function(img_path, crop_method = "regular", max_cell_area = 20
   image_count <-0
   antibody1_store <- 0
   antibody2_store <- 0
+  antibody3_store <- 0
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
     setwd(img_path)
+    if(grepl("*DAPI.jpeg$", file)){
+      file_DAPI = file
+      image <- readImage(file_DAPI)
+      img_orig_DAPI <- channel(image, "grey")
+      antibody3_store <- 1
+    }
     if(grepl("*SYCP3.jpeg$", file)){
 
       file_dna = file
@@ -42,7 +49,7 @@ auto_crop_test <- function(img_path, crop_method = "regular", max_cell_area = 20
       # call functions: get
       antibody2_store <- 1
     }
-    if(antibody1_store + antibody2_store ==2){
+    if(antibody1_store + antibody2_store + antibody3_store ==3){
 
       #### function: blur the image
       ## call it on img_orig, optional offset
@@ -73,13 +80,14 @@ auto_crop_test <- function(img_path, crop_method = "regular", max_cell_area = 20
 
 
         cell_count <- cell_count +1
-        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,file_dna,file_foci,cell_count, mean_pix)
+        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix)
 
         print("cell count for above crop is")
         print(cell_count)
       }
       antibody1_store <- 0
       antibody2_store <- 0
+      antibody3_store <- 0
     }
 
   }
@@ -191,7 +199,7 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area){
 #' @param retained Mask of cell candidates which meet size criteria
 #' @return Crops aroudn all candidates in both channels
 #'
-crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,file_dna,file_foci,cell_count, mean_pix){
+crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix){
   tmp_img <- retained
   ## have a single object
   ### delete all other objects
@@ -211,6 +219,7 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
   ## function: remove noise
   noise_gone <- bwlabel(tmp_img)*as.matrix(img_orig)
   noise_gone_foci <- bwlabel(tmp_img)*as.matrix(img_orig_foci)
+  noise_gone_DAPI <- bwlabel(tmp_img)*as.matrix(img_orig_foci)
   ## first get the row and column list that has a one in it.
   row_list <- c()
   col_list <- c()
@@ -281,6 +290,12 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
       file_foci <- gsub('-MLH3.jpeg','', file_foci)
       filename_crop_foci = paste0("./crops/", file_foci,"-crop-",cell_count,"-MLH3.jpeg")
       writeImage(new_img_foci, filename_crop_foci)
+
+      new_img_DAPI <- noise_gone_DAPI[ix, iy]
+      #file_foci <- tools::file_path_sans_ext(file_foci)
+      file_DAPI <- gsub('-DAPI.jpeg','', file_DAPI)
+      filename_crop_DAPI = paste0("./crops/", file_DAPI,"-crop-",cell_count,"-DAPI.jpeg")
+      writeImage(new_img_DAPI, filename_crop_DAPI)
 
 
       #### strand related stuff here
