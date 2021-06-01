@@ -7,7 +7,7 @@
 #' @param file_list list of files
 #' @return foci count per cell
 
-count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3)
+count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotate = "off")
 {
   # input :
 
@@ -24,15 +24,12 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
   setwd(img_path)
 
   img_path_new <- paste0(img_path,"/crops/",stage,"/")
-  print(img_path_new)
 
   setwd(img_path_new)
   getwd()
   file_list <- list.files(img_path_new)
-  print(file_list)
 
-
-  df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px","sd_px")
+  df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px", "percent_on","sd_px")
   df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_cells) <- df_cols
 
@@ -59,7 +56,7 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
       cell_count <- cell_count + 1
 
       new_img<-img_orig
-      display(new_img)
+      #display(new_img)
       #### now see which have the right amount of strands
       disc = makeBrush(21, "disc")
       disc = disc / sum(disc)
@@ -67,16 +64,16 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
       offset = offset_px
       thresh_crop = (new_img - localBackground > offset)
       strands <- bwlabel(thresh_crop)
-      display(strands)
+      #display(strands)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
       foci_mask_crop <- img_orig_foci
       bg <- mean(img_orig_foci)
       orig_mean <- mean(img_orig_foci)
-      mean_factor <- 0.01/orig_mean
+      mean_factor <- foci_norm/orig_mean
       img_orig_foci <- img_orig_foci*mean_factor
-      display(img_orig_foci)
+
       #### normalise the foci image
 
 
@@ -88,8 +85,7 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
       ### maybe up the contrast first??
       img_tmp_contrast = foci_mask_crop
 
-      print("cell counter is")
-      print(cell_count)
+
       #display(foci_mask_crop)
       # Wayne: size = 1
       w = makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
@@ -98,33 +94,45 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
       ## only choose objects above bright pixel value
       #foci_th = foci_mask_crop > 0.2
       #foci_th = img_flo > 0.2
-      display(img_flo)
+      #display(img_flo)
 
       ## smooth foci channel
       foci_th = img_flo > bg + offset
       #foci_th = img_flo > 0.05
 
-      display(foci_th)
+      #display(foci_th)
       foci_label = bwlabel(foci_th)
       foci_label <- channel(foci_label, "grey")
-      display(colorLabels(strands))
+      #display(colorLabels(strands))
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
 
       ##### print properties of the images
 
       ### multiply strands by foci_label
-      display(rgbImage(strands,foci_label,0*foci_label))
-      coincident_foci <- bwlabel(foci_label*strands)
-      display(colorLabels(coincident_foci))
+      if(annotate == "on"){
+        print("cell counter is")
+        print(cell_count)
+        print("original images")
+        display(new_img)
+        display(img_orig_foci)
+        print("displaying resulting foci count")
+        display(rgbImage(strands,foci_label,0*foci_label))
+        coincident_foci <- bwlabel(foci_label*strands)
+        display(colorLabels(coincident_foci))
+
+      }
+
       overlap_no = table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
-      print(foci_per_cell)
-      #print(file)
+      if(annotate=="on"){
+        print("which counts this many foci:")
+        print(foci_per_cell)
 
+      }
       image_mat <- as.matrix(foci_mask_crop)
       image_mat <- image_mat[image_mat > 1e-06]
-      hist(image_mat)
+      #hist(image_mat)
 
       mean_ratio <- median(image_mat)/mean(image_mat)
       skew <- (median(image_mat)-mean(image_mat))/sd(image_mat)
@@ -133,6 +141,18 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
       foci_candidates <- computeFeatures.shape(foci_label)
       foci_candidates <- data.frame(foci_candidates)
       foci_areas <- foci_candidates$s.area
+
+      ### look at properties of the overlap foci.
+      overlap_candidates <- computeFeatures.shape(coincident_foci)
+      overlap_candidates <- data.frame(overlap_candidates)
+      overlap <- overlap_candidates$s.area
+
+      percent_px <- sum(overlap)/sum(foci_areas)
+
+      if(annotate == "on"){
+        print("percentage of foci channel coincident:")
+        print(percent_px*100)
+      }
 
 
       tryCatch({
@@ -150,7 +170,7 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
 
         ### data frame stuff ends
 
-        df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),sd(image_mat))))
+        df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat))))
 
 
 

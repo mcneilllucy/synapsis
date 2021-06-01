@@ -8,7 +8,7 @@
 #' @param img_path The path
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
-auto_crop_test <- function(img_path, crop_method = "regular")
+auto_crop_test <- function(img_path, crop_method = "regular", max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08)
 {
   file_list <- list.files(img_path)
   setwd(img_path)
@@ -28,9 +28,7 @@ auto_crop_test <- function(img_path, crop_method = "regular")
   for (file in file_list){
     setwd(img_path)
     if(grepl("*SYCP3.jpeg$", file)){
-      if(grepl( "++", file, fixed = TRUE) == TRUE){
-        print("got a wild type")
-      }
+
       file_dna = file
       image_count <- image_count +1
       image <- readImage(file_dna)
@@ -56,7 +54,7 @@ auto_crop_test <- function(img_path, crop_method = "regular")
 
       ## function: remove things that aren't cells
 
-      retained <- keep_cells(candidate)
+      retained <- keep_cells(candidate, max_cell_area, min_cell_area)
 
       ### crop over each cell
       ## function: crop around every single viable cell
@@ -145,7 +143,7 @@ get_blobs <- function(img_orig, crop_method = "regular"){
 #' @export
 #' @param candidate Mask of individual cell candidates
 #' @return Mask of cell candidates which meet size criteria
-keep_cells <- function(candidate){
+keep_cells <- function(candidate, max_cell_area, min_cell_area){
 
 
   # input:
@@ -168,7 +166,7 @@ keep_cells <- function(candidate){
     semi_maj <- x$s.radius.max[counter]
     semi_min <- x$s.radius.min[counter]
     # if statement checking if it's the wrong area
-    if(pixel_area> 20000 | pixel_area < 5000){
+    if(pixel_area> max_cell_area | pixel_area < min_cell_area){
       retained <- as.numeric(retained)*rmObjects(candidate, counter, reenumerate = TRUE)
     }
     ## if statement checking that it's not too long i.e. not at edge.
@@ -271,7 +269,7 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
       new_img <- noise_gone[ix, iy]
       ## want all images to have the same mean to 0.1
       orig_mean <- mean(new_img)
-      mean_factor <- 0.08/orig_mean
+      mean_factor <- mean_pix/orig_mean
       new_img <- new_img*mean_factor
       #file_dna <- tools::file_path_sans_ext(file_dna)
       file_dna <- gsub('-SYCP3.jpeg','', file_dna)
