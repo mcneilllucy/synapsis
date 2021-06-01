@@ -73,7 +73,7 @@ auto_crop_test <- function(img_path, crop_method = "regular", max_cell_area = 20
 
 
         cell_count <- cell_count +1
-        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,file_dna,file_foci,cell_count)
+        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,file_dna,file_foci,cell_count, mean_pix)
 
         print("cell count for above crop is")
         print(cell_count)
@@ -191,7 +191,7 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area){
 #' @param retained Mask of cell candidates which meet size criteria
 #' @return Crops aroudn all candidates in both channels
 #'
-crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,file_dna,file_foci,cell_count){
+crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,file_dna,file_foci,cell_count, mean_pix){
   tmp_img <- retained
   ## have a single object
   ### delete all other objects
