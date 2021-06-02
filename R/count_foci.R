@@ -3,9 +3,13 @@
 #' Count coincident foci in cropped SC and foci channel per cell
 #'
 #' @import EBImage
-#' @export
+#' @import stats
+#' @import graphics
+#' @import utils
+#' @export count_foci
 #' @param file_list list of files
 #' @return foci count per cell
+
 
 count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotate = "off")
 {

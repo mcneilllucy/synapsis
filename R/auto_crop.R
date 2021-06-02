@@ -3,12 +3,16 @@
 #' crop an image around each viable cell candidate.
 #'
 #' @import EBImage
-#' @export
+#' @import stats
+#' @import graphics
+#' @import utils
+#' @export auto_crop
 #' @param file_list The file list
 #' @param img_path The path
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
-auto_crop_test <- function(img_path, crop_method = "regular", max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08)
+
+auto_crop <- function(img_path, crop_method = "regular", max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08)
 {
   file_list <- list.files(img_path)
   setwd(img_path)

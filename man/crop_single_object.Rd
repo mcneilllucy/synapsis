@@ -10,8 +10,12 @@ crop_single_object(
   counter_final,
   img_orig,
   img_orig_foci,
-  file,
-  cell_count
+  img_orig_DAPI,
+  file_dna,
+  file_foci,
+  file_DAPI,
+  cell_count,
+  mean_pix
 )
 }
 \arguments{

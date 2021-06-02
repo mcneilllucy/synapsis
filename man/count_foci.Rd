@@ -4,7 +4,16 @@
 \alias{count_foci}
 \title{count_foci}
 \usage{
-count_foci(file_list, img_path)
+count_foci(
+  img_path,
+  stage = "pachytene",
+  offset_px = 0.2,
+  offset_factor = 2,
+  brush_size = 3,
+  brush_sigma = 3,
+  foci_norm = 0.01,
+  annotate = "off"
+)
 }
 \arguments{
 \item{file_list}{list of files}

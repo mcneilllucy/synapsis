@@ -4,12 +4,18 @@
 \alias{get_pachytene}
 \title{get_pachytene}
 \usage{
-get_pachytene(file_list, img_path)
+get_pachytene(
+  img_path,
+  species_num = 20,
+  offset = 0.2,
+  ecc_thresh = 0.85,
+  area_thresh = 0.06
+)
 }
 \arguments{
-\item{file_list}{The file list}
-
 \item{img_path}{The path}
+
+\item{file_list}{The file list}
 }
 \value{
 Pairs of foci and SC channel crops for pachytene

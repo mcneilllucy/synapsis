@@ -3,7 +3,10 @@
 #' Identifies crops in pachytene
 #'
 #' @import EBImage
-#' @export
+#' @import stats
+#' @import graphics
+#' @import utils
+#' @export get_pachytene
 #' @param file_list The file list
 #' @param img_path The path
 #' @return Pairs of foci and SC channel crops for pachytene
@@ -77,8 +80,8 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       if (nrow(num_strands)<max_obj && nrow(num_strands)>5){
         cell_count <- cell_count + 1
         ### identified a good image. count foci
-        display(new_img)
-        display(strands)
+        #display(new_img)
+        #display(strands)
 
         ###### adding data frame info
 

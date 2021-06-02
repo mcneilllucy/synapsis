@@ -4,7 +4,7 @@
 \alias{keep_cells}
 \title{keep_cells}
 \usage{
-keep_cells(candidate)
+keep_cells(candidate, max_cell_area, min_cell_area)
 }
 \arguments{
 \item{candidate}{Mask of individual cell candidates}

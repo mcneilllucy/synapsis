@@ -4,12 +4,18 @@
 \alias{auto_crop}
 \title{auto_crop}
 \usage{
-auto_crop(file_list, img_path, crop_method = "regular")
+auto_crop(
+  img_path,
+  crop_method = "regular",
+  max_cell_area = 20000,
+  min_cell_area = 7000,
+  mean_pix = 0.08
+)
 }
 \arguments{
-\item{file_list}{The file list}
-
 \item{img_path}{The path}
+
+\item{file_list}{The file list}
 }
 \value{
 cropped SC and foci channels around single cells, regardless of stage
