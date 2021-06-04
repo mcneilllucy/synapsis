@@ -55,7 +55,7 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
     }
     if(antibody1_store + antibody2_store + antibody3_store ==3){
       image_count <- image_count +1
-      if(image_count > test_amount){
+      if(test_amount != 0 && image_count > test_amount){
         break
 
       }
