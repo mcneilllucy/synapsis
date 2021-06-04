@@ -12,7 +12,7 @@
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
 
-auto_crop <- function(img_path, crop_method = "regular", max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off")
+auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10)
 {
   file_list <- list.files(img_path)
   setwd(img_path)
@@ -57,7 +57,7 @@ auto_crop <- function(img_path, crop_method = "regular", max_cell_area = 20000, 
 
       #### function: blur the image
       ## call it on img_orig, optional offset
-      blob_th <- get_blobs(img_orig)
+      blob_th <- get_blobs(img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp)
 
       blob_label = bwlabel(blob_th)
       blob_label <- channel(blob_label, "gray")
@@ -116,7 +116,7 @@ print("viable cells")
 #' @return Mask with cell candidates
 
 #################################### new function ####################################
-get_blobs <- function(img_orig, crop_method = "regular"){
+get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_amp){
 
   # input:
 
@@ -124,22 +124,21 @@ get_blobs <- function(img_orig, crop_method = "regular"){
 
   ## subfunction: get signals and make BW mask
   ### default offset
-  thresh <- 10*img_orig
+  thresh <- blob_factor*img_orig
   # subfunction: big blur to blobs
   img_tmp_dna <- img_orig
   img_tmp <- thresh
   w = makeBrush(size = 51, shape = 'gaussian', sigma = 15)
   img_flo = filter2(img_tmp, w)
   ## default amplification
-  bg <- mean(10*img_tmp)
-  offset = 0.2
-  if(crop_method == "regular"){
-    blob_th = 10*img_flo > bg + offset
-  }
+  bg <- mean(bg_blob_factor*img_tmp)
+  #if(crop_method == "regular"){
+  blob_th = final_blob_amp*img_flo > bg + offset
+  #}
 
-  if(crop_method == "watershed"){
-    blob_th = 10*img_flo > bg + offset
-  }
+  #if(crop_method == "watershed"){
+  #  blob_th = 10*img_flo > bg + offset
+  #}
   return(blob_th)
 
 }
