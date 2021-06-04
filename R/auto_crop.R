@@ -12,7 +12,7 @@
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
 
-auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10)
+auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0)
 {
   file_list <- list.files(img_path)
   setwd(img_path)
@@ -41,7 +41,7 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
     if(grepl("*SYCP3.jpeg$", file)){
 
       file_dna = file
-      image_count <- image_count +1
+
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
       antibody1_store <- 1
@@ -54,6 +54,11 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
       antibody2_store <- 1
     }
     if(antibody1_store + antibody2_store + antibody3_store ==3){
+      image_count <- image_count +1
+      if(image_count > test_amount){
+        break
+
+      }
 
       #### function: blur the image
       ## call it on img_orig, optional offset
