@@ -35,12 +35,11 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
   colnames(df_cells) <- df_cols
 
   img_path_new <- paste0(img_path,"/crops/")
-  print(img_path_new)
 
   setwd(img_path_new)
   dir.create("pachytene")
   file_list <- list.files(img_path_new)
-  print(file_list)
+
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
@@ -63,7 +62,6 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
     if(antibody1_store + antibody2_store ==2){
       antibody1_store <- 0
       antibody2_store <- 0
-      print("I have a pair")
       new_img<-img_orig
       #### now see which have the right amount of strands
       disc = makeBrush(21, "disc")
@@ -75,7 +73,7 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       color_img_strands<- colorLabels(strands, normalize = TRUE)
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
-      print(nrow(num_strands))
+      #print(nrow(num_strands))
       #### segment the strands
       if (nrow(num_strands)<max_obj && nrow(num_strands)>5){
         cell_count <- cell_count + 1
@@ -134,8 +132,9 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
 
         if(mean_ecc > ecc_thresh){
           if(px_fraction > area_thresh){
+            stage_classification <- "pachytene"
 
-            df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,px_mask, px_total,px_fraction, mean_ecc,mean_ratio,skew,sd_bright_px,"stage_classification")))
+            df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,px_mask, px_total,px_fraction, mean_ecc,mean_ratio,skew,sd_bright_px,stage_classification)))
 
             pachytene_count <- pachytene_count + 1
 
@@ -146,11 +145,6 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
             file_foci <- tools::file_path_sans_ext(file_foci)
             filename_crop_foci = paste0("./pachytene/", file_foci, ".jpeg")
             writeImage(img_orig_foci, filename_crop_foci)
-
-            print("two filenames are")
-            print(filename_crop)
-            print(filename_crop_foci)
-            print("end filename")
 
           }
         }
