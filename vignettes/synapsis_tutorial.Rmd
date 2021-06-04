@@ -26,8 +26,8 @@ And to run this tutorial, you will need:
 
 ```
 
-```{r}
-#devtools::install_git('https://gitlab.svi.edu.au/lmcneill/synapsis')
+```{r, eval = FALSE}
+devtools::install_git('https://gitlab.svi.edu.au/lmcneill/synapsis')
 ```
 
 ### loading synapsis
@@ -66,13 +66,13 @@ path = "~/Documents/svi/imaging/test-data-all"
 
 *cell_area variables are based on our mouse imaging data. For different species with larger/ smaller nuclei or other teams using different magnifications, we would need to change this (with some finetuning, which is made easier by rknit)
 
-There is an annotation setting, which we would switch to "on"
-```{r}
-#auto_crop(path, annotation = "on", max_cell_area = 30000, min_cell_area = 7000)
+There is an annotation setting, which we switch to "on". If you haven't cropped the data yet, make sure *```{r}* is at the top of the following chunk.
+```{r, eval = FALSE}
+auto_crop(path, annotation = "on", max_cell_area = 30000, min_cell_area = 7000)
 ```
 Here we called path, plus other optional parameters (that would otherwise take on default values). But only path is essential. This is because auto_crop has built-in default values which are assumed when the user doesn't specify.
 
-*Comment this auto_crop chunk out now* if a crops folder with three channels per image was successfully generated. Now that cell candidates have been cropped, we don't need/want to wait around for that again!
+If a crops folder with three channels per image was successfully generated, put *```{r, eval = FALSE}* at the top of the previous chink. Now that cell candidates have been cropped, we don't need/want to wait around for that again!
 
 ## Getting pachytene 
 
@@ -154,8 +154,7 @@ counts_mod %>%
 ```
 
 The next function takes a long time so has been commented out.
-```{r}
-#source("measure_distances.R")
-#df_dist <- measure_distances(path, annotate = "off")
+```{r, eval = FALSE}
+df_dist <- measure_distances(path, annotate = "off")
 
 ```
