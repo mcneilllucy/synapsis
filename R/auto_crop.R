@@ -12,7 +12,7 @@
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
 
-auto_crop <- function(img_path, crop_method = "regular", max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08)
+auto_crop <- function(img_path, crop_method = "regular", max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off")
 {
   file_list <- list.files(img_path)
   setwd(img_path)
@@ -84,9 +84,9 @@ auto_crop <- function(img_path, crop_method = "regular", max_cell_area = 20000, 
 
 
         cell_count <- cell_count +1
-        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix)
+        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation)
 
-        print("cell count for above crop is")
+        print("Crop number:")
         print(cell_count)
       }
       antibody1_store <- 0
@@ -98,7 +98,7 @@ auto_crop <- function(img_path, crop_method = "regular", max_cell_area = 20000, 
 
 print("out of")
 print(image_count)
-print("we got")
+print("images, we got")
 print(cell_count)
 print("viable cells")
 }
@@ -203,7 +203,7 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area){
 #' @param retained Mask of cell candidates which meet size criteria
 #' @return Crops aroudn all candidates in both channels
 #'
-crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix){
+crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation){
   tmp_img <- retained
   ## have a single object
   ### delete all other objects
@@ -216,6 +216,11 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
       tmp_img <- as.numeric(tmp_img)*rmObjects(bwlabel(retained), counter_single, reenumerate = TRUE)
 
     }
+
+
+  }
+  if(annotation == "on"){
+    print("here is the mask of a single cell")
     display(tmp_img)
 
   }
@@ -223,7 +228,7 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
   ## function: remove noise
   noise_gone <- bwlabel(tmp_img)*as.matrix(img_orig)
   noise_gone_foci <- bwlabel(tmp_img)*as.matrix(img_orig_foci)
-  noise_gone_DAPI <- bwlabel(tmp_img)*as.matrix(img_orig_foci)
+  noise_gone_DAPI <- bwlabel(tmp_img)*as.matrix(img_orig_DAPI)
   ## first get the row and column list that has a one in it.
   row_list <- c()
   col_list <- c()
@@ -300,6 +305,16 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
       file_DAPI <- gsub('-DAPI.jpeg','', file_DAPI)
       filename_crop_DAPI = paste0("./crops/", file_DAPI,"-crop-",cell_count,"-DAPI.jpeg")
       writeImage(new_img_DAPI, filename_crop_DAPI)
+
+      if(annotation=="on"){
+        print("from the file:")
+        print(file_dna)
+        display(img_orig)
+        print("I cropped this cell:")
+        display(new_img)
+        print("whose cell number is")
+        print(cell_count)
+      }
 
 
       #### strand related stuff here
