@@ -29,6 +29,7 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
 
   img_path_new <- paste0(img_path,"/crops/",stage,"/")
 
+
   setwd(img_path_new)
   getwd()
   file_list <- list.files(img_path_new)
@@ -121,9 +122,13 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
         display(new_img)
         display(img_orig_foci)
         print("displaying resulting foci count")
+        print("Overlay two channels")
         display(rgbImage(strands,foci_label,0*foci_label))
         coincident_foci <- bwlabel(foci_label*strands)
+        print("coincident foci")
         display(colorLabels(coincident_foci))
+        print("two channels, only coincident foci")
+        display(rgbImage(strands,coincident_foci,coincident_foci))
 
       }
 
