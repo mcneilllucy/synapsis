@@ -34,10 +34,13 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 2, brush
   getwd()
   file_list <- list.files(img_path_new)
 
+  file_list <- list.files(img_path_new[1:4])
 
 
-  df_cols <- c("filename","total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
+
+  df_cols <- c("file","genotype","total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
   df_lengths <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
+  colnames(df_lengths) <- df_cols
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
@@ -117,8 +120,24 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 2, brush
 
       ################ distance starts (make function later)
 
-      dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, dimensionless_dist, SC_lengths, foci_count_strand, strand_iter,file,annotate)
-      df_lengths <- rbind(df_lengths,t(c(file,dimensionless_dist)))
+      dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, SC_lengths, foci_count_strand, strand_iter,file,annotate)
+      print("the dimension of the new row is")
+      print(dim(dimensionless_dist))
+      print("and part of the row is")
+      print(dimensionless_dist)
+      print("the full row is")
+      #print(t(c(as.matrix(dimensionless_dist))))
+
+      if(grepl( "++", file, fixed = TRUE) == TRUE){
+        genotype <- "Fancm+/+"
+      }
+
+      if(grepl( "--", file, fixed = TRUE) == TRUE){
+        genotype <- "Fancm-/-"
+      }
+
+      new_row <- c(file,genotype,dimensionless_dist)
+      df_lengths <- rbind(df_lengths,new_row)
 
       ###
     }
@@ -211,7 +230,7 @@ threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma){
 #' @param strand_iter hello
 #' @return A list of distances
 #'
-get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_dist, SC_lengths, foci_count_strand, strand_iter,file,annotate){
+get_distance <- function(strands,num_strands,new_img,foci_label, SC_lengths, foci_count_strand, strand_iter,file,annotate){
   tryCatch({
     no_strands <- nrow(num_strands)
     strand_count<- 0
@@ -378,9 +397,10 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
 
             ### call measure distance between 2
 
-            dimensionless_dist <- get_distance_between_two(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,dimensionless_dist,file,annotate)
-            print("dimensionless distance inside inner most function")
+            dimensionless_dist <- get_distance_between_two(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotate)
             print(dimensionless_dist)
+            return(dimensionless_dist)
+
 
             ##### ends here
 
@@ -401,14 +421,13 @@ get_distance <- function(strands,num_strands,new_img,foci_label, dimensionless_d
   error = function(e) {
     #what should be done in case of exception?
     str(e) # #prints structure of exception
-    dimensionless_dist <- c(file, "NA", "NA", "NA", "fail")
-    return(dimensionless_dist)
+    dimensionless_dist_major_fail <- c("NA", "NA", "NA", "fail")
+    return(dimensionless_dist_major_fail)
 
   }
   )
 
-  ### return the df here
-  return(dimensionless_dist)
+
 
 }
 
@@ -1165,8 +1184,8 @@ get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,dis
 #' @param chosen_dir The brightest direction of the previous step
 #' @return List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
 #'
-get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,dimensionless_dist,file,annotate){
-  print("we have a strand with two foci")
+get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotate){
+  print("we have a strand with two foci, located at")
   strand_info <- computeFeatures.moment(bwlabel(per_strand),as.matrix(foci_label))
   strand_info <- as.data.frame(strand_info)
   foci_1_x <- strand_info$m.cx[1]
@@ -1177,33 +1196,6 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
   print("total distance is")
   print(distance_strand+ distance_strand_2)
-  if(annotate == "on"){
-    plot(noise_gone)
-    text(x = foci_1_x, y = foci_1_y, label = "+", col = "red", cex = 2)
-    text(x = foci_2_x, y = foci_2_y, label = "+", col = "blue", cex = 2)
-    ch1 = bwlabel(walkers)
-    ch1 <- channel(ch1, "grey")
-    ch2 = bwlabel(noise_gone)
-    ch2 <-channel(noise_gone,"grey")
-    ch3 = bwlabel(per_strand)
-    ch3 <- channel(per_strand,"grey")
-    bluered <- rgbImage(ch2, ch1, ch3)
-    #print("break")
-    #display(bluered)
-    bluered <- rgbImage(ch2, ch1, ch1)
-    #print("break")
-    #display(bluered)
-    print(file)
-
-    ### deleting for now
-    bluered <- rgbImage(ch2, ch3, 0*ch3)
-    plot(bluered)
-    text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
-    text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
-    text(x = cx, y = cy, label = "+", col = "blue", cex = 2)
-    text(x = mean_x, y = mean_y, label = "+", col = "magenta", cex = 2)
-
-  }
 
 
 
@@ -1591,13 +1583,12 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
     strand_iter <- strand_iter +1
     print("on iteration")
     print(strand_iter)
-    if (dim_length >1e-6 && dim_length < 1 && (distance_strand+ distance_strand_2) > 20){
-
+    if (dim_length >1e-6 && dim_length < 1 && (distance_strand+ distance_strand_2) > 0){
       if (foci_out_2 >1){
         if(distance_f1 < 10){
           if(distance_f2 < 10){
-            dimensionless_dist <- append(dimensionless_dist,px_length)
-            dimensionless_dist <- c(px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+            #dimensionless_dist <- append(dimensionless_dist,px_length)
+            dimensionless_dist_pass <- c(px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
             print("This strand managed to pass through:")
             ch1 = bwlabel(walkers)
             ch1 <- channel(ch1, "grey")
@@ -1616,12 +1607,12 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
             text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "green", cex = 2)
             text(x = start_x2, y = start_y2, label = "+", col = "blue", cex = 2)
             text(x = start_x, y = start_y, label = "+", col = "blue", cex = 2)
-            print("check that it walked successfully")
+            print("This one worked. check that it walked successfully")
             display(rgbImage(walkers, test_walker, test_walker))
             # deleting for now
             text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
             text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
-            return(dimensionless_dist)
+            return(dimensionless_dist_pass)
 
           }
         }
@@ -1630,11 +1621,43 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
 
     }
-    else{
-      dimensionless_dist <- c(px_length,dim_length,(distance_strand+ distance_strand_2),"fail")
-      return(dimensionless_dist)
-    }
 
+
+  }
+  else{
+    if(annotate == "on"){
+      print("the following failed and will be excluded")
+
+      plot(noise_gone)
+      text(x = foci_1_x, y = foci_1_y, label = "+", col = "red", cex = 2)
+      text(x = foci_2_x, y = foci_2_y, label = "+", col = "blue", cex = 2)
+      ch1 = bwlabel(walkers)
+      ch1 <- channel(ch1, "grey")
+      ch2 = bwlabel(noise_gone)
+      ch2 <-channel(noise_gone,"grey")
+      ch3 = bwlabel(per_strand)
+      ch3 <- channel(per_strand,"grey")
+      bluered <- rgbImage(ch2, ch1, ch3)
+      #print("break")
+      #display(bluered)
+      bluered <- rgbImage(ch2, ch1, ch1)
+      #print("break")
+      #display(bluered)
+      print(file)
+
+      ### deleting for now
+      bluered <- rgbImage(ch2, ch3, 0*ch3)
+      plot(bluered)
+      text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
+      text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
+      text(x = cx, y = cy, label = "+", col = "blue", cex = 2)
+      text(x = mean_x, y = mean_y, label = "+", col = "magenta", cex = 2)
+
+
+
+    }
+    dimensionless_dist_fail_minor <- c(px_length,dim_length,(distance_strand+ distance_strand_2),"fail")
+    return(dimensionless_dist_fail_minor)
   }
   ## finish at start_x2
 
