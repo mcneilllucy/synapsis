@@ -9,7 +9,7 @@
 #' @return Histogram of distances
 
 # should take in same values as count_foci..
-measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotate = "off",offset_SC = 0.2, stage = "pachytene")
+measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotate = "off",offset_SC = 0.2, stage = "pachytene")
 {
   # input :
 
@@ -41,6 +41,9 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 2, brush
   df_cols <- c("file","genotype","total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
   df_lengths <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_lengths) <- df_cols
+
+  #df_cols_2 <- c("total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
+  #df_lengths_2 <- data.frame(matrix(ncol = length(df_cols_2), nrow = 0))
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
@@ -128,16 +131,16 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 2, brush
       print("the full row is")
       #print(t(c(as.matrix(dimensionless_dist))))
 
-      if(grepl( "++", file, fixed = TRUE) == TRUE){
-        genotype <- "Fancm+/+"
-      }
 
-      if(grepl( "--", file, fixed = TRUE) == TRUE){
-        genotype <- "Fancm-/-"
-      }
+      #tryCatch({
+      df_lengths <- rbind(df_lengths, dimensionless_dist)
+      #},
+      #error = function(e) {
+        #what should be done in case of exception?
+      #  str(e) # #prints structure of exception
+      #}
+      #)
 
-      new_row <- c(file,genotype,dimensionless_dist)
-      df_lengths <- rbind(df_lengths,new_row)
 
       ###
     }
@@ -156,8 +159,15 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 2, brush
     #print(dimensionless_dist)
 
   #}
-
+  #tryCatch({
   colnames(df_lengths) <- df_cols
+  #},
+  #error = function(e) {
+    #what should be done in case of exception?
+  #  str(e) # #prints structure of exception
+  #}
+  #)
+
   return(df_lengths)
 
 }
@@ -237,7 +247,7 @@ get_distance <- function(strands,num_strands,new_img,foci_label, SC_lengths, foc
     while(strand_count<no_strands){
       strand_count <- strand_count + 1
       # if area less than 150 pixels.. or not an outlier... keep
-      if (as.numeric(num_strands$s.area[strand_count])<200 & as.numeric(num_strands$s.area[strand_count])>10){
+      if (as.numeric(num_strands$s.area[strand_count])<400 & as.numeric(num_strands$s.area[strand_count])>10){
         tmp_img <- strands
         counter_single <- 0
         # looping over all other objects to crop
@@ -421,7 +431,14 @@ get_distance <- function(strands,num_strands,new_img,foci_label, SC_lengths, foc
   error = function(e) {
     #what should be done in case of exception?
     str(e) # #prints structure of exception
-    dimensionless_dist_major_fail <- c("NA", "NA", "NA", "fail")
+    if(grepl( "++", file, fixed = TRUE) == TRUE){
+      genotype <- "Fancm+/+"
+    }
+
+    if(grepl( "--", file, fixed = TRUE) == TRUE){
+      genotype <- "Fancm-/-"
+    }
+    dimensionless_dist_major_fail <- c(file, genotype, "NA", "NA", "NA", "fail")
     return(dimensionless_dist_major_fail)
 
   }
@@ -1588,7 +1605,14 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(distance_f1 < 10){
           if(distance_f2 < 10){
             #dimensionless_dist <- append(dimensionless_dist,px_length)
-            dimensionless_dist_pass <- c(px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+            if(grepl( "++", file, fixed = TRUE) == TRUE){
+              genotype <- "Fancm+/+"
+            }
+
+            if(grepl( "--", file, fixed = TRUE) == TRUE){
+              genotype <- "Fancm-/-"
+            }
+            dimensionless_dist_pass <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
             print("This strand managed to pass through:")
             ch1 = bwlabel(walkers)
             ch1 <- channel(ch1, "grey")
@@ -1656,7 +1680,14 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
 
     }
-    dimensionless_dist_fail_minor <- c(px_length,dim_length,(distance_strand+ distance_strand_2),"fail")
+    if(grepl( "++", file, fixed = TRUE) == TRUE){
+      genotype <- "Fancm+/+"
+    }
+
+    if(grepl( "--", file, fixed = TRUE) == TRUE){
+      genotype <- "Fancm-/-"
+    }
+    dimensionless_dist_fail_minor <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"fail")
     return(dimensionless_dist_fail_minor)
   }
   ## finish at start_x2

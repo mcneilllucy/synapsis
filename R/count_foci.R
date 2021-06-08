@@ -34,7 +34,7 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
   getwd()
   file_list <- list.files(img_path_new)
 
-  df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px", "percent_on","sd_px")
+  df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px", "percent_on","sd_px","lone_foci")
   df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_cells) <- df_cols
 
@@ -156,6 +156,12 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
       overlap_candidates <- data.frame(overlap_candidates)
       overlap <- overlap_candidates$s.area
 
+      ### number of foci NOT on an SC
+      alone_foci <- nrow(foci_candidates) - foci_per_cell
+      print("number of alone foci")
+      print(alone_foci)
+      ####
+
       percent_px <- sum(overlap)/sum(foci_areas)
 
       if(annotate == "on"){
@@ -179,7 +185,7 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
 
         ### data frame stuff ends
 
-        df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat))))
+        df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat),alone_foci)))
 
 
 
