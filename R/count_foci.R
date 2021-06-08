@@ -113,7 +113,7 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
       num_strands <- data.frame(num_strands)
 
       ##### print properties of the images
-
+      coincident_foci <- bwlabel(foci_label*strands)
       ### multiply strands by foci_label
       if(annotate == "on"){
         print("cell counter is")
@@ -124,7 +124,7 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
         print("displaying resulting foci count")
         print("Overlay two channels")
         display(rgbImage(strands,foci_label,0*foci_label))
-        coincident_foci <- bwlabel(foci_label*strands)
+
         print("coincident foci")
         display(colorLabels(coincident_foci))
         print("two channels, only coincident foci")
@@ -158,8 +158,16 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
 
       ### number of foci NOT on an SC
       alone_foci <- nrow(foci_candidates) - foci_per_cell
-      print("number of alone foci")
-      print(alone_foci)
+
+      if(annotate == "on"){
+        print("number of alone foci")
+        print(alone_foci)
+        if(alone_foci < 0){
+          print("this one had a negative lone foci amount. Suspect overcounting of foci in this one:")
+          display(rgbImage(strands,foci_label,0*foci_label))
+        }
+      }
+
       ####
 
       percent_px <- sum(overlap)/sum(foci_areas)
