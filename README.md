@@ -117,11 +117,11 @@ Once we have the foci counts (count_foci) and/or distance between foci along syn
 
 - Boxplots
 
-![cropping-box](output/count_foci_boxplot.png)
+![cropping-box](output/foci-count-boxplot.png)
 
 *Figure 8: Boxplot of foci counts per cell as a function of genotype (wildtype in orange, mutant in blue). The populations are significantly different (p value < 0.05 with anova test) with the mutant having 20 percent more foci per cell (on average).*
 
-<img src="output/measure_distances_boxplot.png" width="550" height="500">
+<img src="output/distances-boxplot.png" width="550" height="500">
 
 *Figure 9: Boxplot of (fractional) distances between foci on an SC (procedure summary in Figure 5) as a function of genotype (wildtype in orange, mutant in blue). The groups are not significantly different and could reasonably have come from the same population.*
 
