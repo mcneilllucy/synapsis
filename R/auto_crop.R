@@ -15,8 +15,7 @@
 auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0)
 {
   file_list <- list.files(img_path)
-  setwd(img_path)
-  dir.create("crops")
+  dir.create(paste0(img_path,"/crops"))
   # input :
 
   # output : a bunch of output jpegs? Or save them all?
@@ -31,7 +30,11 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
-    setwd(img_path)
+    print(file)
+    file_base = file
+    filename_path_test = paste0(img_path,"/", file)
+    print(filename_path_test)
+    file = filename_path_test
     if(grepl("*DAPI.jpeg$", file)){
       file_DAPI = file
       image <- readImage(file_DAPI)
@@ -89,7 +92,7 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
 
 
         cell_count <- cell_count +1
-        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation)
+        crop_single_object(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path)
 
         print("Crop number:")
         print(cell_count)
@@ -207,7 +210,7 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area){
 #' @param retained Mask of cell candidates which meet size criteria
 #' @return Crops aroudn all candidates in both channels
 #'
-crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation){
+crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path){
   tmp_img <- retained
   ## have a single object
   ### delete all other objects
@@ -294,20 +297,22 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
       mean_factor <- mean_pix/orig_mean
       new_img <- new_img*mean_factor
       #file_dna <- tools::file_path_sans_ext(file_dna)
-      file_dna <- gsub('-SYCP3.jpeg','', file_dna)
-      filename_crop = paste0("./crops/", file_dna,"-crop-",cell_count,"-SYCP3.jpeg")
+      print(file_dna)
+      file_dna <- gsub('-SYCP3.jpeg','', file_base)
+      print(file_dna)
+      filename_crop = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-SYCP3.jpeg")
       writeImage(new_img, filename_crop)
 
       new_img_foci <- noise_gone_foci[ix, iy]
       #file_foci <- tools::file_path_sans_ext(file_foci)
       file_foci <- gsub('-MLH3.jpeg','', file_foci)
-      filename_crop_foci = paste0("./crops/", file_foci,"-crop-",cell_count,"-MLH3.jpeg")
+      filename_crop_foci = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-MLH3.jpeg")
       writeImage(new_img_foci, filename_crop_foci)
 
       new_img_DAPI <- noise_gone_DAPI[ix, iy]
       #file_foci <- tools::file_path_sans_ext(file_foci)
       file_DAPI <- gsub('-DAPI.jpeg','', file_DAPI)
-      filename_crop_DAPI = paste0("./crops/", file_DAPI,"-crop-",cell_count,"-DAPI.jpeg")
+      filename_crop_DAPI = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-DAPI.jpeg")
       writeImage(new_img_DAPI, filename_crop_DAPI)
 
       if(annotation=="on"){
