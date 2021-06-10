@@ -24,14 +24,7 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
   foci_counts <- 0
   antibody1_store <- 0
   antibody2_store <- 0
-
-  setwd(img_path)
-
   img_path_new <- paste0(img_path,"/crops/",stage,"/")
-
-
-  setwd(img_path_new)
-  getwd()
   file_list <- list.files(img_path_new)
 
   df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px", "percent_on","sd_px","lone_foci")
@@ -40,7 +33,8 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
-    setwd(img_path_new)
+    filename_path_test = paste0(img_path,"/crops/",stage,"/", file)
+    file = filename_path_test
     if(grepl("*SYCP3.jpeg", file)){
       file_dna = file
       image_count <- image_count +1
