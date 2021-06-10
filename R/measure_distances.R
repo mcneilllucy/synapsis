@@ -9,7 +9,7 @@
 #' @return Histogram of distances
 
 # should take in same values as count_foci..
-measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotate = "off",offset_SC = 0.2, stage = "pachytene")
+measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotate = "off",offset_SC = 0.2, stage = "pachytene", eccentricity_min = 0.6, max_strand_area = 300)
 {
   # input :
 
@@ -27,17 +27,8 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
   antibody1_store <- 0
   antibody2_store <- 0
 
-  setwd(img_path)
-
   img_path_new <- paste0(img_path,"/crops/",stage,"/")
-  setwd(img_path_new)
-  getwd()
   file_list <- list.files(img_path_new)
-
-  file_list <- list.files(img_path_new[1:4])
-
-
-
   df_cols <- c("file","genotype","total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
   df_lengths <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_lengths) <- df_cols
@@ -47,7 +38,8 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
-    setwd(img_path_new)
+    filename_path_test = paste0(img_path,"/crops/",stage,"/", file)
+    file = filename_path_test
     if(grepl("*SYCP3.jpeg", file)){
       file_dna = file
       image_count <- image_count +1
@@ -123,7 +115,7 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
 
       ################ distance starts (make function later)
 
-      dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, SC_lengths, foci_count_strand, strand_iter,file,annotate)
+      dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, SC_lengths, foci_count_strand, strand_iter,file,annotate,eccentricity_min, max_strand_area)
       print("the dimension of the new row is")
       print(dim(dimensionless_dist))
       print("and part of the row is")
@@ -240,14 +232,14 @@ threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma){
 #' @param strand_iter hello
 #' @return A list of distances
 #'
-get_distance <- function(strands,num_strands,new_img,foci_label, SC_lengths, foci_count_strand, strand_iter,file,annotate){
+get_distance <- function(strands,num_strands,new_img,foci_label, SC_lengths, foci_count_strand, strand_iter,file,annotate, eccentricity_min, max_strand_area){
   tryCatch({
     no_strands <- nrow(num_strands)
     strand_count<- 0
     while(strand_count<no_strands){
       strand_count <- strand_count + 1
       # if area less than 150 pixels.. or not an outlier... keep
-      if (as.numeric(num_strands$s.area[strand_count])<400 & as.numeric(num_strands$s.area[strand_count])>10){
+      if (as.numeric(num_strands$s.area[strand_count])<max_strand_area & as.numeric(num_strands$s.area[strand_count])>10){
         tmp_img <- strands
         counter_single <- 0
         # looping over all other objects to crop
@@ -281,7 +273,7 @@ get_distance <- function(strands,num_strands,new_img,foci_label, SC_lengths, foc
         ## might actually want to find the real centre first..
 
         if (is.integer(nrow(per_strand_obj))){
-          if(moment_info$m.eccentricity > 0.6 && nrow(per_strand_obj) ==2){
+          if(moment_info$m.eccentricity > eccentricity_min && nrow(per_strand_obj) ==2){
             ## draw box around the middle
             ### find max, locally
 
@@ -1250,7 +1242,14 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   distance_f2 <- (foci_2_y-mean_x_f2)^2 +(foci_2_x-mean_y_f2)^2
   # deleting for now
   if (annotate=="on"){
-    display(bluered)
+    ch1 = bwlabel(walkers)
+    ch1 <- channel(ch1, "grey")
+    ch2 = bwlabel(noise_gone)
+    ch2 <-channel(noise_gone,"grey")
+    ch3 = bwlabel(per_strand)
+    ch3 <- channel(per_strand,"grey")
+    bluered <- rgbImage(ch2, ch1, ch3)
+    plot(bluered)
     text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
     text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
     text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
