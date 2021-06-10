@@ -27,31 +27,33 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
   antibody1_store <- 0
   antibody2_store <- 0
   pachytene_count <- 0
-  setwd(img_path)
   max_obj <- species_num + round(0.1*species_num)
 
   df_cols <- c("filename","cell_no","genotype", "px_mask","px_total", "px_fraction", "mean_ecc","mean_ratio","skew","sd_bright_px","stage_classification")
   df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_cells) <- df_cols
 
-  img_path_new <- paste0(img_path,"/crops/")
-
-  setwd(img_path_new)
-  dir.create("pachytene")
+  img_path_new <- paste0(img_path,"/crops")
+  dir.create(paste0(img_path_new,"/pachytene"))
   file_list <- list.files(img_path_new)
 
 
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
-    setwd(img_path_new)
+    file_base = file
+    filename_path_test = paste0(img_path,"/crops/", file)
+    print(filename_path_test)
+    file = filename_path_test
     if(grepl("*SYCP3.jpeg", file)){
       file_dna = file
+      file_base_dna = file_base
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(image, "grey")
       antibody1_store <- 1
     }
     if(grepl("*MLH3.jpeg", file)){
+      file_base_foci = file_base
       file_foci = file
       #print(file_foci)
       image <- readImage(file_foci)
@@ -138,12 +140,14 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
 
             pachytene_count <- pachytene_count + 1
 
-            file_dna <- tools::file_path_sans_ext(file_dna)
-            filename_crop = paste0("./pachytene/", file_dna,".jpeg")
+            file_dna <- tools::file_path_sans_ext(file_base_dna)
+            #filename_crop = paste0("./pachytene/", file_dna,".jpeg")
+            filename_crop = paste0(img_path_new,"/pachytene/", file_base_dna,"-crop-",cell_count,"-SYCP3.jpeg")
             writeImage(img_orig, filename_crop)
 
-            file_foci <- tools::file_path_sans_ext(file_foci)
-            filename_crop_foci = paste0("./pachytene/", file_foci, ".jpeg")
+            file_foci <- tools::file_path_sans_ext(file_base_foci)
+            #filename_crop_foci = paste0("./pachytene/", file_foci, ".jpeg")
+            filename_crop_foci = paste0(img_path_new,"/pachytene/", file_base_foci,"-crop-",cell_count,"-MLH3.jpeg")
             writeImage(img_orig_foci, filename_crop_foci)
 
           }
