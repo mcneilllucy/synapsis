@@ -42,7 +42,6 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
   for (file in file_list){
     file_base = file
     filename_path_test = paste0(img_path,"/crops/", file)
-    print(filename_path_test)
     file = filename_path_test
     if(grepl("*SYCP3.jpeg", file)){
       file_dna = file
@@ -142,12 +141,12 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
 
             file_dna <- tools::file_path_sans_ext(file_base_dna)
             #filename_crop = paste0("./pachytene/", file_dna,".jpeg")
-            filename_crop = paste0(img_path_new,"/pachytene/", file_base_dna,"-crop-",cell_count,"-SYCP3.jpeg")
+            filename_crop = paste0(img_path_new,"/pachytene/", file_dna,".jpeg")
             writeImage(img_orig, filename_crop)
 
             file_foci <- tools::file_path_sans_ext(file_base_foci)
             #filename_crop_foci = paste0("./pachytene/", file_foci, ".jpeg")
-            filename_crop_foci = paste0(img_path_new,"/pachytene/", file_base_foci,"-crop-",cell_count,"-MLH3.jpeg")
+            filename_crop_foci = paste0(img_path_new,"/pachytene/", file_foci,".jpeg")
             writeImage(img_orig_foci, filename_crop_foci)
 
           }
