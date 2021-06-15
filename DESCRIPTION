@@ -6,14 +6,10 @@ Author: Lucy McNeill
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
+Imports: EBImage, stats, utils, graphics
 License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true
-Imports: 
-    EBImage,
-    stats,
-    graphics,
-    utils
 RoxygenNote: 7.1.1
 Suggests: 
     testthat (>= 3.0.0)

@@ -2,10 +2,6 @@
 #'
 #' Count coincident foci in cropped SC and foci channel per cell
 #'
-#' @import EBImage
-#' @import stats
-#' @import graphics
-#' @import utils
 #' @export count_foci
 #' @param img_path, path of crops
 #' @param stage, description
@@ -26,7 +22,6 @@ count_foci <- function(img_path, stage = "pachytene", offset_px = 0.2, offset_fa
   # output : a bunch of output jpegs? Or save them all?
 
   #BiocManager::install("EBImage")
-  library(EBImage)
   cell_count <- 0
   image_count <-0
   foci_counts <- 0

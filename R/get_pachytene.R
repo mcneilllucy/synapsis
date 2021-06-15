@@ -2,10 +2,7 @@
 #'
 #' Identifies crops in pachytene
 #'
-#' @import EBImage
-#' @import stats
-#' @import graphics
-#' @import utils
+
 #' @export get_pachytene
 #' @param img_path The path
 #' @param species_num, description
@@ -23,9 +20,6 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
   # output : a bunch of output jpegs? Or save them all?
 
 
-
-  #BiocManager::install("EBImage")
-  library(EBImage)
   cell_count <- 0
   image_count <-0
   antibody1_store <- 0

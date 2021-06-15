@@ -1,11 +1,10 @@
 #' auto_crop
 #'
 #' crop an image around each viable cell candidate.
-#'
-#' @import EBImage
-#' @import stats
-#' @import graphics
-#' @import utils
+#' @importFrom stats median sd
+#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
+#' @importFrom graphics text
+#' @importFrom utils str
 #' @export auto_crop
 #' @param img_path, The path
 #' @param max_cell_area, description
@@ -30,7 +29,6 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
   # output : a bunch of output jpegs? Or save them all?
 
   #BiocManager::install("EBImage")
-  library(EBImage)
   cell_count <- 0
   image_count <-0
   antibody1_store <- 0
@@ -126,7 +124,6 @@ print("viable cells")
 #'
 #' Makes mask of all objects bright enough
 #'
-#' @import EBImage
 #' @export
 #' @param img_orig Original image
 #' @param blob_factor, description
@@ -171,7 +168,6 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
 #'
 #' Deletes objects in mask which are too small, large, oblong i.e. unlikely to be a cell
 #'
-#' @import EBImage
 #' @export
 #' @param candidate Mask of individual cell candidates
 #' @param max_cell_area, description
@@ -214,7 +210,6 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area){
 #'
 #' Creates mask for every individual cell candidate in mask
 #'
-#' @import EBImage
 #' @export
 #' @param retained Mask of cell candidates which meet size criteria
 #' @param OOI_final, description

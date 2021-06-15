@@ -2,7 +2,6 @@
 #'
 #' Measure the distance between foci on a synaptonemal complex
 #'
-#' @import EBImage
 #' @export
 #' @param img_path The path
 #' @param offset_px, description
