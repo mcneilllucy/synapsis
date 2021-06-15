@@ -8,6 +8,10 @@ keep_cells(candidate, max_cell_area, min_cell_area)
 }
 \arguments{
 \item{candidate}{Mask of individual cell candidates}
+
+\item{max_cell_area, }{description}
+
+\item{min_cell_area, }{description}
 }
 \value{
 Mask of cell candidates which meet size criteria

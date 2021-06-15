@@ -4,8 +4,17 @@
 #'
 #' @import EBImage
 #' @export
-#' @param file_list The file list
 #' @param img_path The path
+#' @param offset_px, description
+#' @param offset_factor, description
+#' @param brush_size, description
+#' @param brush_sigma, description
+#' @param foci_norm, description
+#' @param annotate, description
+#' @param offset_SC, description
+#' @param stage, description
+#' @param eccentricity_min, description
+#' @param max_strand_area, description
 #' @return Histogram of distances
 
 # should take in same values as count_foci..
@@ -192,7 +201,9 @@ threshold_SC_crop <- function(image, offset){
 #' Creates mask for foci channel
 #'
 #' @param image foci channel image
-#' @param offset offset for a foci signal
+#' @param offset_factor offset for a foci signal
+#' @param brush_size, description
+#' @param brush_sigma, description
 #' @return A black white mask with foci as objects
 #'
 threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma){
@@ -222,14 +233,18 @@ threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma){
 #'
 #' Creates mask for SC channel
 #'
-#' @param strands A black white mask with SCs as objects
-#' @param num_strands offset for an SC signal
-#' @param new_img hello
-#' @param foci_label A black white mask with foci as objects
-#' @param dimensionless_dist hello
-#' @param SC_lengths hello
-#' @param foci_count_strand hello
-#' @param strand_iter hello
+#' @param strands, A black white mask with SCs as objects
+#' @param num_strands, description
+#' @param new_img, description
+#' @param foci_label, A black white mask with foci as objects
+#' @param SC_lengths, description
+#' @param foci_count_strand, description
+#' @param strand_iter, description
+#' @param file, description
+#' @param annotate, description
+#' @param eccentricity_min, description
+#' @param max_strand_area, description
+
 #' @return A list of distances
 #'
 get_distance <- function(strands,num_strands,new_img,foci_label, SC_lengths, foci_count_strand, strand_iter,file,annotate, eccentricity_min, max_strand_area){
@@ -513,6 +528,12 @@ get_first_dir <- function(noise_gone,ix,iy,window){
 #' Moves one pixel away from the starting point
 #'
 #' @param chosen_dir The brightest direction of a line passing through starting point
+#' @param ix1, description
+#' @param ix2, description
+#' @param iy1, description
+#' @param iy2, description
+#' @param distance_strand, description
+#' @param distance_strand_2, description
 #' @return New sub square for first and second branch
 
 first_shot_out <- function(chosen_dir, ix1,ix2,iy1,iy2,distance_strand, distance_strand_2){
@@ -585,7 +606,15 @@ first_shot_out <- function(chosen_dir, ix1,ix2,iy1,iy2,distance_strand, distance
 #'
 #' Moves one pixel away one first branch
 #'
+
+#' @param new_square_1, description
+#' @param ix1, description
+#' @param iy1, description
+#' @param dir_1, description
+#' @param window, description
 #' @param chosen_dir The brightest direction of the previous step
+#' @param distance_strand, description
+#' @param first_dir, description
 #' @return New sub square for first branch after taking one step
 #'
 get_next_first_dir <- function(new_square_1,ix1,iy1,dir_1,window,chosen_dir,distance_strand,first_dir){
@@ -910,11 +939,21 @@ get_next_first_dir <- function(new_square_1,ix1,iy1,dir_1,window,chosen_dir,dist
 
 
 
+
 #' get_next_second_dir
 #'
 #' Moves one pixel away one second branch. Terminates if at the end of the SC.
 #'
+
+#' @param new_square_2, description
+#' @param ix2, description
+#' @param iy2, description
+#' @param dir_2, description
+#' @param window, description
 #' @param chosen_dir The brightest direction of the previous step
+#' @param distance_strand_2, description
+#' @param second_dir, description
+
 #' @return New sub square for second branch after taking one step
 #'
 
@@ -1190,7 +1229,24 @@ get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,dis
 #'
 #' Calculates the pixel distance
 #'
-#' @param chosen_dir The brightest direction of the previous step
+#' @param distance_strand, description
+#' @param distance_strand_2, description
+#' @param per_strand, description
+#' @param foci_label, description
+#' @param walkers, description
+#' @param noise_gone, description
+#' @param start_x, description
+#' @param start_y, description
+#' @param start_x2, description
+#' @param start_y2, description
+#' @param start_dir, description
+#' @param cx, description
+#' @param cy, description
+#' @param mean_x, description
+#' @param mean_y, description
+#' @param strand_iter, description
+#' @param file, description
+#' @param annotate, description
 #' @return List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
 #'
 get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotate){

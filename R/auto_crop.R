@@ -7,8 +7,17 @@
 #' @import graphics
 #' @import utils
 #' @export auto_crop
-#' @param file_list The file list
-#' @param img_path The path
+#' @param img_path, The path
+#' @param max_cell_area, description
+#' @param min_cell_area, description
+#' @param mean_pix, description
+#' @param annotation, description
+#' @param blob_factor, description
+#' @param bg_blob_factor, description
+#' @param offset, description
+#' @param final_blob_amp, description
+#' @param test_amount, description
+
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
 
@@ -33,7 +42,6 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
     print(file)
     file_base = file
     filename_path_test = paste0(img_path,"/", file)
-    print(filename_path_test)
     file = filename_path_test
     if(grepl("*DAPI.jpeg$", file)){
       file_DAPI = file
@@ -121,6 +129,11 @@ print("viable cells")
 #' @import EBImage
 #' @export
 #' @param img_orig Original image
+#' @param blob_factor, description
+#' @param bg_blob_factor, description
+#' @param offset, description
+#' @param final_blob_amp, description
+
 #' @return Mask with cell candidates
 
 #################################### new function ####################################
@@ -161,15 +174,11 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
 #' @import EBImage
 #' @export
 #' @param candidate Mask of individual cell candidates
+#' @param max_cell_area, description
+#' @param min_cell_area, description
+
 #' @return Mask of cell candidates which meet size criteria
 keep_cells <- function(candidate, max_cell_area, min_cell_area){
-
-
-  # input:
-
-  # output:
-
-
 
   # delete everything that's too small
   colorimg<- colorLabels(candidate, normalize = TRUE)
@@ -208,6 +217,24 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area){
 #' @import EBImage
 #' @export
 #' @param retained Mask of cell candidates which meet size criteria
+#' @param OOI_final, description
+#' @param counter_final, description
+#' @param img_orig, description
+#' @param img_orig_foci, description
+#' @param img_orig_DAPI, description
+#' @param file_dna, description
+#' @param file_foci, description
+#' @param file_DAPI, description
+#' @param cell_count, description
+#' @param mean_pix, description
+#' @param annotation, description
+#' @param file_base, description
+#' @param img_path, description
+
+#'
+
+
+
 #' @return Crops aroudn all candidates in both channels
 #'
 crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path){
@@ -242,9 +269,8 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
   # I think this is quick enough for now.. takes less than 10s...
   xx = data.frame(as.numeric(tmp_img))
   xx <- data.frame(bwlabel(tmp_img))
-  xm2 = t(as.matrix(xx))
+  my_matrix = t(as.matrix(xx))
   i <- 0
-  my_matrix <- xm2
   ### now loop over matrix
   for(row in 1:nrow(my_matrix)) {
     for(col in 1:ncol(my_matrix)) {

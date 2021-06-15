@@ -21,13 +21,46 @@ get_distance_between_two(
   mean_x,
   mean_y,
   strand_iter,
-  dimensionless_dist,
   file,
   annotate
 )
 }
 \arguments{
-\item{chosen_dir}{The brightest direction of the previous step}
+\item{distance_strand, }{description}
+
+\item{distance_strand_2, }{description}
+
+\item{per_strand, }{description}
+
+\item{foci_label, }{description}
+
+\item{walkers, }{description}
+
+\item{noise_gone, }{description}
+
+\item{start_x, }{description}
+
+\item{start_y, }{description}
+
+\item{start_x2, }{description}
+
+\item{start_y2, }{description}
+
+\item{start_dir, }{description}
+
+\item{cx, }{description}
+
+\item{cy, }{description}
+
+\item{mean_x, }{description}
+
+\item{mean_y, }{description}
+
+\item{strand_iter, }{description}
+
+\item{file, }{description}
+
+\item{annotate, }{description}
 }
 \value{
 List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.

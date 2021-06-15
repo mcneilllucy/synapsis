@@ -9,30 +9,37 @@ get_distance(
   num_strands,
   new_img,
   foci_label,
-  dimensionless_dist,
   SC_lengths,
   foci_count_strand,
   strand_iter,
   file,
-  annotate
+  annotate,
+  eccentricity_min,
+  max_strand_area
 )
 }
 \arguments{
-\item{strands}{A black white mask with SCs as objects}
+\item{strands, }{A black white mask with SCs as objects}
 
-\item{num_strands}{offset for an SC signal}
+\item{num_strands, }{description}
 
-\item{new_img}{hello}
+\item{new_img, }{description}
 
-\item{foci_label}{A black white mask with foci as objects}
+\item{foci_label, }{A black white mask with foci as objects}
 
-\item{dimensionless_dist}{hello}
+\item{SC_lengths, }{description}
 
-\item{SC_lengths}{hello}
+\item{foci_count_strand, }{description}
 
-\item{foci_count_strand}{hello}
+\item{strand_iter, }{description}
 
-\item{strand_iter}{hello}
+\item{file, }{description}
+
+\item{annotate, }{description}
+
+\item{eccentricity_min, }{description}
+
+\item{max_strand_area, }{description}
 }
 \value{
 A list of distances

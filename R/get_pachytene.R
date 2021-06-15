@@ -7,8 +7,12 @@
 #' @import graphics
 #' @import utils
 #' @export get_pachytene
-#' @param file_list The file list
 #' @param img_path The path
+#' @param species_num, description
+#' @param offset, description
+#' @param ecc_thresh, description
+#' @param area_thresh, description
+
 #' @return Pairs of foci and SC channel crops for pachytene
 
 

@@ -16,7 +16,21 @@ count_foci(
 )
 }
 \arguments{
-\item{file_list}{list of files}
+\item{img_path, }{path of crops}
+
+\item{stage, }{description}
+
+\item{offset_px, }{description}
+
+\item{offset_factor, }{description}
+
+\item{brush_size, }{description}
+
+\item{brush_sigma, }{description}
+
+\item{foci_norm, }{description}
+
+\item{annotate, }{description}
 }
 \value{
 foci count per cell

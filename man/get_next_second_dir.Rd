@@ -16,7 +16,21 @@ get_next_second_dir(
 )
 }
 \arguments{
+\item{new_square_2, }{description}
+
+\item{ix2, }{description}
+
+\item{iy2, }{description}
+
+\item{dir_2, }{description}
+
+\item{window, }{description}
+
 \item{chosen_dir}{The brightest direction of the previous step}
+
+\item{distance_strand_2, }{description}
+
+\item{second_dir, }{description}
 }
 \value{
 New sub square for second branch after taking one step

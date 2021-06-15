@@ -15,7 +15,13 @@ get_pachytene(
 \arguments{
 \item{img_path}{The path}
 
-\item{file_list}{The file list}
+\item{species_num, }{description}
+
+\item{offset, }{description}
+
+\item{ecc_thresh, }{description}
+
+\item{area_thresh, }{description}
 }
 \value{
 Pairs of foci and SC channel crops for pachytene

@@ -4,10 +4,18 @@
 \alias{get_blobs}
 \title{get_blobs}
 \usage{
-get_blobs(img_orig, crop_method = "regular")
+get_blobs(img_orig, blob_factor, bg_blob_factor, offset, final_blob_amp)
 }
 \arguments{
 \item{img_orig}{Original image}
+
+\item{blob_factor, }{description}
+
+\item{bg_blob_factor, }{description}
+
+\item{offset, }{description}
+
+\item{final_blob_amp, }{description}
 }
 \value{
 Mask with cell candidates

@@ -7,7 +7,15 @@
 #' @import graphics
 #' @import utils
 #' @export count_foci
-#' @param file_list list of files
+#' @param img_path, path of crops
+#' @param stage, description
+#' @param offset_px, description
+#' @param offset_factor, description
+#' @param brush_size, description
+#' @param brush_sigma, description
+#' @param foci_norm, description
+#' @param annotate, description
+
 #' @return foci count per cell
 
 

@@ -15,11 +15,40 @@ crop_single_object(
   file_foci,
   file_DAPI,
   cell_count,
-  mean_pix
+  mean_pix,
+  annotation,
+  file_base,
+  img_path
 )
 }
 \arguments{
 \item{retained}{Mask of cell candidates which meet size criteria}
+
+\item{OOI_final, }{description}
+
+\item{counter_final, }{description}
+
+\item{img_orig, }{description}
+
+\item{img_orig_foci, }{description}
+
+\item{img_orig_DAPI, }{description}
+
+\item{file_dna, }{description}
+
+\item{file_foci, }{description}
+
+\item{file_DAPI, }{description}
+
+\item{cell_count, }{description}
+
+\item{mean_pix, }{description}
+
+\item{annotation, }{description}
+
+\item{file_base, }{description}
+
+\item{img_path, }{description}
 }
 \value{
 Crops aroudn all candidates in both channels

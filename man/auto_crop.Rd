@@ -6,16 +6,37 @@
 \usage{
 auto_crop(
   img_path,
-  crop_method = "regular",
   max_cell_area = 20000,
   min_cell_area = 7000,
-  mean_pix = 0.08
+  mean_pix = 0.08,
+  annotation = "off",
+  blob_factor = 15,
+  bg_blob_factor = 10,
+  offset = 0.2,
+  final_blob_amp = 10,
+  test_amount = 0
 )
 }
 \arguments{
-\item{img_path}{The path}
+\item{img_path, }{The path}
 
-\item{file_list}{The file list}
+\item{max_cell_area, }{description}
+
+\item{min_cell_area, }{description}
+
+\item{mean_pix, }{description}
+
+\item{annotation, }{description}
+
+\item{blob_factor, }{description}
+
+\item{bg_blob_factor, }{description}
+
+\item{offset, }{description}
+
+\item{final_blob_amp, }{description}
+
+\item{test_amount, }{description}
 }
 \value{
 cropped SC and foci channels around single cells, regardless of stage

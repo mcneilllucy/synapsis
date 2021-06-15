@@ -7,19 +7,39 @@
 measure_distances(
   img_path,
   offset_px = 0.2,
-  offset_factor = 2,
+  offset_factor = 3,
   brush_size = 3,
   brush_sigma = 3,
   foci_norm = 0.01,
   annotate = "off",
   offset_SC = 0.2,
-  stage = "pachytene"
+  stage = "pachytene",
+  eccentricity_min = 0.6,
+  max_strand_area = 300
 )
 }
 \arguments{
 \item{img_path}{The path}
 
-\item{file_list}{The file list}
+\item{offset_px, }{description}
+
+\item{offset_factor, }{description}
+
+\item{brush_size, }{description}
+
+\item{brush_sigma, }{description}
+
+\item{foci_norm, }{description}
+
+\item{annotate, }{description}
+
+\item{offset_SC, }{description}
+
+\item{stage, }{description}
+
+\item{eccentricity_min, }{description}
+
+\item{max_strand_area, }{description}
 }
 \value{
 Histogram of distances
