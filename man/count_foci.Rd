@@ -12,25 +12,25 @@ count_foci(
   brush_size = 3,
   brush_sigma = 3,
   foci_norm = 0.01,
-  annotate = "off"
+  annotation = "off"
 )
 }
 \arguments{
 \item{img_path, }{path of crops}
 
-\item{stage, }{description}
+\item{stage, }{meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.}
 
-\item{offset_px, }{description}
+\item{offset_px, }{Pixel value offset used in thresholding of dna channel}
 
-\item{offset_factor, }{description}
+\item{offset_factor, }{Pixel value offset used in thresholding of foci channel}
 
-\item{brush_size, }{description}
+\item{brush_size, }{size of brush to smooth the foci channel. Should be small to avoid erasing foci.}
 
-\item{brush_sigma, }{description}
+\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.}
 
-\item{foci_norm, }{description}
+\item{foci_norm, }{Mean intensity to normalise all foci channels to.}
 
-\item{annotate, }{description}
+\item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 }
 \value{
 foci count per cell
