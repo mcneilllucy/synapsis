@@ -16,21 +16,21 @@ get_next_first_dir(
 )
 }
 \arguments{
-\item{new_square_1, }{description}
+\item{new_square_1, }{the subsquare that contains the x y location of first branch walker in the middle.}
 
-\item{ix1, }{description}
+\item{ix1, }{current x position of first branch walker along SC}
 
-\item{iy1, }{description}
+\item{iy1, }{current y position of first branch walker along SC}
 
-\item{dir_1, }{description}
+\item{dir_1, }{The direction (choice of 8) of the first branch step}
 
-\item{window, }{description}
+\item{window, }{number of pixels ahead that the intensity gradient is computed with}
 
-\item{chosen_dir}{The brightest direction of the previous step}
+\item{chosen_dir}{The brightest direction (choice of 4) of the previous step}
 
-\item{distance_strand, }{description}
+\item{distance_strand, }{current distance along the first branch}
 
-\item{first_dir, }{description}
+\item{first_dir, }{zero while still measuring along first branch, one when first branch terminates and counting stops.}
 }
 \value{
 New sub square for first branch after taking one step

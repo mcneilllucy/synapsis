@@ -6,7 +6,7 @@
 #' @importFrom graphics text
 #' @importFrom utils str
 #' @export auto_crop
-#' @param img_path, The path
+#' @param img_path, path containing image data to analyse
 #' @param max_cell_area, Maximum pixel area of a cell candidate
 #' @param min_cell_area, Minimum pixel area of a cell candidate
 #' @param mean_pix, Mean pixel intensity of cell crop (in SYCP3 channel) for normalisation

@@ -9,11 +9,11 @@ threshold_foci_crop(image, offset_factor, brush_size, brush_sigma)
 \arguments{
 \item{image}{foci channel image}
 
-\item{offset_factor}{offset for a foci signal}
+\item{offset_factor, }{Pixel value offset used in thresholding of foci channel}
 
-\item{brush_size, }{description}
+\item{brush_size, }{size of brush to smooth the foci channel. Should be small to avoid erasing foci.}
 
-\item{brush_sigma, }{description}
+\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.}
 }
 \value{
 A black white mask with foci as objects

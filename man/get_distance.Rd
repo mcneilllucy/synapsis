@@ -2,18 +2,18 @@
 % Please edit documentation in R/measure_distances.R
 \name{get_distance}
 \alias{get_distance}
-\title{get_distance}
+\title{get_distance
+Creates mask for SC channel}
 \usage{
 get_distance(
   strands,
   num_strands,
   new_img,
   foci_label,
-  SC_lengths,
   foci_count_strand,
   strand_iter,
   file,
-  annotate,
+  annotation,
   eccentricity_min,
   max_strand_area
 )
@@ -21,29 +21,28 @@ get_distance(
 \arguments{
 \item{strands, }{A black white mask with SCs as objects}
 
-\item{num_strands, }{description}
+\item{num_strands, }{Number of individual strands on SC mask}
 
-\item{new_img, }{description}
+\item{new_img, }{Original strand/dna/SYCP3 channel image with noise removed.}
 
 \item{foci_label, }{A black white mask with foci as objects}
 
-\item{SC_lengths, }{description}
+\item{foci_count_strand, }{Number of foci counted located on the one SC}
 
-\item{foci_count_strand, }{description}
+\item{strand_iter, }{Strand number in iteration over all in cell}
 
-\item{strand_iter, }{description}
+\item{file, }{original filename that cell candidate came from. Used to identify e.g. genotype for data frame.}
 
-\item{file, }{description}
+\item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
-\item{annotate, }{description}
+\item{eccentricity_min, }{The minimum eccentricity (from computefeatures) of a strand to proceed with measuring}
 
-\item{eccentricity_min, }{description}
-
-\item{max_strand_area, }{description}
+\item{max_strand_area, }{Maximum pixel area of a strand}
 }
 \value{
-A list of distances
+Data frame with properties of synaptonemal (SC) measurements
 }
 \description{
+get_distance
 Creates mask for SC channel
 }

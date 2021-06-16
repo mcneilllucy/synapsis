@@ -11,38 +11,35 @@ measure_distances(
   brush_size = 3,
   brush_sigma = 3,
   foci_norm = 0.01,
-  annotate = "off",
-  offset_SC = 0.2,
+  annotation = "off",
   stage = "pachytene",
   eccentricity_min = 0.6,
   max_strand_area = 300
 )
 }
 \arguments{
-\item{img_path}{The path}
+\item{img_path, }{path containing image data to analyse}
 
-\item{offset_px, }{description}
+\item{offset_px, }{Pixel value offset used in thresholding of dna channel}
 
-\item{offset_factor, }{description}
+\item{offset_factor, }{Pixel value offset used in thresholding of foci channel}
 
-\item{brush_size, }{description}
+\item{brush_size, }{size of brush to smooth the foci channel. Should be small to avoid erasing foci.}
 
-\item{brush_sigma, }{description}
+\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.}
 
-\item{foci_norm, }{description}
+\item{foci_norm, }{Mean intensity to normalise all foci channels to.}
 
-\item{annotate, }{description}
+\item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
-\item{offset_SC, }{description}
+\item{stage, }{meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.}
 
-\item{stage, }{description}
+\item{eccentricity_min, }{The minimum eccentricity (from computefeatures) of a strand to proceed with measuring}
 
-\item{eccentricity_min, }{description}
-
-\item{max_strand_area, }{description}
+\item{max_strand_area, }{Maximum pixel area of a strand}
 }
 \value{
-Histogram of distances
+Data frame with properties of synaptonemal (SC) measurements
 }
 \description{
 Measure the distance between foci on a synaptonemal complex

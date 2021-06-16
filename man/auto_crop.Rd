@@ -20,7 +20,7 @@ auto_crop(
 )
 }
 \arguments{
-\item{img_path, }{The path}
+\item{img_path, }{path containing image data to analyse}
 
 \item{max_cell_area, }{Maximum pixel area of a cell candidate}
 

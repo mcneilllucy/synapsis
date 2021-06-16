@@ -9,7 +9,7 @@ find_start(window, noise_gone, cx, cy)
 \arguments{
 \item{window}{window size that we want to look in}
 
-\item{noise_gone}{The SC of interest without background}
+\item{noise_gone}{Image containing only the SC of interest without background}
 
 \item{cx, cy}{The location of the "centre of intensity" using computeFeatures (not necessarily on SC)}
 }

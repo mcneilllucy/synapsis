@@ -3,7 +3,7 @@
 #' Count coincident foci in cropped SC and foci channel per cell
 #'
 #' @export count_foci
-#' @param img_path, path of crops
+#' @param img_path, path containing image data to analyse
 #' @param stage, meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.
 #' @param offset_px, Pixel value offset used in thresholding of dna channel
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel

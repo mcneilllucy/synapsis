@@ -16,21 +16,21 @@ get_next_second_dir(
 )
 }
 \arguments{
-\item{new_square_2, }{description}
+\item{new_square_2, }{the subsquare that contains the x y location of second branch walker in the middle.}
 
-\item{ix2, }{description}
+\item{ix2, }{current x position of second branch walker along SC}
 
-\item{iy2, }{description}
+\item{iy2, }{current y position of second branch walker along SC}
 
-\item{dir_2, }{description}
+\item{dir_2, }{The direction (choice of 8) of the second (opposite to first) branch step}
 
-\item{window, }{description}
+\item{window, }{number of pixels ahead that the intensity gradient is computed with}
 
-\item{chosen_dir}{The brightest direction of the previous step}
+\item{chosen_dir}{The brightest direction (choice of 4) of the previous step}
 
-\item{distance_strand_2, }{description}
+\item{distance_strand_2, }{current distance along the second branch}
 
-\item{second_dir, }{description}
+\item{second_dir, }{zero while still measuring along first branch, one when first branch terminates and counting stops.}
 }
 \value{
 New sub square for second branch after taking one step

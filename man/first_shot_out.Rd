@@ -15,19 +15,19 @@ first_shot_out(
 )
 }
 \arguments{
-\item{chosen_dir}{The brightest direction of a line passing through starting point}
+\item{chosen_dir}{string: brightest direction of a line passing through starting point}
 
-\item{ix1, }{description}
+\item{ix1, }{starting point x}
 
-\item{ix2, }{description}
+\item{ix2, }{starting point x}
 
-\item{iy1, }{description}
+\item{iy1, }{starting point y}
 
-\item{iy2, }{description}
+\item{iy2, }{starting point y}
 
-\item{distance_strand, }{description}
+\item{distance_strand, }{distance along first branch (zero).}
 
-\item{distance_strand_2, }{description}
+\item{distance_strand_2, }{distance along second branch (zero).}
 }
 \value{
 New sub square for first and second branch

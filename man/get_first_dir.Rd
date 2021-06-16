@@ -7,9 +7,9 @@
 get_first_dir(noise_gone, ix, iy, window)
 }
 \arguments{
-\item{noise_gone}{The SC of interest without background}
+\item{noise_gone}{Image containing only the SC of interest without background}
 
-\item{ix, iy}{The location of the starting point (on the SC)}
+\item{ix, iy}{Pixel locations of the starting point (on the SC)}
 
 \item{window}{window size where we compute local gradients}
 }
