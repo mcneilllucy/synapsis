@@ -13,15 +13,15 @@ get_pachytene(
 )
 }
 \arguments{
-\item{img_path}{The path}
+\item{img_path, }{path containing image data to analyse}
 
-\item{species_num, }{description}
+\item{species_num, }{number of chromosomes in the species}
 
-\item{offset, }{description}
+\item{offset, }{Pixel value offset used in therholding for the dna (SYCP3) channel}
 
-\item{ecc_thresh, }{description}
+\item{ecc_thresh, }{The minimum average eccentricity of all objects in mask determined by computefeatures, for a cell to be pachytene.}
 
-\item{area_thresh, }{description}
+\item{area_thresh, }{The minimum ratio of pixels included in mask to total, for a cell to be classified as pachytene.}
 }
 \value{
 Pairs of foci and SC channel crops for pachytene

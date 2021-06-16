@@ -4,38 +4,29 @@
 #'
 
 #' @export get_pachytene
-#' @param img_path The path
-#' @param species_num, description
-#' @param offset, description
-#' @param ecc_thresh, description
-#' @param area_thresh, description
+#' @param img_path, path containing image data to analyse
+#' @param species_num, number of chromosomes in the species
+#' @param offset, Pixel value offset used in therholding for the dna (SYCP3) channel
+#' @param ecc_thresh, The minimum average eccentricity of all objects in mask determined by computefeatures, for a cell to be pachytene.
+#' @param area_thresh, The minimum ratio of pixels included in mask to total, for a cell to be classified as pachytene.
 
 #' @return Pairs of foci and SC channel crops for pachytene
 
 
 get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06)
 {
-  # input :
-
-  # output : a bunch of output jpegs? Or save them all?
-
-
   cell_count <- 0
   image_count <-0
   antibody1_store <- 0
   antibody2_store <- 0
   pachytene_count <- 0
   max_obj <- species_num + round(0.1*species_num)
-
   df_cols <- c("filename","cell_no","genotype", "px_mask","px_total", "px_fraction", "mean_ecc","mean_ratio","skew","sd_bright_px","stage_classification")
   df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_cells) <- df_cols
-
   img_path_new <- paste0(img_path,"/crops")
   dir.create(paste0(img_path_new,"/pachytene"))
   file_list <- list.files(img_path_new)
-
-
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
     file_base = file
@@ -66,51 +57,34 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       disc = makeBrush(21, "disc")
       disc = disc / sum(disc)
       localBackground = filter2(new_img, disc)
-
       thresh_crop = (new_img - localBackground > offset)
       strands <- bwlabel(thresh_crop)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
-      #print(nrow(num_strands))
       #### segment the strands
       if (nrow(num_strands)<max_obj && nrow(num_strands)>5){
         cell_count <- cell_count + 1
         ### identified a good image. count foci
-        #display(new_img)
-        #display(strands)
-
-        ###### adding data frame info
-
-
         ### data frame stuff
-
         if(grepl( "++", file, fixed = TRUE) == TRUE){
           genotype <- "Fancm+/+"
         }
-
         if(grepl( "--", file, fixed = TRUE) == TRUE){
           genotype <- "Fancm-/-"
         }
-
         image_mat <- as.matrix(new_img)
         image_mat <- image_mat[image_mat > 1e-01]
         mean_ratio <- median(image_mat)/mean(image_mat)
         skew <- (median(image_mat)-mean(image_mat))/sd(image_mat)
-
         ### look at properties of the foci.
         SC_candidates <- computeFeatures.shape(strands)
         SC_candidates <- data.frame(SC_candidates)
         SC_areas <- SC_candidates$s.area
-
         moment_info <- computeFeatures.moment(bwlabel(strands),as.matrix(new_img))
         #moment_info <- computeFeatures.haralick(bwlabel(tmp_img),as.matrix(noise_gone))
         moment_info <- as.data.frame(moment_info)
         ## might actually want to find the real centre first..
-
-
-
-
         ### data frame stuff ends
         dim_img <- nrow(new_img)
         #dim_img <- dim_img[1,1]
@@ -120,40 +94,21 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
         px_fraction <- px_mask/px_total
         mean_ecc <- mean(moment_info$m.eccentricity)
         stage_classification <- "pachytene"
-
         sd_bright_px <- sd(image_mat)
-
-
-
-
-
-        ######
-
         if(mean_ecc > ecc_thresh){
           if(px_fraction > area_thresh){
             stage_classification <- "pachytene"
-
             df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,px_mask, px_total,px_fraction, mean_ecc,mean_ratio,skew,sd_bright_px,stage_classification)))
-
             pachytene_count <- pachytene_count + 1
-
             file_dna <- tools::file_path_sans_ext(file_base_dna)
-            #filename_crop = paste0("./pachytene/", file_dna,".jpeg")
             filename_crop = paste0(img_path_new,"/pachytene/", file_dna,".jpeg")
             writeImage(img_orig, filename_crop)
-
             file_foci <- tools::file_path_sans_ext(file_base_foci)
-            #filename_crop_foci = paste0("./pachytene/", file_foci, ".jpeg")
             filename_crop_foci = paste0(img_path_new,"/pachytene/", file_foci,".jpeg")
             writeImage(img_orig_foci, filename_crop_foci)
-
           }
         }
-
-
-
       }
-      ###
     }
   }
 print("number of cells kept")
