@@ -22,11 +22,11 @@ crop_single_object(
 )
 }
 \arguments{
-\item{retained}{Mask of cell candidates which meet size criteria}
+\item{retained}{Mask of cell candidates which meet size criteria. After smoothing/smudging and thresholding.}
 
-\item{OOI_final, }{description}
+\item{OOI_final, }{Objects of interest count. Total number of cell candidates in retained.}
 
-\item{counter_final, }{description}
+\item{counter_final, }{Counter for single cell we are focussing on. Remove all other cells where counter_single not equal to counter_final.}
 
 \item{img_orig, }{description}
 
@@ -34,24 +34,24 @@ crop_single_object(
 
 \item{img_orig_DAPI, }{description}
 
-\item{file_dna, }{description}
+\item{file_dna, }{filename of dna channel image}
 
-\item{file_foci, }{description}
+\item{file_foci, }{filename of foci channel image}
 
-\item{file_DAPI, }{description}
+\item{file_DAPI, }{filename of DAPI channel image}
 
-\item{cell_count, }{description}
+\item{cell_count, }{counter for successful crops around cells}
 
-\item{mean_pix, }{description}
+\item{mean_pix, }{Mean pixel intensity of cell crop (in SYCP3 channel) for normalisation}
 
-\item{annotation, }{description}
+\item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
-\item{file_base, }{description}
+\item{file_base, }{filename base common to all three channels i.e. without -MLH3.jpeg etc.}
 
-\item{img_path, }{description}
+\item{img_path, }{path containing image data to analyse}
 }
 \value{
-Crops aroudn all candidates in both channels
+Crops around all candidates in both channels
 }
 \description{
 Creates mask for every individual cell candidate in mask

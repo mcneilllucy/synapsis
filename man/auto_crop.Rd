@@ -14,29 +14,35 @@ auto_crop(
   bg_blob_factor = 10,
   offset = 0.2,
   final_blob_amp = 10,
-  test_amount = 0
+  test_amount = 0,
+  brush_size_blob = 51,
+  sigma_blob = 15
 )
 }
 \arguments{
 \item{img_path, }{The path}
 
-\item{max_cell_area, }{description}
+\item{max_cell_area, }{Maximum pixel area of a cell candidate}
 
-\item{min_cell_area, }{description}
+\item{min_cell_area, }{Minimum pixel area of a cell candidate}
 
-\item{mean_pix, }{description}
+\item{mean_pix, }{Mean pixel intensity of cell crop (in SYCP3 channel) for normalisation}
 
-\item{annotation, }{description}
+\item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
-\item{blob_factor, }{description}
+\item{blob_factor, }{Contrast factor to multiply original image by before smoothing/smudging}
 
-\item{bg_blob_factor, }{description}
+\item{bg_blob_factor, }{Contrast factor to multiply original image by to take background. Used prior to thresholding.}
 
-\item{offset, }{description}
+\item{offset, }{Pixel value offset from bg_blob_factor. Used in thresholding to make blob mask.}
 
-\item{final_blob_amp, }{description}
+\item{final_blob_amp, }{Contrast factor to multiply smoothed/smudged image. Used in thresholding to make blob mask.}
 
-\item{test_amount, }{description}
+\item{test_amount, }{Optional number of first N images you want to run function on. For troubleshooting/testing/variable calibration purposes.}
+
+\item{brush_size_blob, }{Brush size for smudging the dna channel to make blobs}
+
+\item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel to make blobs}
 }
 \value{
 cropped SC and foci channels around single cells, regardless of stage

@@ -7,20 +7,22 @@
 #' @importFrom utils str
 #' @export auto_crop
 #' @param img_path, The path
-#' @param max_cell_area, description
-#' @param min_cell_area, description
-#' @param mean_pix, description
-#' @param annotation, description
-#' @param blob_factor, description
-#' @param bg_blob_factor, description
-#' @param offset, description
-#' @param final_blob_amp, description
-#' @param test_amount, description
+#' @param max_cell_area, Maximum pixel area of a cell candidate
+#' @param min_cell_area, Minimum pixel area of a cell candidate
+#' @param mean_pix, Mean pixel intensity of cell crop (in SYCP3 channel) for normalisation
+#' @param annotation, Choice to output pipeline choices (recommended to knit)
+#' @param blob_factor, Contrast factor to multiply original image by before smoothing/smudging
+#' @param bg_blob_factor, Contrast factor to multiply original image by to take background. Used prior to thresholding.
+#' @param offset, Pixel value offset from bg_blob_factor. Used in thresholding to make blob mask.
+#' @param final_blob_amp, Contrast factor to multiply smoothed/smudged image. Used in thresholding to make blob mask.
+#' @param test_amount, Optional number of first N images you want to run function on. For troubleshooting/testing/variable calibration purposes.
+#' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
+#' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to make blobs
 
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
 
-auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0)
+auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15)
 {
   file_list <- list.files(img_path)
   dir.create(paste0(img_path,"/crops"))
@@ -71,7 +73,7 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
 
       #### function: blur the image
       ## call it on img_orig, optional offset
-      blob_th <- get_blobs(img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp)
+      blob_th <- get_blobs(img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp,brush_size_blob, sigma_blob)
 
       blob_label = bwlabel(blob_th)
       blob_label <- channel(blob_label, "gray")
@@ -126,15 +128,17 @@ print("viable cells")
 #'
 #' @export
 #' @param img_orig Original image
-#' @param blob_factor, description
-#' @param bg_blob_factor, description
-#' @param offset, description
-#' @param final_blob_amp, description
-
+#'
+#' @param blob_factor, Contrast factor to multiply original image by before smoothing/smudging
+#' @param bg_blob_factor, Contrast factor to multiply original image by to take background. Used prior to thresholding.
+#' @param offset, Pixel value offset from bg_blob_factor. Used in thresholding to make blob mask.
+#' @param final_blob_amp, Contrast factor to multiply smoothed/smudged image. Used in thresholding to make blob mask.
+#' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
+#' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to make blobs
 #' @return Mask with cell candidates
 
 #################################### new function ####################################
-get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_amp){
+get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_amp, brush_size_blob,sigma_blob){
 
   # input:
 
@@ -146,7 +150,8 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
   # subfunction: big blur to blobs
   img_tmp_dna <- img_orig
   img_tmp <- thresh
-  w = makeBrush(size = 51, shape = 'gaussian', sigma = 15)
+  #w = makeBrush(size = 51, shape = 'gaussian', sigma = 15)
+  w = makeBrush(size = brush_size_blob, shape = 'gaussian', sigma = sigma_blob)
   img_flo = filter2(img_tmp, w)
   ## default amplification
   bg <- mean(bg_blob_factor*img_tmp)
@@ -170,8 +175,8 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
 #'
 #' @export
 #' @param candidate Mask of individual cell candidates
-#' @param max_cell_area, description
-#' @param min_cell_area, description
+#' @param max_cell_area, Maximum pixel area of a cell candidate
+#' @param min_cell_area, Minimum pixel area of a cell candidate
 
 #' @return Mask of cell candidates which meet size criteria
 keep_cells <- function(candidate, max_cell_area, min_cell_area){
@@ -211,26 +216,26 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area){
 #' Creates mask for every individual cell candidate in mask
 #'
 #' @export
-#' @param retained Mask of cell candidates which meet size criteria
-#' @param OOI_final, description
-#' @param counter_final, description
+#' @param retained Mask of cell candidates which meet size criteria. After smoothing/smudging and thresholding.
+#' @param OOI_final, Objects of interest count. Total number of cell candidates in retained.
+#' @param counter_final, Counter for single cell we are focussing on. Remove all other cells where counter_single not equal to counter_final.
 #' @param img_orig, description
 #' @param img_orig_foci, description
 #' @param img_orig_DAPI, description
-#' @param file_dna, description
-#' @param file_foci, description
-#' @param file_DAPI, description
-#' @param cell_count, description
-#' @param mean_pix, description
-#' @param annotation, description
-#' @param file_base, description
-#' @param img_path, description
+#' @param file_dna, filename of dna channel image
+#' @param file_foci, filename of foci channel image
+#' @param file_DAPI, filename of DAPI channel image
+#' @param cell_count, counter for successful crops around cells
+#' @param mean_pix, Mean pixel intensity of cell crop (in SYCP3 channel) for normalisation
+#' @param annotation, Choice to output pipeline choices (recommended to knit)
+#' @param file_base, filename base common to all three channels i.e. without -MLH3.jpeg etc.
+#' @param img_path, path containing image data to analyse
 
 #'
 
 
 
-#' @return Crops aroudn all candidates in both channels
+#' @return Crops around all candidates in both channels
 #'
 crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path){
   tmp_img <- retained
