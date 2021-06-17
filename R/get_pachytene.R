@@ -13,7 +13,7 @@
 #' @return Pairs of foci and SC channel crops for pachytene
 
 
-get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06)
+get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off")
 {
   cell_count <- 0
   image_count <-0
@@ -103,6 +103,10 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
             file_dna <- tools::file_path_sans_ext(file_base_dna)
             filename_crop = paste0(img_path_new,"/pachytene/", file_dna,".jpeg")
             writeImage(img_orig, filename_crop)
+            if(annotation == "on"){
+              print("decided the following is pachytene")
+              display(img_orig)
+            }
             file_foci <- tools::file_path_sans_ext(file_base_foci)
             filename_crop_foci = paste0(img_path_new,"/pachytene/", file_foci,".jpeg")
             writeImage(img_orig_foci, filename_crop_foci)

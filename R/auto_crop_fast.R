@@ -105,7 +105,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
   }
 
 print("out of")
-print(image_count)
+print(image_count-1)
 print("images, we got")
 print(cell_count)
 print("viable cells")
@@ -203,9 +203,7 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
       mean_factor <- mean_pix/orig_mean
       new_img <- new_img*mean_factor
       #file_dna <- tools::file_path_sans_ext(file_dna)
-      print(file_dna)
       file_dna <- gsub('-SYCP3.jpeg','', file_base)
-      print(file_dna)
       filename_crop = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-SYCP3.jpeg")
       writeImage(new_img, filename_crop)
 

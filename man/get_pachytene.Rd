@@ -9,7 +9,8 @@ get_pachytene(
   species_num = 20,
   offset = 0.2,
   ecc_thresh = 0.85,
-  area_thresh = 0.06
+  area_thresh = 0.06,
+  annotation = "off"
 )
 }
 \arguments{
