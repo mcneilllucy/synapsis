@@ -6,7 +6,7 @@
 \usage{
 count_foci(
   img_path,
-  stage = "pachytene",
+  stage = "none",
   offset_px = 0.2,
   offset_factor = 2,
   brush_size = 3,
