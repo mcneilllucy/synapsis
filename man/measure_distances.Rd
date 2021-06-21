@@ -14,7 +14,10 @@ measure_distances(
   annotation = "off",
   stage = "pachytene",
   eccentricity_min = 0.6,
-  max_strand_area = 300
+  max_strand_area = 300,
+  channel2_string = "SYCP3",
+  channel1_string = "MLH3",
+  file_ext = "jpeg"
 )
 }
 \arguments{

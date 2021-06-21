@@ -10,7 +10,10 @@ get_pachytene(
   offset = 0.2,
   ecc_thresh = 0.85,
   area_thresh = 0.06,
-  annotation = "off"
+  annotation = "off",
+  channel2_string = "SYCP3",
+  channel1_string = "MLH3",
+  file_ext = "jpeg"
 )
 }
 \arguments{

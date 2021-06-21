@@ -10,10 +10,10 @@ crop_single_object_fast(
   counter_final,
   img_orig,
   img_orig_foci,
-  img_orig_DAPI,
+  img_orig_DAPI = "blank",
   file_dna,
   file_foci,
-  file_DAPI,
+  file_DAPI = "blank",
   cell_count,
   mean_pix,
   annotation,
@@ -21,7 +21,12 @@ crop_single_object_fast(
   img_path,
   r_max,
   cx,
-  cy
+  cy,
+  channel3_string,
+  channel2_string,
+  channel1_string,
+  file_ext,
+  third_channel
 )
 }
 \arguments{

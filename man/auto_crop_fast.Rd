@@ -16,7 +16,12 @@ auto_crop_fast(
   final_blob_amp = 10,
   test_amount = 0,
   brush_size_blob = 51,
-  sigma_blob = 15
+  sigma_blob = 15,
+  channel3_string = "DAPI",
+  channel2_string = "SYCP3",
+  channel1_string = "MLH3",
+  file_ext = "jpeg",
+  third_channel = "off"
 )
 }
 \arguments{

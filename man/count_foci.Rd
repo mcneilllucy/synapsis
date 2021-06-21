@@ -12,7 +12,10 @@ count_foci(
   brush_size = 3,
   brush_sigma = 3,
   foci_norm = 0.01,
-  annotation = "off"
+  annotation = "off",
+  channel2_string = "SYCP3",
+  channel1_string = "MLH3",
+  file_ext = "jpeg"
 )
 }
 \arguments{
