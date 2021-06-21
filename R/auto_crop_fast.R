@@ -234,8 +234,9 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
     },
     error = function(e) {
       #what should be done in case of exception?
-      str(e) # #prints structure of exception
+
       if(annotation=="on"){
+        str(e) # #prints structure of exception
         print("couldn't crop it. Neglected the following mask")
         display(tmp_img)
       }
