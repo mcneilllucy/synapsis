@@ -16,7 +16,7 @@
 #' @return Data frame with properties of synaptonemal (SC) measurements
 
 # should take in same values as count_foci..
-measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off", stage = "pachytene", eccentricity_min = 0.6, max_strand_area = 300)
+measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off", stage = "pachytene", eccentricity_min = 0.6, max_strand_area = 300, channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg")
 {
   cell_count <- 0
   image_count <-0
@@ -36,14 +36,16 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
   for (file in file_list){
     filename_path_test = paste0(img_path,"/crops/",stage,"/", file)
     file = filename_path_test
-    if(grepl("*SYCP3.jpeg", file)){
+    if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), file)){
+    #if(grepl("*SYCP3.jpeg", file)){
       file_dna = file
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
       antibody1_store <- 1
     }
-    if(grepl("*MLH3.jpeg", file)){
+    if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), file)){
+    #if(grepl("*MLH3.jpeg", file)){
       file_foci = file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")

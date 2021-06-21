@@ -15,7 +15,7 @@
 #' @return foci count per cell
 
 
-count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off")
+count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg")
 {
   cell_count <- 0
   image_count <-0
@@ -45,14 +45,16 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
     }
 
     file = filename_path_test
-    if(grepl("*SYCP3.jpeg", file)){
+    #if(grepl("*SYCP3.jpeg", file)){
+    if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), file)){
       file_dna = file
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
       antibody1_store <- 1
     }
-    if(grepl("*MLH3.jpeg", file)){
+    #if(grepl("*MLH3.jpeg", file)){
+    if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), file)){
       file_foci = file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
