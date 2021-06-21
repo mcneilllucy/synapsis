@@ -13,7 +13,7 @@
 #' @return Pairs of foci and SC channel crops for pachytene
 
 
-get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off")
+get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg")
 {
   cell_count <- 0
   image_count <-0
@@ -32,7 +32,8 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
     file_base = file
     filename_path_test = paste0(img_path,"/crops/", file)
     file = filename_path_test
-    if(grepl("*SYCP3.jpeg", file)){
+    #if(grepl("*SYCP3.jpeg", file)){
+    if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), file)){
       file_dna = file
       file_base_dna = file_base
       image_count <- image_count +1
@@ -40,7 +41,8 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       img_orig <- channel(image, "grey")
       antibody1_store <- 1
     }
-    if(grepl("*MLH3.jpeg", file)){
+    #if(grepl("*MLH3.jpeg", file)){
+    if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), file)){
       file_base_foci = file_base
       file_foci = file
       #print(file_foci)
