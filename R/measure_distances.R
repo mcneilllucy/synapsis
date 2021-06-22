@@ -278,8 +278,8 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
               dir_2_out <- get_next_second_dir(new_square_2,ix2,iy2,dir_2,window,chosen_dir,distance_strand_2,second_dir)
               ix2 <- dir_2_out[1:next_cord]
               iy2 <- dir_2_out[(next_cord+1):(2*next_cord)]
-              distance_strand <- dir_1_out[(2*next_cord+2)]
-              dir_1 <- dir_1_out[(2*next_cord+1)]
+              distance_strand_2 <- dir_2_out[(2*next_cord+2)]
+              dir_2 <- dir_2_out[(2*next_cord+1)]
               second_dir <- dir_2_out[(2*next_cord+3)]
               start_dir2 <- dir_2_out[(2*next_cord+4)]
               walkers[round(mean(ix2)),round(mean(iy2))] = 1
@@ -1176,6 +1176,15 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   ### now that you have the exact positions of the foci on the walker channel, we want to count distances.
 
   ### start at start_x
+  if(annotation == "on"){
+    print("starting at pixel location")
+    print(c(start_x,start_y))
+    print("in direction")
+    print(start_dir)
+    display(rgbImage(0*walkers,walkers,walkers ))
+    # deleting for now
+    text(x = start_x, y = start_y, label = "+", col = "magenta", cex = 1)
+  }
   x_curr <- start_x
   y_curr <- start_y
   dir_curr <- start_dir
@@ -1192,7 +1201,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
   test_walker <-  0*my_walkers_matrix
   length_walker <- 1
-  test_walker[x_curr,y_curr] <- 1
+  #test_walker[x_curr,y_curr] <- 1
 
   ## measuring foci
   dist_between_foci <- 0
@@ -1219,6 +1228,8 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
     ###
     if(x_curr == mean_y_f1 && y_curr == mean_x_f1 | x_curr == mean_y_f2 && y_curr == mean_x_f2 ){
+      print("i found a foci, number")
+      print(foci_out_2)
       foci_out_2 <- foci_out_2+1
     }
 
@@ -1228,9 +1239,12 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
     if(foci_out_2 > 1){
       measuring_distance <- 0
+      looping <- 0
+    }
+    if(measuring_distance == 1){
+      test_walker[x_curr,y_curr] <- 1
     }
 
-    test_walker[x_curr,y_curr] <- 1
     ### do stuff
     ### do the opposite of the travelling direction
 
@@ -1491,6 +1505,9 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
       }
     }
 
+    # just added
+    # test_walker[x_curr,y_curr] <- 1
+
 
     ### find direction to move i.e. find the closest 1.
     ## just look at the whole crop....
@@ -1499,6 +1516,8 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   if(annotation == "on"){
     print("here are the results for this SC")
     display(rgbImage(walkers, test_walker, test_walker))
+    display(rgbImage(walkers, 0*test_walker, 0*test_walker))
+    display(rgbImage(test_walker, test_walker, test_walker))
     # deleting for now
     text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
     text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
@@ -1510,6 +1529,8 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   px_length <- dist_between_foci
 
   if(annotation == "on"){
+    print("the distance strands measure")
+    print(c(distance_strand,distance_strand_2))
     print("distance between foci (in pixels) was")
     print(px_length)
     print("distance as a fraction of total length is")
