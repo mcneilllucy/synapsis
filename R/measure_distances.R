@@ -293,7 +293,6 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
             ### call measure distance between 2
 
             dimensionless_dist <- get_distance_between_two(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotation)
-            print(dimensionless_dist)
             return(dimensionless_dist)
             ##### ends here
             ### you've got a single strand here. try and count distance between foci.
@@ -1117,8 +1116,10 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   foci_1_y <- strand_info$m.cy[1]
   foci_2_x <- strand_info$m.cx[2]
   foci_2_y <- strand_info$m.cy[2]
-  print(c(foci_1_x,foci_1_y,foci_2_x,foci_2_y))
+
   if(annotation == "on"){
+    print("foci located at")
+    print(c(foci_1_x,foci_1_y,foci_2_x,foci_2_y))
     print("total distance is")
     print(distance_strand+ distance_strand_2)
   }
@@ -1176,15 +1177,6 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   ### now that you have the exact positions of the foci on the walker channel, we want to count distances.
 
   ### start at start_x
-  if(annotation == "on"){
-    print("starting at pixel location")
-    print(c(start_x,start_y))
-    print("in direction")
-    print(start_dir)
-    display(rgbImage(0*walkers,walkers,walkers ))
-    # deleting for now
-    text(x = start_x, y = start_y, label = "+", col = "magenta", cex = 1)
-  }
   x_curr <- start_x
   y_curr <- start_y
   dir_curr <- start_dir
@@ -1228,8 +1220,6 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
     ###
     if(x_curr == mean_y_f1 && y_curr == mean_x_f1 | x_curr == mean_y_f2 && y_curr == mean_x_f2 ){
-      print("i found a foci, number")
-      print(foci_out_2)
       foci_out_2 <- foci_out_2+1
     }
 
@@ -1516,8 +1506,6 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   if(annotation == "on"){
     print("here are the results for this SC")
     display(rgbImage(walkers, test_walker, test_walker))
-    display(rgbImage(walkers, 0*test_walker, 0*test_walker))
-    display(rgbImage(test_walker, test_walker, test_walker))
     # deleting for now
     text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
     text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
@@ -1552,29 +1540,33 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
               genotype <- "Fancm-/-"
             }
             dimensionless_dist_pass <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
-            print("This strand managed to pass through:")
-            ch1 = bwlabel(walkers)
-            ch1 <- channel(ch1, "grey")
-            ch2 = bwlabel(noise_gone)
-            ch2 <-channel(noise_gone,"grey")
-            ch3 = bwlabel(per_strand)
-            ch3 <- channel(per_strand,"grey")
-            bluered <- rgbImage(ch2, ch1, ch3)
-            #print("break")
-            #display(bluered)
-            #bluered <- rgbImage(ch2, ch1, ch1)
-            plot(bluered)
-            text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
-            text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
-            text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
-            text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "green", cex = 2)
-            text(x = start_x2, y = start_y2, label = "+", col = "blue", cex = 2)
-            text(x = start_x, y = start_y, label = "+", col = "blue", cex = 2)
-            print("This one worked. check that it walked successfully")
-            display(rgbImage(walkers, test_walker, test_walker))
-            # deleting for now
-            text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
-            text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
+
+            if(annotation =="on"){
+              print("This strand managed to pass through:")
+              ch1 = bwlabel(walkers)
+              ch1 <- channel(ch1, "grey")
+              ch2 = bwlabel(noise_gone)
+              ch2 <-channel(noise_gone,"grey")
+              ch3 = bwlabel(per_strand)
+              ch3 <- channel(per_strand,"grey")
+              bluered <- rgbImage(ch2, ch1, ch3)
+              #print("break")
+              #display(bluered)
+              #bluered <- rgbImage(ch2, ch1, ch1)
+              plot(bluered)
+              text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
+              text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
+              text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
+              text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "green", cex = 2)
+              text(x = start_x2, y = start_y2, label = "+", col = "blue", cex = 2)
+              text(x = start_x, y = start_y, label = "+", col = "blue", cex = 2)
+              print("This one worked. check that it walked successfully")
+              display(rgbImage(walkers, test_walker, test_walker))
+              # deleting for now
+              text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
+              text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
+            }
+
             return(dimensionless_dist_pass)
 
           }
