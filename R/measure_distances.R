@@ -1507,10 +1507,10 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   if(annotation == "on"){
     print("here are the results for this SC")
     ch_strand <-channel(noise_gone,"grey")
-    display(rgbImage(walkers, test_walker,ch_strand))
+    display(rgbImage(ch_strand,walkers, test_walker))
     # deleting for now
-    text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
-    text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
+    text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "yellow", cex = 2)
+    text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "yellow", cex = 2)
 
   }
 
