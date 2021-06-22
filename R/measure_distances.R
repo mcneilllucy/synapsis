@@ -1157,20 +1157,21 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   distance_f2 <- (foci_2_y-mean_x_f2)^2 +(foci_2_x-mean_y_f2)^2
   # deleting for now
   if (annotation=="on"){
-    ch1 = bwlabel(walkers)
-    ch1 <- channel(ch1, "grey")
-    ch2 = bwlabel(noise_gone)
-    ch2 <-channel(noise_gone,"grey")
-    ch3 = bwlabel(per_strand)
-    ch3 <- channel(per_strand,"grey")
-    bluered <- rgbImage(ch2, ch1, ch3)
+    ch1 = bwlabel(noise_gone)
+    ch1 <-channel(noise_gone,"grey")
+    ch2 = bwlabel(foci_label)
+    ch2 <- channel(foci_label,"grey")
+    bluered <- rgbImage(ch1, ch2, 0*ch1)
+    plot(bluered)
+    print("with foci locations included")
     plot(bluered)
     text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
     text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
+    print("with foci locations included, on the line")
+    plot(bluered)
     text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
-    text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "green", cex = 2)
-    text(x = start_x2, y = start_y2, label = "+", col = "blue", cex = 2)
-    text(x = start_x, y = start_y, label = "+", col = "blue", cex = 2)
+    text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "magenta", cex = 2)
+
 
   }
 
@@ -1542,25 +1543,10 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
             dimensionless_dist_pass <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
 
             if(annotation =="on"){
-              print("This strand managed to pass through:")
-              ch1 = bwlabel(walkers)
-              ch1 <- channel(ch1, "grey")
-              ch2 = bwlabel(noise_gone)
-              ch2 <-channel(noise_gone,"grey")
-              ch3 = bwlabel(per_strand)
-              ch3 <- channel(per_strand,"grey")
-              bluered <- rgbImage(ch2, ch1, ch3)
-              #print("break")
-              #display(bluered)
-              #bluered <- rgbImage(ch2, ch1, ch1)
-              plot(bluered)
-              text(x = foci_1_x, y = foci_1_y, label = "+", col = "yellow", cex = 2)
-              text(x = foci_2_x, y = foci_2_y, label = "+", col = "yellow", cex = 2)
-              text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
-              text(x = mean_y_f2, y = mean_x_f2, label = "+", col = "green", cex = 2)
-              text(x = start_x2, y = start_y2, label = "+", col = "blue", cex = 2)
-              text(x = start_x, y = start_y, label = "+", col = "blue", cex = 2)
-              print("This one worked. check that it walked successfully")
+
+              ### stages we want to see for ones that pass
+              print("This strand managed to pass through.")
+              print("Check that it walked successfully. Total length in red, distance between two in white, and foci locations in magenta.")
               display(rgbImage(walkers, test_walker, test_walker))
               # deleting for now
               text(x = mean_y_f1, y = mean_x_f1, label = "+", col = "magenta", cex = 2)
