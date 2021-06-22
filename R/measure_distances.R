@@ -97,11 +97,6 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
       }
       ################ distance starts (make function later)
       dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation,eccentricity_min, max_strand_area)
-      print("the dimension of the new row is")
-      print(dim(dimensionless_dist))
-      print("and part of the row is")
-      print(dimensionless_dist)
-      print("the full row is")
       df_lengths <- rbind(df_lengths, dimensionless_dist)
     }
   }
@@ -1116,7 +1111,6 @@ get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,dis
 #' @return List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
 #'
 get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotation){
-  print("we have a strand with two foci, located at")
   strand_info <- computeFeatures.moment(bwlabel(per_strand),as.matrix(foci_label))
   strand_info <- as.data.frame(strand_info)
   foci_1_x <- strand_info$m.cx[1]
@@ -1124,8 +1118,11 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   foci_2_x <- strand_info$m.cx[2]
   foci_2_y <- strand_info$m.cy[2]
   print(c(foci_1_x,foci_1_y,foci_2_x,foci_2_y))
-  print("total distance is")
-  print(distance_strand+ distance_strand_2)
+  if(annotation == "on"){
+    print("total distance is")
+    print(distance_strand+ distance_strand_2)
+  }
+
   #### here is where you can identify the lengths.
   ### get the walkers matrix. Loop over, only if value = 1, assign a                    distance for a new matrix
   ### you've got a single strand here. try and count distance between foci.
@@ -1512,10 +1509,15 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   dim_length <- dist_between_foci/(distance_strand+ distance_strand_2)
   px_length <- dist_between_foci
 
+  if(annotation == "on"){
+    print("distance between foci (in pixels) was")
+    print(px_length)
+    print("distance as a fraction of total length is")
+    print(dim_length)
+  }
+
   if(length_walker<149){
     strand_iter <- strand_iter +1
-    print("on iteration")
-    print(strand_iter)
     if (dim_length >1e-6 && dim_length < 1 && (distance_strand+ distance_strand_2) > 0){
       if (foci_out_2 >1){
         if(distance_f1 < 10){
