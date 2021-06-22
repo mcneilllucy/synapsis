@@ -256,8 +256,8 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
       #what should be done in case of exception?
 
       if(annotation=="on"){
-        str(e) # #prints structure of exception
-        print("couldn't crop it. Neglected the following mask")
+        #str(e) # #prints structure of exception
+        print("couldn't crop it since cell is on the edge. Neglected the following mask of a cell candidate:")
         display(tmp_img)
       }
 
