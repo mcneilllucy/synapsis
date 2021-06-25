@@ -40,6 +40,12 @@ measure_distances(
 \item{eccentricity_min, }{The minimum eccentricity (from computefeatures) of a strand to proceed with measuring}
 
 \item{max_strand_area, }{Maximum pixel area of a strand}
+
+\item{channel2_string}{String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3}
+
+\item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
+
+\item{file_ext}{file extension of your images e.g. tiff jpeg or png.}
 }
 \value{
 Data frame with properties of synaptonemal (SC) measurements

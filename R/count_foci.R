@@ -11,6 +11,9 @@
 #' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.
 #' @param foci_norm, Mean intensity to normalise all foci channels to.
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
+#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param file_ext file extension of your images e.g. tiff jpeg or png.
 
 #' @return foci count per cell
 
@@ -101,6 +104,8 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       coincident_foci <- bwlabel(foci_label*strands)
       ### multiply strands by foci_label
       if(annotation == "on"){
+        print("at file")
+        print(file)
         print("cell counter is")
         print(cell_count)
         print("original images")
@@ -113,6 +118,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         display(colorLabels(coincident_foci))
         print("two channels, only coincident foci")
         display(rgbImage(strands,coincident_foci,coincident_foci))
+
 
       }
 

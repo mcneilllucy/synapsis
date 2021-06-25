@@ -22,7 +22,9 @@ get_distance_between_two(
   mean_y,
   strand_iter,
   file,
-  annotation
+  annotation,
+  cell_count,
+  uid_strand
 )
 }
 \arguments{
@@ -61,6 +63,10 @@ get_distance_between_two(
 \item{file, }{original filename that cell candidate came from. Used to identify e.g. genotype for data frame.}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
+
+\item{cell_count}{Unique cell number}
+
+\item{uid_strand}{Unique strand number}
 }
 \value{
 List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.

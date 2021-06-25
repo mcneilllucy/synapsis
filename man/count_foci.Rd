@@ -34,6 +34,12 @@ count_foci(
 \item{foci_norm, }{Mean intensity to normalise all foci channels to.}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
+
+\item{channel2_string}{String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3}
+
+\item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
+
+\item{file_ext}{file extension of your images e.g. tiff jpeg or png.}
 }
 \value{
 foci count per cell

@@ -2,7 +2,7 @@
 #'
 #' crop an image around each viable cell candidate.
 #' @importFrom stats median sd
-#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
+#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape computeFeatures.haralick display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
 #' @importFrom graphics text
 #' @importFrom utils str
 #' @export auto_crop_fast
@@ -18,6 +18,12 @@
 #' @param test_amount, Optional number of first N images you want to run function on. For troubleshooting/testing/variable calibration purposes.
 #' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
 #' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to make blobs
+#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param channel3_string Defaults to DAPI (if third channel is on)
+#' @param file_ext file extension of your images e.g. tiff jpeg or png.
+#' @param third_channel Whether there is a third channel e.g. DAPI stain. On or off. Defaults to off.
+#'
 
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
@@ -150,6 +156,11 @@ print("viable cells")
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
 #' @param file_base, filename base common to all three channels i.e. without -MLH3.jpeg etc.
 #' @param img_path, path containing image data to analyse
+#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param channel3_string Defaults to DAPI (if third channel is on)
+#' @param file_ext file extension of your images e.g. tiff jpeg or png.
+#' @param third_channel Whether there is a third channel e.g. DAPI stain. On or off. Defaults to off.
 
 #'
 

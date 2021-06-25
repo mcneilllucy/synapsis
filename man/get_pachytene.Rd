@@ -26,6 +26,14 @@ get_pachytene(
 \item{ecc_thresh, }{The minimum average eccentricity of all objects in mask determined by computefeatures, for a cell to be pachytene.}
 
 \item{area_thresh, }{The minimum ratio of pixels included in mask to total, for a cell to be classified as pachytene.}
+
+\item{annotation, }{Choice to output pipeline choices (recommended to knit)}
+
+\item{channel2_string}{String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3}
+
+\item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
+
+\item{file_ext}{file extension of your images e.g. tiff jpeg or png.}
 }
 \value{
 Pairs of foci and SC channel crops for pachytene

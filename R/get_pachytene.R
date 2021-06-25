@@ -9,8 +9,12 @@
 #' @param offset, Pixel value offset used in therholding for the dna (SYCP3) channel
 #' @param ecc_thresh, The minimum average eccentricity of all objects in mask determined by computefeatures, for a cell to be pachytene.
 #' @param area_thresh, The minimum ratio of pixels included in mask to total, for a cell to be classified as pachytene.
-
+#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param file_ext file extension of your images e.g. tiff jpeg or png.
+#' @param annotation, Choice to output pipeline choices (recommended to knit)
 #' @return Pairs of foci and SC channel crops for pachytene
+#'
 
 
 get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg")

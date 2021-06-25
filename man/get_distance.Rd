@@ -15,7 +15,8 @@ get_distance(
   file,
   annotation,
   eccentricity_min,
-  max_strand_area
+  max_strand_area,
+  cell_count
 )
 }
 \arguments{
@@ -38,6 +39,8 @@ get_distance(
 \item{eccentricity_min, }{The minimum eccentricity (from computefeatures) of a strand to proceed with measuring}
 
 \item{max_strand_area, }{Maximum pixel area of a strand}
+
+\item{cell_count}{Unique cell counter}
 }
 \value{
 Data frame with properties of synaptonemal (SC) measurements

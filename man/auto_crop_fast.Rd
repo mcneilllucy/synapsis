@@ -48,6 +48,16 @@ auto_crop_fast(
 \item{brush_size_blob, }{Brush size for smudging the dna channel to make blobs}
 
 \item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel to make blobs}
+
+\item{channel3_string}{Defaults to DAPI (if third channel is on)}
+
+\item{channel2_string}{String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3}
+
+\item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
+
+\item{file_ext}{file extension of your images e.g. tiff jpeg or png.}
+
+\item{third_channel}{Whether there is a third channel e.g. DAPI stain. On or off. Defaults to off.}
 }
 \value{
 cropped SC and foci channels around single cells, regardless of stage

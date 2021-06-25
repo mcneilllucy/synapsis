@@ -32,7 +32,7 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
 
   img_path_new <- paste0(img_path,"/crops/",stage,"/")
   file_list <- list.files(img_path_new)
-  df_cols <- c("file","genotype","foci_no","foci_per_strand", "total_SC_length","total_pixel_distance","foci_location_along", "fractional_distance_between_two", "pass_fail", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line")
+  df_cols <- c("file","cell_id","genotype","foci_no","foci_per_strand", "SC_no_cell","SC_uid","total_SC_length","total_pixel_distance","foci_location_along", "fractional_distance_between_two", "pass_fail", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line")
   df_lengths <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   #colnames(df_lengths) <- df_cols
   ## for each image that is *-dna.jpeg,
@@ -99,7 +99,8 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
         print(cell_count)
       }
       ################ distance starts (make function later)
-      dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation,eccentricity_min, max_strand_area)
+      dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation,eccentricity_min, max_strand_area,cell_count)
+      #colnames(dimensionless_dist) <- df_cols
       df_lengths <- rbind(df_lengths, dimensionless_dist)
     }
   }
@@ -172,14 +173,16 @@ threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma){
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
 #' @param eccentricity_min, The minimum eccentricity (from computefeatures) of a strand to proceed with measuring
 #' @param max_strand_area, Maximum pixel area of a strand
+#' @param cell_count Unique cell counter
 
 #' @return Data frame with properties of synaptonemal (SC) measurements
 #'
-get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation, eccentricity_min, max_strand_area){
+get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation, eccentricity_min, max_strand_area,cell_count){
   tryCatch({
     no_strands <- nrow(num_strands)
     strand_count<- 0
     while(strand_count<no_strands){
+      strand_iter <- strand_iter + 1
       strand_count <- strand_count + 1
       # if area less than 150 pixels.. or not an outlier... keep
       if (as.numeric(num_strands$s.area[strand_count])<max_strand_area & as.numeric(num_strands$s.area[strand_count])>10){
@@ -295,7 +298,8 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
 
             ### call measure distance between 2
 
-            dimensionless_dist <- get_distance_between_two(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotation)
+
+            dimensionless_dist <- get_distance_between_two(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_count,file,annotation,cell_count,strand_iter)
             return(dimensionless_dist)
             ##### ends here
             ### you've got a single strand here. try and count distance between foci.
@@ -1110,9 +1114,11 @@ get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,dis
 #' @param strand_iter, Strand number in iteration over all in cell
 #' @param file, original filename that cell candidate came from. Used to identify e.g. genotype for data frame.
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
+#' @param cell_count Unique cell number
+#' @param uid_strand Unique strand number
 #' @return List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
 #'
-get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotation){
+get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotation,cell_count, uid_strand){
   strand_info <- computeFeatures.moment(bwlabel(per_strand),as.matrix(foci_label))
   strand_info <- as.data.frame(strand_info)
   foci_1_x <- strand_info$m.cx[1]
@@ -1552,6 +1558,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
   dim_length <- dist_between_foci/(distance_strand+ distance_strand_2)
   px_length <- dist_between_foci
+  #strand_iter <- strand_iter +1
 
   if(annotation == "on"){
     print("the distance strands measure")
@@ -1563,7 +1570,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
   }
 
   if(length_walker<149){
-    strand_iter <- strand_iter +1
+
     if (dim_length >1e-6 && dim_length < 1 && (distance_strand+ distance_strand_2) > 0){
       if (foci_out_2 >1){
         if(distance_f1 < 10){
@@ -1576,13 +1583,14 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
             if(grepl( "--", file, fixed = TRUE) == TRUE){
               genotype <- "Fancm-/-"
             }
+            uid <- strand_iter
 
             # SIX new columns added: foci counter, foci per strand, f1 location x, f1 location y, f2 location x, f2 location y,  f1 location x (on line), f1 location y (on line), f2 location x (on line), f2 location y (on line),
             # df_cols <- c("file","genotype","foci_no","foci_per_strand", "total_SC_length","total_pixel_distance","foci_location_along", "fractional_distance_between_two", "pass_fail", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line")
 
 
-            dimensionless_dist_pass_f1 <- c(file, genotype,1,2, (distance_strand+ distance_strand_2), px_length,foci_location_along_1, dim_length,"pass", foci_1_x, foci_1_y,  mean_y_f1, mean_x_f1)
-            dimensionless_dist_pass_f2 <- c(file, genotype,2,2, (distance_strand+ distance_strand_2), px_length,foci_location_along_2, dim_length,"pass", foci_2_x, foci_2_y,  mean_y_f2, mean_x_f2)
+            dimensionless_dist_pass_f1 <- c(file,cell_count, genotype,1,2, uid,uid_strand,(distance_strand+ distance_strand_2), px_length,foci_location_along_1, dim_length,"pass", foci_1_x, foci_1_y,  mean_y_f1, mean_x_f1)
+            dimensionless_dist_pass_f2 <- c(file, cell_count, genotype,2,2, uid,uid_strand, (distance_strand+ distance_strand_2), px_length,foci_location_along_2, dim_length,"pass", foci_2_x, foci_2_y,  mean_y_f2, mean_x_f2)
             dimensionless_dist_pass <- rbind(dimensionless_dist_pass_f1,dimensionless_dist_pass_f2)
             rownames(dimensionless_dist_pass) <- NULL
 
