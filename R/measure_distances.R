@@ -1541,7 +1541,11 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
             if(grepl( "--", file, fixed = TRUE) == TRUE){
               genotype <- "Fancm-/-"
             }
-            dimensionless_dist_pass <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+            dimensionless_dist_pass_f1 <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+            dimensionless_dist_pass_f2 <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+            dimensionless_dist_pass <- rbind(dimensionless_dist_pass_f1,dimensionless_dist_pass_f2)
+
+            ### add the new row here...
 
             if(annotation =="on"){
 
