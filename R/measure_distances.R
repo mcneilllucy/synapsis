@@ -29,7 +29,7 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
 
   img_path_new <- paste0(img_path,"/crops/",stage,"/")
   file_list <- list.files(img_path_new)
-  df_cols <- c("file","genotype","total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
+  df_cols <- c("file","genotype","foci_per_strand", "f1_location_x", "f1_location_y", "f2_location_x", "f2_location_y",  "f1_location_x_line", "f1_location_y_line", "f2_location_x_line", "f2_location_y_line","total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
   df_lengths <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_lengths) <- df_cols
   ## for each image that is *-dna.jpeg,
@@ -1541,9 +1541,11 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
             if(grepl( "--", file, fixed = TRUE) == TRUE){
               genotype <- "Fancm-/-"
             }
-            dimensionless_dist_pass_f1 <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
-            dimensionless_dist_pass_f2 <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+            # NINE new columns added: foci per strand, f1 location x, f1 location y, f2 location x, f2 location y,  f1 location x (on line), f1 location y (on line), f2 location x (on line), f2 location y (on line),
+            dimensionless_dist_pass_f1 <- c(file, genotype,"foci_per_strand", "f1_location_x", "f1_location_y", "f2_location_x", "f2_location_y",  "f1_location_x_line", "f1_location_y_line", "f2_location_x_line", "f2_location_y_line", px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+            dimensionless_dist_pass_f2 <- c(file, genotype, "foci_per_strand", "f1_location_x", "f1_location_y", "f2_location_x", "f2_location_y",  "f1_location_x_line", "f1_location_y_line", "f2_location_x_line", "f2_location_y_line",px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
             dimensionless_dist_pass <- rbind(dimensionless_dist_pass_f1,dimensionless_dist_pass_f2)
+            rownames(dimensionless_dist_pass) <- NULL
 
             ### add the new row here...
 
