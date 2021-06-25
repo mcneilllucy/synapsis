@@ -29,7 +29,7 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
 
   img_path_new <- paste0(img_path,"/crops/",stage,"/")
   file_list <- list.files(img_path_new)
-  df_cols <- c("file","genotype","foci_per_strand", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line","total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
+  df_cols <- c("file","genotype","foci_no","foci_per_strand", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line","total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
   df_lengths <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_lengths) <- df_cols
   ## for each image that is *-dna.jpeg,
@@ -1541,11 +1541,12 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
             if(grepl( "--", file, fixed = TRUE) == TRUE){
               genotype <- "Fancm-/-"
             }
-            # NINE new columns added: foci per strand, f1 location x, f1 location y, f2 location x, f2 location y,  f1 location x (on line), f1 location y (on line), f2 location x (on line), f2 location y (on line),
-            dimensionless_dist_pass_f1 <- c(file, genotype,"foci_per_strand", "f1_location_x", "f1_location_y",  "f1_location_x_line", "f1_location_y_line", px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
-            dimensionless_dist_pass_f2 <- c(file, genotype, "foci_per_strand", "f1_location_x", "f1_location_y",  "f1_location_x_line", "f1_location_y_line",px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+
+            # SIX new columns added: foci counter, foci per strand, f1 location x, f1 location y, f2 location x, f2 location y,  f1 location x (on line), f1 location y (on line), f2 location x (on line), f2 location y (on line),
+            dimensionless_dist_pass_f1 <- c(file, genotype,1,2, foci_1_x, foci_1_y,  mean_y_f1, mean_x_f1, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+            dimensionless_dist_pass_f2 <- c(file, genotype,2,2, foci_2_x, foci_2_y,  mean_y_f2, mean_x_f2, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
             dimensionless_dist_pass <- rbind(dimensionless_dist_pass_f1,dimensionless_dist_pass_f2)
-            rownames(dimensionless_dist_pass) <- NULL
+            #rownames(dimensionless_dist_pass) <- NULL
 
             ### add the new row here...
 
@@ -1612,7 +1613,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
       genotype <- "Fancm-/-"
     }
     dimensionless_dist_fail_minor <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"fail")
-    return(dimensionless_dist_fail_minor)
+    #return(dimensionless_dist_fail_minor)
   }
   ## finish at start_x2
 
