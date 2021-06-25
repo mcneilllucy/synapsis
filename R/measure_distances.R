@@ -29,7 +29,7 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
 
   img_path_new <- paste0(img_path,"/crops/",stage,"/")
   file_list <- list.files(img_path_new)
-  df_cols <- c("file","genotype","foci_no","foci_per_strand", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line","total_pixel_distance", "fractional_distance", "total_SC_length","pass_fail")
+  df_cols <- c("file","genotype","foci_no","foci_per_strand", "total_SC_length","total_pixel_distance","foci_location_along", "fractional_distance_between_two", "pass_fail", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line")
   df_lengths <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_lengths) <- df_cols
   ## for each image that is *-dna.jpeg,
@@ -1198,6 +1198,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
   ## measuring foci
   dist_between_foci <- 0
+  dist_along <- 0
   measuring_distance <- 0
   foci_out_2 <- 0
   #while(x_curr != start_x2 & y_curr != start_y2){
@@ -1221,7 +1222,12 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
     ###
     if(x_curr == mean_y_f1 && y_curr == mean_x_f1 | x_curr == mean_y_f2 && y_curr == mean_x_f2 ){
+      if(foci_out_2 == 0){
+        foci_location_along_1 <- dist_along
+      }
       foci_out_2 <- foci_out_2+1
+
+
     }
 
     if(foci_out_2 == 1){
@@ -1229,6 +1235,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
     }
 
     if(foci_out_2 > 1){
+      foci_location_along_2 <- dist_along
       measuring_distance <- 0
       looping <- 0
     }
@@ -1249,6 +1256,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
       # 1 position
       else if(walkers[x_curr,y_curr-1]==1){
@@ -1258,6 +1266,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
 
       # 2 position
@@ -1269,6 +1278,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
 
     }
@@ -1283,6 +1293,8 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
+
       }
 
       # 2 position
@@ -1294,6 +1306,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
 
       }
 
@@ -1305,6 +1318,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
 
     }
@@ -1318,6 +1332,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
 
       # 3 position
@@ -1328,6 +1343,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
       # 4 position
       else if(walkers[x_curr+1,y_curr+1]==1){
@@ -1338,6 +1354,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
 
     }
@@ -1350,6 +1367,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
       # 4 position
       else if(walkers[x_curr+1,y_curr+1]==1){
@@ -1360,6 +1378,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
       # 5 position
       else if(walkers[x_curr,y_curr+1]==1){
@@ -1369,6 +1388,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
     }
     else if(dir_curr == 5){
@@ -1381,6 +1401,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
       # 5 position
       else if(walkers[x_curr,y_curr+1]==1){
@@ -1390,6 +1411,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
       # 6 position
       else if(walkers[x_curr-1,y_curr+1]==1){
@@ -1400,6 +1422,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
     }
     else if(dir_curr == 6){
@@ -1411,6 +1434,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
       # 6 position
       else if(walkers[x_curr-1,y_curr+1]==1){
@@ -1421,6 +1445,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
       # 7 position
       else if(walkers[x_curr-1,y_curr]==1){
@@ -1430,6 +1455,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
 
     }
@@ -1443,6 +1469,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
       # 7 position
       else if(walkers[x_curr-1,y_curr]==1){
@@ -1452,6 +1479,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
       # 8 position
       else if(walkers[x_curr-1,y_curr-1]==1){
@@ -1462,6 +1490,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
 
     }
@@ -1474,6 +1503,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
       # 8 position
       else if(walkers[x_curr-1,y_curr-1]==1){
@@ -1484,6 +1514,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + sqrt(2)
         }
+        dist_along <- dist_along + sqrt(2)
       }
       # 1 position
       else if(walkers[x_curr,y_curr-1]==1){
@@ -1493,6 +1524,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(measuring_distance == 1){
           dist_between_foci <- dist_between_foci + 1
         }
+        dist_along <- dist_along + 1
       }
     }
 
@@ -1543,8 +1575,11 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
             }
 
             # SIX new columns added: foci counter, foci per strand, f1 location x, f1 location y, f2 location x, f2 location y,  f1 location x (on line), f1 location y (on line), f2 location x (on line), f2 location y (on line),
-            dimensionless_dist_pass_f1 <- c(file, genotype,1,2, foci_1_x, foci_1_y,  mean_y_f1, mean_x_f1, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
-            dimensionless_dist_pass_f2 <- c(file, genotype,2,2, foci_2_x, foci_2_y,  mean_y_f2, mean_x_f2, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
+            # df_cols <- c("file","genotype","foci_no","foci_per_strand", "total_SC_length","total_pixel_distance","foci_location_along", "fractional_distance_between_two", "pass_fail", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line")
+
+
+            dimensionless_dist_pass_f1 <- c(file, genotype,1,2, (distance_strand+ distance_strand_2), px_length,foci_location_along_1, dim_length,"pass", foci_1_x, foci_1_y,  mean_y_f1, mean_x_f1)
+            dimensionless_dist_pass_f2 <- c(file, genotype,2,2, (distance_strand+ distance_strand_2), px_length,foci_location_along_2, dim_length,"pass", foci_2_x, foci_2_y,  mean_y_f2, mean_x_f2)
             dimensionless_dist_pass <- rbind(dimensionless_dist_pass_f1,dimensionless_dist_pass_f2)
             rownames(dimensionless_dist_pass) <- NULL
 
