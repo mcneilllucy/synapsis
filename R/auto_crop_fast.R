@@ -2,7 +2,7 @@
 #'
 #' crop an image around each viable cell candidate.
 #' @importFrom stats median sd
-#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
+#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape computeFeatures.haralick display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
 #' @importFrom graphics text
 #' @importFrom utils str
 #' @export auto_crop_fast
