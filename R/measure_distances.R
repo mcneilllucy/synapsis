@@ -1546,7 +1546,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
             dimensionless_dist_pass_f1 <- c(file, genotype,1,2, foci_1_x, foci_1_y,  mean_y_f1, mean_x_f1, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
             dimensionless_dist_pass_f2 <- c(file, genotype,2,2, foci_2_x, foci_2_y,  mean_y_f2, mean_x_f2, px_length,dim_length,(distance_strand+ distance_strand_2),"pass")
             dimensionless_dist_pass <- rbind(dimensionless_dist_pass_f1,dimensionless_dist_pass_f2)
-            #rownames(dimensionless_dist_pass) <- NULL
+            rownames(dimensionless_dist_pass) <- NULL
 
             ### add the new row here...
 
