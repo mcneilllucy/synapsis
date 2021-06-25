@@ -13,6 +13,9 @@
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
 #' @param eccentricity_min, The minimum eccentricity (from computefeatures) of a strand to proceed with measuring
 #' @param max_strand_area, Maximum pixel area of a strand
+#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param file_ext file extension of your images e.g. tiff jpeg or png.
 #' @return Data frame with properties of synaptonemal (SC) measurements
 
 # should take in same values as count_foci..
@@ -31,7 +34,7 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
   file_list <- list.files(img_path_new)
   df_cols <- c("file","genotype","foci_no","foci_per_strand", "total_SC_length","total_pixel_distance","foci_location_along", "fractional_distance_between_two", "pass_fail", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line")
   df_lengths <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
-  colnames(df_lengths) <- df_cols
+  #colnames(df_lengths) <- df_cols
   ## for each image that is *-dna.jpeg,
   for (file in file_list){
     filename_path_test = paste0(img_path,"/crops/",stage,"/", file)
@@ -314,8 +317,8 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
     if(grepl( "--", file, fixed = TRUE) == TRUE){
       genotype <- "Fancm-/-"
     }
-    dimensionless_dist_major_fail <- c(file, genotype, "NA", "NA", "NA", "fail")
-    return(dimensionless_dist_major_fail)
+    #dimensionless_dist_major_fail <- c(file, genotype, "NA", "NA", "NA", "fail")
+    #return(dimensionless_dist_major_fail)
 
   }
   )
@@ -1647,7 +1650,7 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
     if(grepl( "--", file, fixed = TRUE) == TRUE){
       genotype <- "Fancm-/-"
     }
-    dimensionless_dist_fail_minor <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"fail")
+    #dimensionless_dist_fail_minor <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"fail")
     #return(dimensionless_dist_fail_minor)
   }
   ## finish at start_x2
