@@ -69,7 +69,7 @@ And now we can save
 
 
 ```
-To do this for a whole folder, where in this example all images end in "RGB.jpeg", use this loop instead:
+To do this for a whole folder, where in this example all images end in "-RGB.jpeg", use this loop instead:
 ```{r, eval = FALSE}
 library(EBImage)
 # location of the jpeg/png/tiff files to convert into three channel jpeg/png/tiff
