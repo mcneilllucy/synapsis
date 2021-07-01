@@ -13,8 +13,7 @@ Authors@R:
              role = c("rev", "ctb"),
              comment = c(ORCID = "0000-0003-0143-8293")))
 Maintainer: Lucy McNeill <lucmcneill@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description:An R package to automate the analysis of double-strand break repair during meiosis.
 Imports: EBImage, stats, utils, graphics
 License: GPL (>=3)
 Encoding: UTF-8
