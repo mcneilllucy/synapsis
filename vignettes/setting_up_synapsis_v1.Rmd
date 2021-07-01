@@ -1,0 +1,167 @@
+---
+title: "Data preparation and running synapsis"
+author: "Lucy McNeill"
+date: "30/06/2021"
+output: html_document
+---
+
+# Preparing your data
+
+In this notebook we will give a comprehensive guide for preparing image data so that it is compatible with synapsis.
+
+Since synapsis relies on EBImage, target files must also be .jpeg, .tiff, or .png.
+
+Synapsis also requires that a single microscope image has been converted into independent channels, i.e. there are two or three images corresponding to the same original image.
+
+But microscopes output many different file formats e.g. .lif, .nd2 etc.
+
+If your dataset is a series of .jpegs, .pngs, or .tiffs (which haven't been split into channels yet), use *section A*
+
+If your dataset is a series of .nd2 files, use *section B.*
+
+If your data set is already a series of double or triple .jpegs, .pngs, or .tiffs corresponding to the same image, labelled by the two or three antibodies/ stains, you are ready to use synapsis on your data.
+
+## File naming convention
+
+Before we get started, we should establish a filenaming convention.
+Each original image consists of two or three channels of interest. These correspond to particular antibodies/ stains.
+The idea is that this original "stacked" image has a file name "base". 
+
+For example, the file :
+
+```{r, eval = FALSE}
+MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002.nd2
+```
+
+has a filename base 
+```{r, eval = FALSE}
+MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002
+```
+We isolate the individual channels, and rename them with the antibody or stain appended to the file name base. 
+For example, if the three channels are DAPI, MLH3 and SYCP3, then we create three images from this file called
+```{r, eval = FALSE}
+MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002-DAPI.tiff
+MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002-SYCP3.tiff
+MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002-MLH3.tiff
+```
+Synapsis has particular purposes for families of stains/ antibodies (i.e. foci channel, chromosome channel etc), so users have to be aware of which channel is which and make sure channels are named accordingly.
+
+
+## Section A: splitting a folder full of .jpeg, .png or .tiff files using EBImage
+The three colour .jpeg files have SYCP3 as red, MLH3 as green and DAPI as blue.
+```{r}
+library(EBImage)
+path = paste0(system.file("extdata",package = "synapsis"))
+file_3channel <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-RGB.jpeg")
+image_3channel <- readImage(file_3channel)
+display(image_3channel)
+```
+Now we can convert these into their respective channels, keeping in mind our naming convention and which colours correspond to particular stains and antibodies.
+
+```{r}
+r = channel(image_3channel,"r")
+g = channel(image_3channel,"g")
+b = channel(image_3channel,"b")
+```
+
+And now we can save
+```{r}
+
+
+```
+To do this for a whole folder, where in this example all images end in "RGB.jpeg", use this loop instead:
+```{r, eval = FALSE}
+# location of the jpeg/png/tiff files to convert into three channel jpeg/png/tiff
+path = 'data-folder/from-sharepoint/OneDrive_1_01-06-2021'
+file_list <- list.files(path)
+print(file_list)
+for (file in file_list){
+  if(grepl(paste0('*RGB.jpeg$'), file)){
+    file_stub <- '-RGB.jpeg'
+    file_base <- gsub(file_stub,'', file)
+    print(file_base)
+    image_3channel <- readImage(paste0(path,'/',file))
+    r = channel(image_3channel,"r")
+    writeImage(r, paste0(paste0(path,'/',file_base,'-SYCP3.tiff')))
+    g = channel(image_3channel,"g")
+    writeImage(g, paste0(paste0(path,'/',file_base,'-MLH3.tiff')))
+    b = channel(image_3channel,"b")
+    writeImage(b, paste0(paste0(path,'/',file_base,'-DAPI.tiff')))
+  }
+    
+}
+```
+Where you can freely convert between jpeg, tiff, png conversions as you wish.
+
+## Section B: splitting a folder full of .nd2 files into three channels using python
+
+These .nd2 files used in examples have DAPI as the first layer, MLH3 as the second and SYCP3 as the third layer. If for some reason your layers are in a different order, and or correspond to different antibodies, make sure you modify this in the python script (around lines 40, 59, 78)
+
+Run the following in a python script e.g. in a jupyter notebook:
+
+Make sure you change your parent_dir to where your original .nd2 files are stored.
+```{r, eval = FALSE}
+from nd2reader import ND2Reader
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import glob
+from PIL import Image
+
+# location of the nd2 files to convert into three channel jpeg/png/tiff
+parent_dir = 'data-folder/from-sharepoint/OneDrive_1_01-06-2021'
+filenames = []
+filenames_base = []
+
+for file in glob.glob(os.path.join(parent_dir, '*nd2')):
+    filenames.append(file)
+         
+filenames = sorted(filenames)
+
+for name in filenames:
+    base=os.path.basename(name)
+    os.path.splitext(base)
+    name_base = os.path.splitext(base)[0]
+    new_name = parent_dir+'/'+str(name_base)
+    print(new_name)
+    
+    try:
+
+        with ND2Reader(str(name)) as images:
+            plt.figure(figsize = (10,10))
+            plt.gca().set_axis_off()
+            plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
+                    hspace = 0, wspace = 0)
+            plt.margins(0,0)
+            plt.gca().xaxis.set_major_locator(plt.NullLocator())
+            plt.gca().yaxis.set_major_locator(plt.NullLocator())
+            plt.imshow(images[0],cmap = 'gray')
+        ### keep metadata... e.g.
+        ## savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+        ## orientation='portrait', papertype=None, format=None,
+        ## transparent=False, bbox_inches=None, pad_inches=0.1,
+        ## frameon=None, metadata=None)
+            plt.savefig(str(new_name)+'-DAPI.jpeg')
+            plt.figure(figsize = (10,10))
+            plt.gca().set_axis_off()
+            plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
+                hspace = 0, wspace = 0)
+            plt.margins(0,0)
+            plt.gca().xaxis.set_major_locator(plt.NullLocator())
+            plt.gca().yaxis.set_major_locator(plt.NullLocator())
+            plt.imshow(images[1],cmap = 'gray')
+            plt.savefig(str(new_name)+'-MLH3.jpeg')
+            plt.figure(figsize = (10,10))
+            plt.gca().set_axis_off()
+            plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
+                    hspace = 0, wspace = 0)
+            plt.margins(0,0)
+            plt.gca().xaxis.set_major_locator(plt.NullLocator())
+            plt.gca().yaxis.set_major_locator(plt.NullLocator())
+            plt.imshow(images[2],cmap = 'gray')
+            plt.savefig(str(new_name)+'-SYCP3.jpeg')
+
+    except:
+        print("Couldn't open file"+str(name))
+```
+
