@@ -1,9 +1,18 @@
 Package: synapsis
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Lucy McNeill
-Maintainer: The package maintainer <lucmcneill@gmail.com>
+Version: 1.0.0
+Authors@R: 
+    c(person(given = "Lucy",
+             family = "McNeill",
+             role = c("aut", "cre", "cph"),
+             email = "lucmcneill@gmail.com",
+             comment = c(ORCID = "0000-0003-1752-4882")),
+      person(given = "Wayne",
+             family = "Crismani",
+             role = c("rev", "ctb"),
+             comment = c(ORCID = "0000-0003-0143-8293")))
+Maintainer: Lucy McNeill <lucmcneill@gmail.com>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 Imports: EBImage, stats, utils, graphics
