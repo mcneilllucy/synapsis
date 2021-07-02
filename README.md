@@ -89,6 +89,13 @@ input: crops in channels (1) (red) and (2) (green) around individual cells, from
 
 output: only keeps crops if cells are in pachytene phase (based on channel (1))
 
+Calling get_pachytene:
+
+```r
+# using get_pachytene
+get_pachytene(path)
+```
+
 get_pachytene makes a mask of the SC channel (red in Figure 1), and then excludes images which have more objects compared to the expected number of synaptonemal complexes expected (22 for mice).
 
 In summary, get_pachytene filters out any "good" cells determined by auto_crop (Figure 2) which are not during the pachytene phase, since the procedure favours bright, uniform intensity SC channels. These steps are shown in the following figure.
@@ -103,6 +110,13 @@ input: crops of SC and foci channels in pachytene phase (from get_pachytene)
 
 output: number of foci counts of synaptonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
 
+Calling count_foci
+
+```r
+# using count_foci
+count_foci(path)
+```
+
 In the next figure, we summarise how synapsis counts foci for a cell. It takes the two crops around single "good" cells in SC and foci channel (bottom left two panels in Figure 2), from auto_crop and get_pachytene functions. Then, each channel is gaussian smoothed and thresholded. A new mask is created from the overlap of these two masks, i.e. white corresponds to a foci colocalised onto an SC. Finally, individual objects in the mask are identified and counted.
 
 ![counting](resources/figures/counting_procedure.png)
@@ -114,6 +128,13 @@ In the next figure, we summarise how synapsis counts foci for a cell. It takes t
 input: crops of SC and foci channels in pachytene phase (from get_pachytene)
 
 output: a measure of the separation between two foci in the case that they are on the same synaptonemal complex in the SC channel (red).
+
+Calling measure_distances
+
+```r
+# using measure_distances
+measure_distances(path)
+```
 
 The following figure shows a summary of the measure_distances function. Once we have masks of both the SC and foci channel (Figure 3), we take all the objects in the SC channel which colocalise with TWO foci (circled in magenta). Then, for each of these SCs (four in total in Figure 5), synapsis locates a bright spot on the SC to start drawing a line from. Walkers in two directions move away from this point, guided by the direction of maximum brightness. Eventually, a white line is traced out that runs through the middle of an SC. Then, the locations on this line which are closest to the foci on the SC are calculated, and shown with magenta crosshairs. The total distance (in pixels) of the SC (white line) is calculated (by ascribing a value of 1 to horizontal and vertical movements, and sqrt(2) to diagonal movements between pixels) and then the pixel distance between foci is also measured.
 
