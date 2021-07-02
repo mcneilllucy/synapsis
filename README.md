@@ -1,12 +1,23 @@
 # synapsis
 
+## Installing `synapsis`
+
+`synapsis` will be available on [bioconductor](https://www.bioconductor.org). For now, please download from the [github](https://gitlab.svi.edu.au/lmcneill/synapsis)) repository using
+
+```r
+# install from gitlab
+devtools::install_git('https://gitlab.svi.edu.au/lmcneill/synapsis')
+```
+
+This package depends on `EBImage` which has some external dependencies.
+
 ## Project overview
 
 synapsis is an R package for analysing fluorescent microscopy images. In particular, its intended use is for analysing meiotic processes in mammals.
 
 The main goal is to objectively count the number of meiotic crossovers on a per cell basis, in line with recent developments in ImageJ software. However, unlike using ImageJ, synapsis does not require a scientist to manually crop images around cells of interest in order to count "foci" (crossover sites).
 
-Instead, synapsis identifies "good" cells in all images of a data set, crops around each per image, and then performs counting.
+Instead, synapsis identifies "viable" cells in all images of a data set, crops around each per image, and then performs counting.
 
 A single two channel image might look like the left colour image in the following figure:
 
