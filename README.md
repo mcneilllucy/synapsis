@@ -40,7 +40,7 @@ Wayne Crismani, St Vincent's Institute of Medical Research and the University of
 
 ## Compatibility
 
-synapsis relies heavily on the bioconductor package EBImage, which currently supports jpeg, png and tiff image files.
+synapsis relies heavily on the `bioconductor` package `EBImage`, which currently supports jpeg, png and tiff image files.
 
 Currently, synapsis also supports
 
@@ -64,9 +64,18 @@ We summarise them in the following subsections:
 
 ### auto_crop
 
-input: Original grey scale image files of (1) Synaptonemal complexes ("SC", e.g. SYCP3 anti-body) and (2) foci (e.g. MLH1, MLH3 anti-body) channels from e.g. Nikon .nd2 files.
+
+
+input: Path to original grey scale image files of (1) Synaptonemal complexes ("SC", e.g. SYCP3 anti-body) (2) foci (e.g. MLH1, MLH3 anti-body) and (3) cell boundary structure (e.g. DAPI stain) channels from e.g. Nikon .nd2 files. See setup vignette for the details of getting files ready.
 
 output: crops in SC (red) and foci (green) around individual cells.
+
+Calling auto_crop:
+
+```r
+# using auto_crop
+auto_crop_fast(path)
+```
 
 In the following figure, we show how synapsis automatically crops around a single "good" cell, starting with the original images of the two channels in Figure 1, from start to finish.
 
