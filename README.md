@@ -68,6 +68,13 @@ input: `path` to original grey scale image files of (1) Synaptonemal complexes (
 
 output: crops in SC (red) and foci (green) around individual cells into a folder in `path`, called "crops", i.e. in `path/crops/`
 
+setting path in case you want to run these functions:
+
+```r
+# set path to where example images are
+path = paste0(system.file("extdata",package = "synapsis"))
+```
+
 Calling auto_crop (assuming default settings, but see the [vignette](https://gitlab.svi.edu.au/lmcneill/synapsis/-/blob/master/vignettes/synapsis_tutorial_v1.Rmd) for details on entering your own parameters):
 
 ```r
