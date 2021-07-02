@@ -64,13 +64,11 @@ We summarise them in the following subsections:
 
 ### auto_crop
 
+input: `path` to original grey scale image files of (1) Synaptonemal complexes ("SC", e.g. SYCP3 anti-body) (2) foci (e.g. MLH1, MLH3 anti-body) and (3) cell boundary structure (e.g. DAPI stain) channels from e.g. Nikon .nd2 files. See setup vignette for the details of getting files ready.
 
+output: crops in SC (red) and foci (green) around individual cells into a folder in `path`, called "crops", i.e. in `path/crops/`
 
-input: Path to original grey scale image files of (1) Synaptonemal complexes ("SC", e.g. SYCP3 anti-body) (2) foci (e.g. MLH1, MLH3 anti-body) and (3) cell boundary structure (e.g. DAPI stain) channels from e.g. Nikon .nd2 files. See setup vignette for the details of getting files ready.
-
-output: crops in SC (red) and foci (green) around individual cells.
-
-Calling auto_crop:
+Calling auto_crop (assuming default settings, but see the [vignette](https://gitlab.svi.edu.au/lmcneill/synapsis/-/blob/master/vignettes/synapsis_tutorial_v1.Rmd) for details on entering your own parameters):
 
 ```r
 # using auto_crop
@@ -85,9 +83,9 @@ In the following figure, we show how synapsis automatically crops around a singl
 
 ### get_pachytene
 
-input: crops in channels (1) (red) and (2) (green) around individual cells, from previous auto_crop.
+input: crops in channels (1) (red) and (2) (green) around individual cells, from previous auto_crop, found in the "crops" folder.
 
-output: only keeps crops if cells are in pachytene phase (based on channel (1))
+output: if cells are in pachytene phase (based on channel (1)), these particular crops are put in a folder in `path/crops/pachytene/`
 
 Calling get_pachytene:
 
@@ -96,7 +94,7 @@ Calling get_pachytene:
 get_pachytene(path)
 ```
 
-get_pachytene makes a mask of the SC channel (red in Figure 1), and then excludes images which have more objects compared to the expected number of synaptonemal complexes expected (22 for mice).
+get_pachytene makes a mask of the SC channel (red in Figure 1), and then excludes images which have more objects compared to the expected number of synaptonemal complexes expected (20 for mice).
 
 In summary, get_pachytene filters out any "good" cells determined by auto_crop (Figure 2) which are not during the pachytene phase, since the procedure favours bright, uniform intensity SC channels. These steps are shown in the following figure.
 
@@ -106,9 +104,9 @@ In summary, get_pachytene filters out any "good" cells determined by auto_crop (
 
 ### count_foci
 
-input: crops of SC and foci channels in pachytene phase (from get_pachytene)
+input: crops of SC and foci channels in pachytene phase (from get_pachytene), found in `path/crops/pachytene/`
 
-output: number of foci counts of synaptonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
+output: Data frame including the number of foci counts of synaptonemal complexes per cell (i.e. channel 1 coincident with channel 2) as a function of genotype.
 
 Calling count_foci
 
