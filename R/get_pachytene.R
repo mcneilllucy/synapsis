@@ -13,11 +13,15 @@
 #' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
 #' @param file_ext file extension of your images e.g. tiff jpeg or png.
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
+#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
 #' @return Pairs of foci and SC channel crops for pachytene
 #'
 
 
-get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg")
+get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+")
 {
   cell_count <- 0
   image_count <-0
@@ -73,11 +77,11 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
         cell_count <- cell_count + 1
         ### identified a good image. count foci
         ### data frame stuff
-        if(grepl( "++", file, fixed = TRUE) == TRUE){
-          genotype <- "Fancm+/+"
+        if(grepl( WT_str, file, fixed = TRUE) == TRUE){
+          genotype <- WT_out
         }
-        if(grepl( "--", file, fixed = TRUE) == TRUE){
-          genotype <- "Fancm-/-"
+        if(grepl( KO_str, file, fixed = TRUE) == TRUE){
+          genotype <- KO_out
         }
         image_mat <- as.matrix(new_img)
         image_mat <- image_mat[image_mat > 1e-01]

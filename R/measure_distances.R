@@ -16,10 +16,14 @@
 #' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
 #' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
 #' @param file_ext file extension of your images e.g. tiff jpeg or png.
+#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
 #' @return Data frame with properties of synaptonemal (SC) measurements
 
 # should take in same values as count_foci..
-measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off", stage = "pachytene", eccentricity_min = 0.6, max_strand_area = 300, channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg")
+measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off", stage = "pachytene", eccentricity_min = 0.6, max_strand_area = 300, channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg",KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+")
 {
   cell_count <- 0
   image_count <-0
@@ -99,7 +103,7 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
         print(cell_count)
       }
       ################ distance starts (make function later)
-      dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation,eccentricity_min, max_strand_area,cell_count)
+      dimensionless_dist <- get_distance(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation,eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out)
       #colnames(dimensionless_dist) <- df_cols
       df_lengths <- rbind(df_lengths, dimensionless_dist)
     }
@@ -174,10 +178,13 @@ threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma){
 #' @param eccentricity_min, The minimum eccentricity (from computefeatures) of a strand to proceed with measuring
 #' @param max_strand_area, Maximum pixel area of a strand
 #' @param cell_count Unique cell counter
-
+#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
 #' @return Data frame with properties of synaptonemal (SC) measurements
 #'
-get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation, eccentricity_min, max_strand_area,cell_count){
+get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation, eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out){
   tryCatch({
     no_strands <- nrow(num_strands)
     strand_count<- 0
@@ -299,7 +306,7 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
             ### call measure distance between 2
 
 
-            dimensionless_dist <- get_distance_between_two(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_count,file,annotation,cell_count,strand_iter)
+            dimensionless_dist <- get_distance_between_two(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_count,file,annotation,cell_count,strand_iter,KO_str ,WT_str,KO_out, WT_out)
             return(dimensionless_dist)
             ##### ends here
             ### you've got a single strand here. try and count distance between foci.
@@ -314,12 +321,12 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
   error = function(e) {
     #what should be done in case of exception?
     str(e) # #prints structure of exception
-    if(grepl( "++", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm+/+"
+    if(grepl( WT_str, file, fixed = TRUE) == TRUE){
+      genotype <- WT_out
     }
 
-    if(grepl( "--", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm-/-"
+    if(grepl( KO_str, file, fixed = TRUE) == TRUE){
+      genotype <- KO_out
     }
     #dimensionless_dist_major_fail <- c(file, genotype, "NA", "NA", "NA", "fail")
     #return(dimensionless_dist_major_fail)
@@ -1116,9 +1123,13 @@ get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,dis
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
 #' @param cell_count Unique cell number
 #' @param uid_strand Unique strand number
+#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
 #' @return List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
 #'
-get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotation,cell_count, uid_strand){
+get_distance_between_two <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotation,cell_count, uid_strand,KO_str ,WT_str,KO_out, WT_out){
   strand_info <- computeFeatures.moment(bwlabel(per_strand),as.matrix(foci_label))
   strand_info <- as.data.frame(strand_info)
   foci_1_x <- strand_info$m.cx[1]
@@ -1576,12 +1587,12 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
         if(distance_f1 < 10){
           if(distance_f2 < 10){
             #dimensionless_dist <- append(dimensionless_dist,px_length)
-            if(grepl( "++", file, fixed = TRUE) == TRUE){
-              genotype <- "Fancm+/+"
+            if(grepl( WT_str, file, fixed = TRUE) == TRUE){
+              genotype <- WT_out
             }
 
-            if(grepl( "--", file, fixed = TRUE) == TRUE){
-              genotype <- "Fancm-/-"
+            if(grepl( KO_str, file, fixed = TRUE) == TRUE){
+              genotype <- KO_out
             }
             uid <- strand_iter
 
@@ -1651,12 +1662,12 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
 
     }
-    if(grepl( "++", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm+/+"
+    if(grepl( WT_str, file, fixed = TRUE) == TRUE){
+      genotype <- WT_out
     }
 
-    if(grepl( "--", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm-/-"
+    if(grepl( KO_str, file, fixed = TRUE) == TRUE){
+      genotype <- KO_out
     }
     #dimensionless_dist_fail_minor <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"fail")
     #return(dimensionless_dist_fail_minor)

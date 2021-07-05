@@ -14,11 +14,14 @@
 #' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
 #' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
 #' @param file_ext file extension of your images e.g. tiff jpeg or png.
-
+#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
 #' @return foci count per cell
 
 
-count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg")
+count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+")
 {
   cell_count <- 0
   image_count <-0
@@ -165,12 +168,12 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       }
       tryCatch({
         ### data frame stuff
-        if(grepl( "++", file, fixed = TRUE) == TRUE){
-          genotype <- "Fancm+/+"
+        if(grepl( WT_str, file, fixed = TRUE) == TRUE){
+          genotype <- WT_out
         }
 
-        if(grepl( "--", file, fixed = TRUE) == TRUE){
-          genotype <- "Fancm-/-"
+        if(grepl( KO_str, file, fixed = TRUE) == TRUE){
+          genotype <- KO_out
         }
         ### data frame stuff ends
         df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat),alone_foci)))
