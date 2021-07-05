@@ -18,11 +18,12 @@
 #' @param test_amount, Optional number of first N images you want to run function on. For troubleshooting/testing/variable calibration purposes.
 #' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
 #' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to make blobs
+#' @param cell_aspect_ratio Maximum aspect ratio of blob to be defined as a cell
 
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
 
-auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15)
+auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, cell_aspect_ratio = 2)
 {
   file_list <- list.files(img_path)
   dir.create(paste0(img_path,"/crops"))
@@ -81,7 +82,7 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
 
       ## function: remove things that aren't cells
 
-      retained <- keep_cells(candidate, max_cell_area, min_cell_area)
+      retained <- keep_cells(candidate, max_cell_area, min_cell_area,cell_aspect_ratio)
 
       ### crop over each cell
       ## function: crop around every single viable cell
@@ -177,9 +178,10 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
 #' @param candidate Mask of individual cell candidates
 #' @param max_cell_area, Maximum pixel area of a cell candidate
 #' @param min_cell_area, Minimum pixel area of a cell candidate
+#' @param cell_aspect_ratio Maximum aspect ratio of blob to be defined as a cell
 
 #' @return Mask of cell candidates which meet size criteria
-keep_cells <- function(candidate, max_cell_area, min_cell_area){
+keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_ratio){
 
   # delete everything that's too small
   colorimg<- colorLabels(candidate, normalize = TRUE)
@@ -199,7 +201,7 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area){
       retained <- as.numeric(retained)*rmObjects(candidate, counter, reenumerate = TRUE)
     }
     ## if statement checking that it's not too long i.e. not at edge.
-    if(semi_maj/semi_min > 2 & is.na(semi_maj/semi_min)==FALSE){
+    if(semi_maj/semi_min > cell_aspect_ratio & is.na(semi_maj/semi_min)==FALSE){
       retained <- as.numeric(retained)*rmObjects(candidate, counter, reenumerate = TRUE)
     }
 

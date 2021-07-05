@@ -2,7 +2,7 @@
 #'
 #' crop an image around each viable cell candidate.
 #' @importFrom stats median sd
-#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape computeFeatures.haralick display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
+#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
 #' @importFrom graphics text
 #' @importFrom utils str
 #' @export auto_crop_fast
@@ -17,18 +17,13 @@
 #' @param final_blob_amp, Contrast factor to multiply smoothed/smudged image. Used in thresholding to make blob mask.
 #' @param test_amount, Optional number of first N images you want to run function on. For troubleshooting/testing/variable calibration purposes.
 #' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
+#' @param cell_aspect_ratio Maximum aspect ratio of blob to be defined as a cell
 #' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to make blobs
-#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
-#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
-#' @param channel3_string Defaults to DAPI (if third channel is on)
-#' @param file_ext file extension of your images e.g. tiff jpeg or png.
-#' @param third_channel Whether there is a third channel e.g. DAPI stain. On or off. Defaults to off.
-#'
 
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
 
-auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off")
+auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2)
 {
   file_list <- list.files(img_path)
   dir.create(paste0(img_path,"/crops"))
@@ -61,7 +56,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), file)){
 
       file_dna = file
-
+      print(file)
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
       antibody1_store <- 1
@@ -90,7 +85,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       blob_label <- channel(blob_label, "gray")
       candidate <- bwlabel(blob_label)
       ## function: remove things that aren't cells
-      retained <- keep_cells(candidate, max_cell_area, min_cell_area)
+      retained <- keep_cells(candidate, max_cell_area, min_cell_area,cell_aspect_ratio)
       ### crop over each cell
       ## function: crop around every single viable cell
       ### crop foci channel here
@@ -156,11 +151,6 @@ print("viable cells")
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
 #' @param file_base, filename base common to all three channels i.e. without -MLH3.jpeg etc.
 #' @param img_path, path containing image data to analyse
-#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
-#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
-#' @param channel3_string Defaults to DAPI (if third channel is on)
-#' @param file_ext file extension of your images e.g. tiff jpeg or png.
-#' @param third_channel Whether there is a third channel e.g. DAPI stain. On or off. Defaults to off.
 
 #'
 

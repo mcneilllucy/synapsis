@@ -36,6 +36,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
   }
 
   file_list <- list.files(img_path_new)
+  print(file_list)
 
   df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px", "percent_on","sd_px","lone_foci")
   df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
@@ -77,7 +78,12 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       disc = disc / sum(disc)
       localBackground = filter2(new_img, disc)
       offset = offset_px
-      thresh_crop = (new_img - localBackground > offset)
+      if(stage == "pachytene"){
+        thresh_crop = (new_img - localBackground > offset)
+      }
+      else{
+        thresh_crop = new_img > offset
+      }
       strands <- bwlabel(thresh_crop)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
       num_strands <- computeFeatures.shape(strands)
@@ -90,14 +96,20 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
 
       #### normalise the foci image
       offset = offset_factor*bg
-      foci_th = foci_mask_crop > bg + offset
-      ### smooth it
-      img_tmp_contrast = foci_mask_crop
-      w = makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
-      #w = makeBrush(size = 1, shape = 'gaussian', sigma = 3)
-      img_flo = filter2(img_tmp_contrast, w)
-      ## smooth foci channel
-      foci_th = img_flo > bg + offset
+      if(stage != "pachytene"){
+        foci_th = foci_mask_crop > bg + offset
+      }
+      else{
+        ### smooth it
+        img_tmp_contrast = foci_mask_crop
+        w = makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
+        #w = makeBrush(size = 1, shape = 'gaussian', sigma = 3)
+        img_flo = filter2(img_tmp_contrast, w)
+        ## smooth foci channel
+        foci_th = img_flo > bg + offset
+      }
+
+
       foci_label = bwlabel(foci_th)
       foci_label <- channel(foci_label, "grey")
       num_strands <- computeFeatures.shape(strands)
@@ -121,8 +133,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         display(colorLabels(coincident_foci))
         print("two channels, only coincident foci")
         display(rgbImage(strands,coincident_foci,coincident_foci))
-
-
       }
 
       overlap_no = table(coincident_foci)
@@ -181,7 +191,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       error = function(e) {
         #what should be done in case of exception?
         str(e) # #prints structure of exception
-        print("couldn't crop it")
+        print("something went wrong while making the data frame")
       }
       )
     }
