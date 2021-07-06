@@ -15,7 +15,14 @@ count_foci(
   annotation = "off",
   channel2_string = "SYCP3",
   channel1_string = "MLH3",
-  file_ext = "jpeg"
+  file_ext = "jpeg",
+  KO_str = "--",
+  WT_str = "++",
+  KO_out = "-/-",
+  WT_out = "+/+",
+  watershed_stop = "off",
+  watershed_radius = 1,
+  watershed_tol = 0.05
 )
 }
 \arguments{
@@ -40,6 +47,20 @@ count_foci(
 \item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
 
 \item{file_ext}{file extension of your images e.g. tiff jpeg or png.}
+
+\item{KO_str}{string in filename corresponding to knockout genotype. Defaults to --.}
+
+\item{WT_str}{string in filename corresponding to wildtype genotype. Defaults to ++.}
+
+\item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
+
+\item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
+
+\item{watershed_stop}{Turn off default watershed method with "off"}
+
+\item{watershed_radius}{Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)}
+
+\item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
 }
 \value{
 foci count per cell

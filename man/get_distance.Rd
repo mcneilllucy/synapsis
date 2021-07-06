@@ -16,7 +16,11 @@ get_distance(
   annotation,
   eccentricity_min,
   max_strand_area,
-  cell_count
+  cell_count,
+  KO_str,
+  WT_str,
+  KO_out,
+  WT_out
 )
 }
 \arguments{
@@ -41,6 +45,14 @@ get_distance(
 \item{max_strand_area, }{Maximum pixel area of a strand}
 
 \item{cell_count}{Unique cell counter}
+
+\item{KO_str}{string in filename corresponding to knockout genotype. Defaults to --.}
+
+\item{WT_str}{string in filename corresponding to wildtype genotype. Defaults to ++.}
+
+\item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
+
+\item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
 }
 \value{
 Data frame with properties of synaptonemal (SC) measurements

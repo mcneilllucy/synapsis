@@ -4,7 +4,7 @@
 \alias{keep_cells}
 \title{keep_cells}
 \usage{
-keep_cells(candidate, max_cell_area, min_cell_area)
+keep_cells(candidate, max_cell_area, min_cell_area, cell_aspect_ratio)
 }
 \arguments{
 \item{candidate}{Mask of individual cell candidates}
@@ -12,6 +12,8 @@ keep_cells(candidate, max_cell_area, min_cell_area)
 \item{max_cell_area, }{Maximum pixel area of a cell candidate}
 
 \item{min_cell_area, }{Minimum pixel area of a cell candidate}
+
+\item{cell_aspect_ratio}{Maximum aspect ratio of blob to be defined as a cell}
 }
 \value{
 Mask of cell candidates which meet size criteria

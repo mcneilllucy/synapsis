@@ -16,7 +16,8 @@ auto_crop(
   final_blob_amp = 10,
   test_amount = 0,
   brush_size_blob = 51,
-  sigma_blob = 15
+  sigma_blob = 15,
+  cell_aspect_ratio = 2
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ auto_crop(
 \item{brush_size_blob, }{Brush size for smudging the dna channel to make blobs}
 
 \item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel to make blobs}
+
+\item{cell_aspect_ratio}{Maximum aspect ratio of blob to be defined as a cell}
 }
 \value{
 cropped SC and foci channels around single cells, regardless of stage

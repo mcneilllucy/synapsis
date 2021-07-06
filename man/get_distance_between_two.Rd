@@ -24,7 +24,11 @@ get_distance_between_two(
   file,
   annotation,
   cell_count,
-  uid_strand
+  uid_strand,
+  KO_str,
+  WT_str,
+  KO_out,
+  WT_out
 )
 }
 \arguments{
@@ -67,6 +71,14 @@ get_distance_between_two(
 \item{cell_count}{Unique cell number}
 
 \item{uid_strand}{Unique strand number}
+
+\item{KO_str}{string in filename corresponding to knockout genotype. Defaults to --.}
+
+\item{WT_str}{string in filename corresponding to wildtype genotype. Defaults to ++.}
+
+\item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
+
+\item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
 }
 \value{
 List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.

@@ -18,10 +18,13 @@
 #' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
 #' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
 #' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
+#' @param watershed_stop Turn off default watershed method with "off"
+#' @param watershed_radius Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)
+#' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
 #' @return foci count per cell
 
 
-count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+")
+count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05)
 {
   cell_count <- 0
   image_count <-0
@@ -98,6 +101,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       offset = offset_factor*bg
       if(stage != "pachytene"){
         foci_th = foci_mask_crop > bg + offset
+        #foci_th <- watershed(bwlabel(foci_th)*as.matrix(img_orig_foci),tolerance=0.05, ext=1)
       }
       else{
         ### smooth it
@@ -116,7 +120,14 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       num_strands <- data.frame(num_strands)
 
       ##### print properties of the images
-      coincident_foci <- bwlabel(foci_label*strands)
+      if(watershed_stop != "off"){
+        coincident_foci <- bwlabel(foci_label*strands)
+      }
+      else{
+        coincident_foci <- watershed(bwlabel(foci_th*strands)*as.matrix(img_orig_foci),tolerance=watershed_tol, ext=watershed_radius)
+      }
+
+
       ### multiply strands by foci_label
       if(annotation == "on"){
         print("at file")
@@ -129,6 +140,9 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         print("displaying resulting foci count")
         print("Overlay two channels")
         display(rgbImage(strands,foci_label,0*foci_label))
+        #print("showing the watershed masks")
+        #display(foci_th)
+        #display(colorLabels(watershed(bwlabel(foci_th)*as.matrix(img_orig_foci),tolerance=0.05, ext=1)))
         print("coincident foci")
         display(colorLabels(coincident_foci))
         print("two channels, only coincident foci")
