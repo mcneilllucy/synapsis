@@ -20,10 +20,13 @@
 #' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
 #' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
 #' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
+#' @param watershed_stop Turn off default watershed method with "off"
+#' @param watershed_radius Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)
+#' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
 #' @return Data frame with properties of synaptonemal (SC) measurements
 
 # should take in same values as count_foci..
-measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off", stage = "pachytene", eccentricity_min = 0.6, max_strand_area = 300, channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg",KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+")
+measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off", stage = "pachytene", eccentricity_min = 0.6, max_strand_area = 300, channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg",KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+",watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05)
 {
   cell_count <- 0
   image_count <-0
@@ -70,7 +73,12 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
       disc = disc / sum(disc)
       localBackground = filter2(new_img, disc)
       offset = offset_px
-      thresh_crop = (new_img - localBackground > offset)
+      if(stage == "pachytene"){
+        thresh_crop = (new_img - localBackground > offset)
+      }
+      else{
+        thresh_crop = new_img > offset
+      }
       strands <- bwlabel(thresh_crop)
       #display(strands)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
@@ -81,14 +89,26 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
       orig_mean <- mean(img_orig_foci)
       mean_factor <- foci_norm/orig_mean
       img_orig_foci <- img_orig_foci*mean_factor
-      foci_label <- threshold_foci_crop(img_orig_foci,offset_factor, brush_size, brush_sigma)
+      ### need to delete this?
+      foci_label <- threshold_foci_crop(img_orig_foci,offset_factor, brush_size, brush_sigma,stage)
+
       ##### print properties of the images
       ### multiply strands by foci_label
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
-      coincident_foci <- bwlabel(foci_label*strands)
+
+      ### coincident foci
+      ##### print properties of the images
+      if(watershed_stop != "off"){
+        coincident_foci <- bwlabel(foci_label*strands)
+      }
+      else{
+        coincident_foci <- watershed(bwlabel(foci_label*strands)*as.matrix(img_orig_foci),tolerance=watershed_tol, ext=watershed_radius)
+      }
+      #coincident_foci <- bwlabel(foci_label*strands)
       overlap_no = table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
+      ### foci counting stuff ends
       image_mat <- as.matrix(foci_mask_crop)
       image_mat <- image_mat[image_mat > 1e-06]
       mean_ratio <- median(image_mat)/mean(image_mat)
@@ -142,21 +162,27 @@ threshold_SC_crop <- function(image, offset){
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small to avoid erasing foci.
 #' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.
+#' @param stage, meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.
 #' @return A black white mask with foci as objects
 #'
-threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma){
+threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma,stage){
   bg <- mean(image)
   offset = offset_factor*bg
-  foci_th = image > bg + offset
-  ### smooth it
-  ### maybe up the contrast first??
-  img_tmp_contrast = image
-  #display(foci_mask_crop)
-  w = makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
-  img_flo = filter2(img_tmp_contrast, w)
-  ## only choose objects above bright pixel value
-  ## smooth foci channel
-  foci_th = img_flo > bg + offset
+
+  ### new stuff July
+  if(stage != "pachytene"){
+    foci_th = image > bg + offset
+    #foci_th <- watershed(bwlabel(foci_th)*as.matrix(img_orig_foci),tolerance=0.05, ext=1)
+  }
+  else{
+    ### smooth it
+    img_tmp_contrast = image
+    w = makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
+    #w = makeBrush(size = 1, shape = 'gaussian', sigma = 3)
+    img_flo = filter2(img_tmp_contrast, w)
+    ## smooth foci channel
+    foci_th = img_flo > bg + offset
+  }
   foci_label = bwlabel(foci_th)
   foci_label <- channel(foci_label, "grey")
   return(foci_label)
