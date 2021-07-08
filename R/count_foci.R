@@ -135,18 +135,18 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         print("cell counter is")
         print(cell_count)
         print("original images")
-        display(new_img)
-        display(img_orig_foci)
+        plot(new_img)
+        plot(img_orig_foci)
         print("displaying resulting foci count")
         print("Overlay two channels")
-        display(rgbImage(strands,foci_label,0*foci_label))
+        plot(rgbImage(strands,foci_label,0*foci_label))
         #print("showing the watershed masks")
         #display(foci_th)
         #display(colorLabels(watershed(bwlabel(foci_th)*as.matrix(img_orig_foci),tolerance=0.05, ext=1)))
         print("coincident foci")
-        display(colorLabels(coincident_foci))
+        plot(colorLabels(coincident_foci))
         print("two channels, only coincident foci")
-        display(rgbImage(strands,coincident_foci,coincident_foci))
+        plot(rgbImage(strands,coincident_foci,coincident_foci))
       }
 
       overlap_no = table(coincident_foci)
@@ -181,7 +181,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         print(alone_foci)
         if(alone_foci < 0){
           print("this one had a negative lone foci amount. Suspect overcounting of foci in this one:")
-          display(rgbImage(strands,foci_label,0*foci_label))
+          plot(rgbImage(strands,foci_label,0*foci_label))
         }
       }
       percent_px <- sum(overlap)/sum(foci_areas)
