@@ -50,6 +50,16 @@ auto_crop_fast(
 
 \item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel to make blobs}
 
+\item{channel3_string}{Optional. String appended to the files showing the channel illuminating cell structures. Defaults to DAPI, if third channel == "on".}
+
+\item{channel2_string}{String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3}
+
+\item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
+
+\item{file_ext}{file extension of your images e.g. tif jpeg or png.}
+
+\item{third_channel}{Optional, defaults to "off".}
+
 \item{cell_aspect_ratio}{Maximum aspect ratio of blob to be defined as a cell}
 }
 \value{

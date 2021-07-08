@@ -2,7 +2,7 @@
 #'
 #' crop an image around each viable cell candidate.
 #' @importFrom stats median sd
-#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
+#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage watershed
 #' @importFrom graphics text
 #' @importFrom utils str
 #' @export auto_crop_fast
@@ -19,7 +19,11 @@
 #' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
 #' @param cell_aspect_ratio Maximum aspect ratio of blob to be defined as a cell
 #' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to make blobs
-
+#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param channel3_string Optional. String appended to the files showing the channel illuminating cell structures. Defaults to DAPI, if third channel == "on".
+#' @param third_channel Optional, defaults to "off".
+#' @param file_ext file extension of your images e.g. tif jpeg or png.
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
 
@@ -151,8 +155,11 @@ print("viable cells")
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
 #' @param file_base, filename base common to all three channels i.e. without -MLH3.jpeg etc.
 #' @param img_path, path containing image data to analyse
-
-#'
+#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param channel3_string Optional. String appended to the files showing the channel illuminating cell structures. Defaults to DAPI, if third channel == "on".
+#' @param third_channel Optional, defaults to "off".
+#' @param file_ext file extension of your images e.g. tif jpeg or png.
 
 
 
