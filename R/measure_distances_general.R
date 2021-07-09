@@ -39,7 +39,7 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
 
   img_path_new <- paste0(img_path,"/crops/",stage,"/")
   file_list <- list.files(img_path_new)
-  df_cols <- c("foci_x","foci_y","foci_x_line","foci_y_line","distance_squared")
+  df_cols <- c("file","cell_id","genotype","strand_iter","foci_per_strand","iteration_on_strand","foci_x","foci_y","foci_x_line","foci_y_line","total_length", "distance_squared","distance_along","SC_pass_fail")
   df_lengths <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   #colnames(df_lengths) <- df_cols
   ## for each image that is *-dna.jpeg,
@@ -106,7 +106,7 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
         print(cell_count)
       }
       ################ distance starts (make function later)
-      dimensionless_dist <- get_distance_general(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation,eccentricity_min, max_strand_area,cell_count)
+      dimensionless_dist <- get_distance_general(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,file,annotation,eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out)
       #colnames(dimensionless_dist) <- df_cols
       df_lengths <- rbind(df_lengths, dimensionless_dist)
     }
@@ -142,6 +142,8 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
   tryCatch({
     no_strands <- nrow(num_strands)
     strand_count<- 0
+    df_cols <- c("file","cell_id","genotype","strand_iter","foci_per_strand","iteration_on_strand","foci_x","foci_y","foci_x_line","foci_y_line","total_length", "distance_squared","distance_along","SC_pass_fail")
+    dimensionless_dist <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
     while(strand_count<no_strands){
       strand_iter <- strand_iter + 1
       strand_count <- strand_count + 1
@@ -172,6 +174,13 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
         cx <- moment_info$m.cx
         cy <- moment_info$m.cy
         ## might actually want to find the real centre first..
+        if(grepl( WT_str, file, fixed = TRUE) == TRUE){
+          genotype <- WT_out
+        }
+
+        if(grepl( KO_str, file, fixed = TRUE) == TRUE){
+          genotype <- KO_out
+        }
         if (is.integer(nrow(per_strand_obj))){
           if(moment_info$m.eccentricity > eccentricity_min && nrow(per_strand_obj)>1){
             ## draw box around the middle
@@ -259,28 +268,51 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
 
             ### call measure distance between 2
 
+            dimensionless_dist <- rbind(dimensionless_dist,get_distances_along(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_count,file,annotation,cell_count,strand_iter, per_strand_obj,KO_str ,WT_str,KO_out, WT_out))
+            #dimensionless_dist <- get_distances_along(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_count,file,annotation,cell_count,strand_iter, per_strand_obj,KO_str ,WT_str,KO_out, WT_out)
+            print("printing the 2 foci row")
+            print(dimensionless_dist)
 
-            dimensionless_dist <- get_distances_along(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_count,file,annotation,cell_count,strand_iter, per_strand_object)
-            return(dimensionless_dist)
             ##### ends here
             ### you've got a single strand here. try and count distance between foci.
           }
+
+          ### then the number of foci was 1
+          else if(nrow(per_strand_obj)==1){
+            dimensionless_dist <- rbind(dimensionless_dist,c(file,cell_count,genotype,strand_iter,1,1,"NA","NA","NA","NA","NA","NA", "NA","NA"))
+            colnames(dimensionless_dist) <- df_cols
+            print(dimensionless_dist)
+            print("at strand number")
+            print(strand_iter)
+
+          }
+
+
         }
-        ## else: draw big square and find max.
-        ###
+        ### then the number of foci was zero
+        else{
+          print("a strand with zero foci")
+          dimensionless_dist <- rbind(dimensionless_dist,c(file,cell_count,genotype,strand_iter,0,"NA","NA","NA","NA","NA","NA","NA", "NA","NA"))
+          colnames(dimensionless_dist) <- df_cols
+          print(dimensionless_dist)
+          print("at strand number")
+          print(strand_iter)
+        }
+
       }
     }
+    return(dimensionless_dist)
   },
 
   error = function(e) {
     #what should be done in case of exception?
     str(e) # #prints structure of exception
-    if(grepl( "++", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm+/+"
+    if(grepl( WT_str, file, fixed = TRUE) == TRUE){
+      genotype <- WT_out
     }
 
-    if(grepl( "--", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm-/-"
+    if(grepl( KO_str, file, fixed = TRUE) == TRUE){
+      genotype <- KO_out
     }
     #dimensionless_dist_major_fail <- c(file, genotype, "NA", "NA", "NA", "fail")
     #return(dimensionless_dist_major_fail)
@@ -315,9 +347,13 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
 #' @param cell_count Unique cell number
 #' @param uid_strand Unique strand number
 #' @param  per_strand_object Foci per strand object
+#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
 #' @return List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
 #'
-get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotation,cell_count, uid_strand,per_strand_object){
+get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,file,annotation,cell_count, uid_strand,per_strand_object,KO_str ,WT_str,KO_out, WT_out){
   strand_info <- computeFeatures.moment(bwlabel(per_strand),as.matrix(foci_label))
   strand_info <- as.data.frame(strand_info)
 
@@ -325,7 +361,7 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
   no_foci <- nrow(strand_info)
   print("the number of foci in this strand is")
   print(no_foci)
-  df_col <- c("foci_x","foci_y","foci_x_line","foci_y_line","distance_squared")
+  df_col <- c("file","cell_id","genotype","strand_iter","foci_per_strand","iteration_on_strand","foci_x","foci_y","foci_x_line","foci_y_line","total_length","distance_squared","distance_along","SC_pass_fail")
   foci_df <- data.frame(matrix(ncol = length(df_col), nrow = 0))
   my_walkers_matrix <- t(as.matrix(walkers))
   strand_test <- "pass"
@@ -350,7 +386,15 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
     mean_x = as.numeric(bright_loc_fi[1,1])
     mean_y = as.numeric(bright_loc_fi[1,2])
     distance_fi <- (strand_info$m.cy[iter]-mean_x)^2 +(strand_info$m.cx[iter]-mean_y)^2
-    foci_df <- rbind(foci_df, c(foci_x,foci_y,mean_y,mean_x,distance_fi))
+
+    if(grepl( WT_str, file, fixed = TRUE) == TRUE){
+      genotype <- WT_out
+    }
+
+    if(grepl( KO_str, file, fixed = TRUE) == TRUE){
+      genotype <- KO_out
+    }
+    foci_df <- rbind(foci_df, c(file,cell_count,genotype,strand_iter,no_foci,iter,foci_x,foci_y,mean_y,mean_x,(distance_strand+distance_strand_2),distance_fi, "NA","NA"))
 
     ##### now count dimensionless distance
     x_curr <- start_x
@@ -412,6 +456,10 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
           text(x = mean_y, y = mean_x, label = "+", col = "magenta", cex = 2)
         }
         looping <- 0
+        foci_df$distance_along[iter] <- dist_along
+        foci_df$genotype[iter] <- genotype
+        foci_df$SC_pass_fail[iter] <- strand_test
+
       }
 
       ### do stuff
@@ -631,29 +679,26 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
 
   }
   colnames(foci_df) <- df_col
-  if(length_walker<149){
-    if(grepl( "++", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm+/+"
-    }
 
-    if(grepl( "--", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm-/-"
-    }
+  if(length_walker<149){
+
     uid <- strand_iter
     # SIX new columns added: foci counter, foci per strand, f1 location x, f1 location y, f2 location x, f2 location y,  f1 location x (on line), f1 location y (on line), f2 location x (on line), f2 location y (on line),
     # df_cols <- c("file","genotype","foci_no","foci_per_strand", "total_SC_length","total_pixel_distance","foci_location_along", "fractional_distance_between_two", "pass_fail", "foci_location_x", "foci_location_y", "foci_location_x_line", "foci_location_y_line")
     ### add the new row here...
+    if(strand_test == "fail"){
+      foci_loop <- 1
+      while(foci_loop <= no_foci){
+        foci_df$SC_pass_fail[foci_loop] <- "fail"
+        foci_loop <- foci_loop +1
+      }
+    }
+
+
     return(foci_df)
 
   }
   else{
-    if(grepl( "++", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm+/+"
-    }
-
-    if(grepl( "--", file, fixed = TRUE) == TRUE){
-      genotype <- "Fancm-/-"
-    }
     #dimensionless_dist_fail_minor <- c(file, genotype, px_length,dim_length,(distance_strand+ distance_strand_2),"fail")
     #return(dimensionless_dist_fail_minor)
   }
