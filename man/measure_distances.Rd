@@ -24,7 +24,8 @@ measure_distances(
   WT_out = "+/+",
   watershed_stop = "off",
   watershed_radius = 1,
-  watershed_tol = 0.05
+  watershed_tol = 0.05,
+  crowded_foci = FALSE
 )
 }
 \arguments{
@@ -67,6 +68,8 @@ measure_distances(
 \item{watershed_radius}{Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)}
 
 \item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
+
+\item{crowded_foci}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.}
 }
 \value{
 Data frame with properties of synaptonemal (SC) measurements

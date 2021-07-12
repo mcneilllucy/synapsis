@@ -23,10 +23,11 @@
 #' @param watershed_stop Turn off default watershed method with "off"
 #' @param watershed_radius Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)
 #' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
+#' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.
 #' @return Data frame with properties of synaptonemal (SC) measurements
 
 # should take in same values as count_foci..
-measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off", stage = "pachytene", eccentricity_min = 0.6, max_strand_area = 300, channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg",KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+",watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05)
+measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off", stage = "pachytene", eccentricity_min = 0.6, max_strand_area = 300, channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg",KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+",watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = FALSE)
 {
   cell_count <- 0
   image_count <-0
@@ -162,15 +163,15 @@ threshold_SC_crop <- function(image, offset){
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small to avoid erasing foci.
 #' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.
-#' @param stage, meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.
+#' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.
 #' @return A black white mask with foci as objects
 #'
-threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma,stage){
+threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma, crowded_foci){
   bg <- mean(image)
   offset <- offset_factor*bg
 
   ### new stuff July
-  if(stage != "pachytene"){
+  if(crowded_foci == TRUE){
     foci_th <- image > bg + offset
     #foci_th <- watershed(bwlabel(foci_th)*as.matrix(img_orig_foci),tolerance=0.05, ext=1)
   }
