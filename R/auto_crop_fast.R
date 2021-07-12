@@ -43,31 +43,31 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
   antibody3_store <- 0
 
   ## for each image that is *-dna.jpeg,
-  for (file in file_list){
-    file_base = file
-    filename_path_test = paste0(img_path,"/", file)
-    file = filename_path_test
+  for (img_file in file_list){
+    file_base = img_file
+    filename_path_test = paste0(img_path,"/",img_file)
+    img_file = filename_path_test
     #if(grepl("*DAPI.jpeg$", file)){
     if(third_channel == "on"){
-      if(grepl(paste0('*',channel3_string,'.',file_ext,'$'), file)){
-        file_DAPI = file
+      if(grepl(paste0('*',channel3_string,'.',file_ext,'$'),img_file)){
+        file_DAPI = img_file
         image <- readImage(file_DAPI)
         img_orig_DAPI <- channel(image, "grey")
         antibody3_store <- 1
       }
     }
     #if(grepl("*SYCP3.jpeg$", file)){
-    if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), file)){
+    if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
 
-      file_dna = file
+      file_dna = img_file
       print(file)
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
       antibody1_store <- 1
     }
     #if(grepl("*MLH3.jpeg$", file)){
-    if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), file)){
-      file_foci = file
+    if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
+      file_foci = img_file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
       # call functions: get
