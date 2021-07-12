@@ -1,9 +1,24 @@
 ---
 title: "Data preparation and running synapsis"
 author: "Lucy McNeill"
-date: "30/06/2021"
-output: html_document
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{setting_up_synapsis_v1}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(EBImage)
+```
 
 # Preparing your data
 
@@ -50,7 +65,6 @@ Synapsis has particular purposes for families of stains/ antibodies (i.e. foci c
 ## Section A: splitting a folder full of .jpeg, .png or .tiff files using EBImage
 The three colour .jpeg files have SYCP3 as red, MLH3 as green and DAPI as blue.
 ```{r}
-library(EBImage)
 path = paste0(system.file("extdata",package = "synapsis"))
 file_3channel <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-RGB.jpeg")
 image_3channel <- readImage(file_3channel)
@@ -71,7 +85,6 @@ And now we can save
 ```
 To do this for a whole folder, where in this example all images end in "-RGB.jpeg", use this loop instead:
 ```{r, eval = FALSE}
-library(EBImage)
 # location of the jpeg/png/tiff files to convert into three channel jpeg/png/tiff
 path = 'data-folder/from-sharepoint/OneDrive_1_01-06-2021'
 file_list <- list.files(path)

@@ -1,22 +1,29 @@
-
 ---
 title: "Using synapsis"
 author: "Lucy McNeill"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  html_document:
-    
-    
-    number_sections: true
-    toc: yes
-    toc_float: yes
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{synapsis_tutorial_v1}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
-```{r, echo = FALSE}
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(synapsis)
 library(knitr)
 library(rmarkdown)
 library(tidyverse)
 library(ggplot2)
 ```
+
 # Getting started
 
 ## installing library from gitlab
