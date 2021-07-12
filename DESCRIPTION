@@ -16,7 +16,7 @@ Maintainer: Lucy McNeill <lucmcneill@gmail.com>
 Description: Given a set of microscopy images of meiotic spread slides, synapsis crops images around individual single cells, counts colocalising foci on strands on a per cell basis, and measures the distance between foci on any given strand.
 biocViews:
   Software,
-  Meiosis
+  Visualization
 Depends: 
     R (>= 4.0)
 Imports: EBImage, stats, utils, graphics
