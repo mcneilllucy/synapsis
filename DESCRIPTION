@@ -14,11 +14,17 @@ Authors@R:
              comment = c(ORCID = "0000-0003-0143-8293")))
 Maintainer: Lucy McNeill <lucmcneill@gmail.com>
 Description: Given a set of microscopy images of meiotic spread slides, synapsis crops images around individual single cells, counts colocalising foci on strands on a per cell basis, and measures the distance between foci on any given strand.
+biocViews:
+  Software,
+  Meiosis
+Depends: 
+    R (>= 4.0)
 Imports: EBImage, stats, utils, graphics
-License: GPL (>=3)
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
+VignetteBuilder: knitr
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
