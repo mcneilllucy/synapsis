@@ -191,88 +191,86 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
 
   ### use the features of tmp_img
   ### here we have the single object. Need to identify its centre value and radius..
+  crop_r <- floor(r_max[counter_final])
+  cx <- cx[counter_final]
+  cy <- cy[counter_final]
+  # might want to do this as a matrix
+  top_left_x <- floor(cx-crop_r)
+  top_left_y <- floor(cy-crop_r)
 
-  if (1>0){
-    crop_r <- floor(r_max[counter_final])
-    cx <- cx[counter_final]
-    cy <- cy[counter_final]
-    # might want to do this as a matrix
-    top_left_x <- floor(cx-crop_r)
-    top_left_y <- floor(cy-crop_r)
+  bottom_left_x <- floor(cx-crop_r)
+  bottom_left_y <- floor(cy+crop_r)
 
-    bottom_left_x <- floor(cx-crop_r)
-    bottom_left_y <- floor(cy+crop_r)
+  bottom_right_x <- floor(cx+crop_r)
+  bottom_right_y <- floor(cy+crop_r)
 
-    bottom_right_x <- floor(cx+crop_r)
-    bottom_right_y <- floor(cy+crop_r)
+  top_right_x <- floor(cx-crop_r)
+  top_right_y <- floor(cy+crop_r)
 
-    top_right_x <- floor(cx-crop_r)
-    top_right_y <- floor(cy+crop_r)
-
-    ## crop image
-    ix <- bottom_left_x:bottom_right_x
-    iy <- top_left_y:bottom_left_y
+  ## crop image
+  ix <- bottom_left_x:bottom_right_x
+  iy <- top_left_y:bottom_left_y
 ### cropping finished
 
-    ## we just need ix and iy
+  ## we just need ix and iy
 
 
-    ##
-    # determine the dimensions, 2 in this case
+  ##
+  # determine the dimensions, 2 in this case
 
-    ## cropping part
-    tryCatch({
-      new_img <- noise_gone[ix, iy]
-      ## want all images to have the same mean to 0.1
-      orig_mean <- mean(new_img)
-      mean_factor <- mean_pix/orig_mean
-      new_img <- new_img*mean_factor
-      #file_dna <- tools::file_path_sans_ext(file_dna)
-      file_stub <- paste0('-',channel2_string,'.',file_ext)
-      file_dna <- gsub(file_stub,'', file_base)
-      filename_crop = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
-      writeImage(new_img, filename_crop)
+  ## cropping part
+  tryCatch({
+    new_img <- noise_gone[ix, iy]
+    ## want all images to have the same mean to 0.1
+    orig_mean <- mean(new_img)
+    mean_factor <- mean_pix/orig_mean
+    new_img <- new_img*mean_factor
+    #file_dna <- tools::file_path_sans_ext(file_dna)
+    file_stub <- paste0('-',channel2_string,'.',file_ext)
+    file_dna <- gsub(file_stub,'', file_base)
+    filename_crop = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+    writeImage(new_img, filename_crop)
 
-      new_img_foci <- noise_gone_foci[ix, iy]
-      file_stub <- paste0('-',channel1_string,'.',file_ext)
-      file_foci <- gsub(file_stub,'', file_foci)
-      filename_crop_foci = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
-      writeImage(new_img_foci, filename_crop_foci)
-      if(third_channel == "on"){
-        new_img_DAPI <- noise_gone_DAPI[ix, iy]
-        #file_DAPI <- gsub('-DAPI.jpeg','', file_DAPI)
-        file_stub <- paste0('-',channel3_string,'.',file_ext)
-        file_DAPI <- gsub(file_stub,'', file_DAPI)
-        filename_crop_DAPI = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
-        writeImage(new_img_DAPI, filename_crop_DAPI)
-      }
-
-      if(annotation=="on"){
-        print("from the file:")
-        print(file_dna)
-        display(img_orig)
-        print("I cropped this cell:")
-        display(new_img)
-        print("using this mask")
-        display(tmp_img)
-        print("whose cell number is")
-        print(cell_count)
-      }
-      #### strand related stuff here
-    },
-    error = function(e) {
-      #what should be done in case of exception?
-
-      if(annotation=="on"){
-        #str(e) # #prints structure of exception
-        print("couldn't crop it since cell is on the edge. Neglected the following mask of a cell candidate:")
-        display(tmp_img)
-      }
-
-
+    new_img_foci <- noise_gone_foci[ix, iy]
+    file_stub <- paste0('-',channel1_string,'.',file_ext)
+    file_foci <- gsub(file_stub,'', file_foci)
+    filename_crop_foci = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+    writeImage(new_img_foci, filename_crop_foci)
+    if(third_channel == "on"){
+      new_img_DAPI <- noise_gone_DAPI[ix, iy]
+      #file_DAPI <- gsub('-DAPI.jpeg','', file_DAPI)
+      file_stub <- paste0('-',channel3_string,'.',file_ext)
+      file_DAPI <- gsub(file_stub,'', file_DAPI)
+      filename_crop_DAPI = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+      writeImage(new_img_DAPI, filename_crop_DAPI)
     }
-    )
+
+    if(annotation=="on"){
+      print("from the file:")
+      print(file_dna)
+      display(img_orig)
+      print("I cropped this cell:")
+      display(new_img)
+      print("using this mask")
+      display(tmp_img)
+      print("whose cell number is")
+      print(cell_count)
+    }
+    #### strand related stuff here
+  },
+  error = function(e) {
+    #what should be done in case of exception?
+
+    if(annotation=="on"){
+      #str(e) # #prints structure of exception
+      print("couldn't crop it since cell is on the edge. Neglected the following mask of a cell candidate:")
+      display(tmp_img)
+    }
+
+
   }
+  )
+
 
 }
 
