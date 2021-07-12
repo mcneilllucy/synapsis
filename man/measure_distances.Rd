@@ -21,7 +21,10 @@ measure_distances(
   KO_str = "--",
   WT_str = "++",
   KO_out = "-/-",
-  WT_out = "+/+"
+  WT_out = "+/+",
+  watershed_stop = "off",
+  watershed_radius = 1,
+  watershed_tol = 0.05
 )
 }
 \arguments{
@@ -58,6 +61,12 @@ measure_distances(
 \item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
 
 \item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
+
+\item{watershed_stop}{Turn off default watershed method with "off"}
+
+\item{watershed_radius}{Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)}
+
+\item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
 }
 \value{
 Data frame with properties of synaptonemal (SC) measurements

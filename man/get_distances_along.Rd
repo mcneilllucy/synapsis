@@ -25,7 +25,11 @@ get_distances_along(
   annotation,
   cell_count,
   uid_strand,
-  per_strand_object
+  per_strand_object,
+  KO_str,
+  WT_str,
+  KO_out,
+  WT_out
 )
 }
 \arguments{
@@ -70,6 +74,14 @@ get_distances_along(
 \item{uid_strand}{Unique strand number}
 
 \item{per_strand_object}{Foci per strand object}
+
+\item{KO_str}{string in filename corresponding to knockout genotype. Defaults to --.}
+
+\item{WT_str}{string in filename corresponding to wildtype genotype. Defaults to ++.}
+
+\item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
+
+\item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
 }
 \value{
 List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.

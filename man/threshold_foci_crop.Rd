@@ -4,7 +4,7 @@
 \alias{threshold_foci_crop}
 \title{threshold_foci_crop}
 \usage{
-threshold_foci_crop(image, offset_factor, brush_size, brush_sigma)
+threshold_foci_crop(image, offset_factor, brush_size, brush_sigma, stage)
 }
 \arguments{
 \item{image}{foci channel image}
@@ -14,6 +14,8 @@ threshold_foci_crop(image, offset_factor, brush_size, brush_sigma)
 \item{brush_size, }{size of brush to smooth the foci channel. Should be small to avoid erasing foci.}
 
 \item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.}
+
+\item{stage, }{meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.}
 }
 \value{
 A black white mask with foci as objects
