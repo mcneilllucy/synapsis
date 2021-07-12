@@ -28,22 +28,22 @@ if you are looking at mouse pachytene (what synapsis is designed for), the follo
 
 ```r
 SYCP3_stats <- get_pachytene(path,ecc_thresh = 0.8, area_thresh = 0.04)
-foci_counts <- count_foci(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on",WT_out = "Fancm+/+",KO_out = "Fancm-/-")
+foci_counts <- count_foci(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on",WT_out = "Fancm+/+",KO_out = "Fancm-/-", stage = "pachytene")
 ```
 
 and
 
 ```r
-df_dist <- measure_distances(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on", WT_out = "Fancm+/+",KO_out = "Fancm-/-")
+df_dist <- measure_distances(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on", WT_out = "Fancm+/+",KO_out = "Fancm-/-", stage = "pachytene")
 ```
 
 otherwise, for everything else, you could call something like:
 
 ```r
-foci_counts <- count_foci(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on",WT_str = "tif",WT_out ="NA",file_ext = "tif", channel2_string = "c3", channel1_string = "c2", offset_px = 0.4)
+foci_counts <- count_foci(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on",WT_str = "tif",WT_out ="NA",file_ext = "tif", channel2_string = "c3", channel1_string = "c2", offset_px = 0.4, crowded_foci = TRUE)
 ```
 and
 
 ```r
-df_dist <- measure_distances(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on",WT_str = "tif",WT_out ="NA",file_ext = "tif", channel2_string = "c3", channel1_string = "c2", offset_px = 0.4)
+df_dist <- measure_distances(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on",WT_str = "tif",WT_out ="NA",file_ext = "tif", channel2_string = "c3", channel1_string = "c2", offset_px = 0.4, crowded_foci = TRUE)
 ```
