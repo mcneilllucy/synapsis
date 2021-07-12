@@ -48,16 +48,16 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
   ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
     if(stage == "pachytene"){
-      filename_path_test = paste0(img_path,"/crops/",stage,"/", img_file)
+      filename_path_test <- paste0(img_path,"/crops/",stage,"/", img_file)
     }
     else{
-      filename_path_test = paste0(img_path,"/crops/", img_file)
+      filename_path_test <- paste0(img_path,"/crops/", img_file)
     }
 
-    img_file = filename_path_test
+    img_file <- filename_path_test
     #if(grepl("*SYCP3.jpeg", file)){
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
-      file_dna = img_file
+      file_dna <- img_file
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
@@ -65,7 +65,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
     }
     #if(grepl("*MLH3.jpeg", file)){
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
-      file_foci = img_file
+      file_foci <- img_file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
       # call functions: get
@@ -77,15 +77,15 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       cell_count <- cell_count + 1
 
       new_img<-img_orig
-      disc = makeBrush(21, "disc")
-      disc = disc / sum(disc)
-      localBackground = filter2(new_img, disc)
-      offset = offset_px
+      disc <- makeBrush(21, "disc")
+      disc <- disc / sum(disc)
+      localBackground <- filter2(new_img, disc)
+      offset <- offset_px
       if(stage == "pachytene"){
-        thresh_crop = (new_img - localBackground > offset)
+        thresh_crop <- (new_img - localBackground > offset)
       }
       else{
-        thresh_crop = new_img > offset
+        thresh_crop <- new_img > offset
       }
       strands <- bwlabel(thresh_crop)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
@@ -98,23 +98,23 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       img_orig_foci <- img_orig_foci*mean_factor
 
       #### normalise the foci image
-      offset = offset_factor*bg
+      offset <- offset_factor*bg
       if(stage != "pachytene"){
-        foci_th = foci_mask_crop > bg + offset
+        foci_th <- foci_mask_crop > bg + offset
         #foci_th <- watershed(bwlabel(foci_th)*as.matrix(img_orig_foci),tolerance=0.05, ext=1)
       }
       else{
         ### smooth it
-        img_tmp_contrast = foci_mask_crop
-        w = makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
+        img_tmp_contrast <- foci_mask_crop
+        w <- makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
         #w = makeBrush(size = 1, shape = 'gaussian', sigma = 3)
-        img_flo = filter2(img_tmp_contrast, w)
+        img_flo <- filter2(img_tmp_contrast, w)
         ## smooth foci channel
-        foci_th = img_flo > bg + offset
+        foci_th <- img_flo > bg + offset
       }
 
 
-      foci_label = bwlabel(foci_th)
+      foci_label <- bwlabel(foci_th)
       foci_label <- channel(foci_label, "grey")
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
@@ -149,7 +149,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         plot(rgbImage(strands,coincident_foci,coincident_foci))
       }
 
-      overlap_no = table(coincident_foci)
+      overlap_no <- table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
       if(annotation=="on"){
         print("which counts this many foci:")

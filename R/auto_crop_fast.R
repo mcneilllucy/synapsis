@@ -44,13 +44,13 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
 
   ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
-    file_base = img_file
-    filename_path_test = paste0(img_path,"/",img_file)
-    img_file = filename_path_test
+    file_base <- img_file
+    filename_path_test <- paste0(img_path,"/",img_file)
+    img_file <- filename_path_test
     #if(grepl("*DAPI.jpeg$", file)){
     if(third_channel == "on"){
       if(grepl(paste0('*',channel3_string,'.',file_ext,'$'),img_file)){
-        file_DAPI = img_file
+        file_DAPI <- img_file
         image <- readImage(file_DAPI)
         img_orig_DAPI <- channel(image, "grey")
         antibody3_store <- 1
@@ -59,7 +59,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
     #if(grepl("*SYCP3.jpeg$", file)){
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
 
-      file_dna = img_file
+      file_dna <- img_file
       print(file)
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
@@ -67,7 +67,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
     }
     #if(grepl("*MLH3.jpeg$", file)){
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
-      file_foci = img_file
+      file_foci <- img_file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
       # call functions: get
@@ -85,7 +85,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       #### function: blur the image
       ## call it on img_orig, optional offset
       blob_th <- get_blobs(img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp,brush_size_blob, sigma_blob)
-      blob_label = bwlabel(blob_th)
+      blob_label <- bwlabel(blob_th)
       blob_label <- channel(blob_label, "gray")
       candidate <- bwlabel(blob_label)
       ## function: remove things that aren't cells
@@ -228,20 +228,20 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
     #file_dna <- tools::file_path_sans_ext(file_dna)
     file_stub <- paste0('-',channel2_string,'.',file_ext)
     file_dna <- gsub(file_stub,'', file_base)
-    filename_crop = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+    filename_crop <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
     writeImage(new_img, filename_crop)
 
     new_img_foci <- noise_gone_foci[ix, iy]
     file_stub <- paste0('-',channel1_string,'.',file_ext)
     file_foci <- gsub(file_stub,'', file_foci)
-    filename_crop_foci = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+    filename_crop_foci <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
     writeImage(new_img_foci, filename_crop_foci)
     if(third_channel == "on"){
       new_img_DAPI <- noise_gone_DAPI[ix, iy]
       #file_DAPI <- gsub('-DAPI.jpeg','', file_DAPI)
       file_stub <- paste0('-',channel3_string,'.',file_ext)
       file_DAPI <- gsub(file_stub,'', file_DAPI)
-      filename_crop_DAPI = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+      filename_crop_DAPI <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
       writeImage(new_img_DAPI, filename_crop_DAPI)
     }
 

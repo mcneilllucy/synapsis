@@ -41,25 +41,25 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
   ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
     print(img_file)
-    file_base = img_file
-    filename_path_test = paste0(img_path,"/", img_file)
-    img_file = filename_path_test
+    file_base <- img_file
+    filename_path_test <- paste0(img_path,"/", img_file)
+    img_file <- filename_path_test
     if(grepl("*DAPI.jpeg$", img_file)){
-      file_DAPI = img_file
+      file_DAPI <- img_file
       image <- readImage(file_DAPI)
       img_orig_DAPI <- channel(image, "grey")
       antibody3_store <- 1
     }
     if(grepl("*SYCP3.jpeg$", img_file)){
 
-      file_dna = img_file
+      file_dna <- img_file
 
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
       antibody1_store <- 1
     }
     if(grepl("*MLH3.jpeg$", img_file)){
-      file_foci = img_file
+      file_foci <- img_file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
       # call functions: get
@@ -76,7 +76,7 @@ auto_crop <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, me
       ## call it on img_orig, optional offset
       blob_th <- get_blobs(img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp,brush_size_blob, sigma_blob)
 
-      blob_label = bwlabel(blob_th)
+      blob_label <- bwlabel(blob_th)
       blob_label <- channel(blob_label, "gray")
       candidate <- bwlabel(blob_label)
 
@@ -152,12 +152,12 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
   img_tmp_dna <- img_orig
   img_tmp <- thresh
   #w = makeBrush(size = 51, shape = 'gaussian', sigma = 15)
-  w = makeBrush(size = brush_size_blob, shape = 'gaussian', sigma = sigma_blob)
-  img_flo = filter2(img_tmp, w)
+  w <- makeBrush(size = brush_size_blob, shape = 'gaussian', sigma = sigma_blob)
+  img_flo <- filter2(img_tmp, w)
   ## default amplification
   bg <- mean(bg_blob_factor*img_tmp)
   #if(crop_method == "regular"){
-  blob_th = final_blob_amp*img_flo > bg + offset
+  blob_th <- final_blob_amp*img_flo > bg + offset
   #}
 
   #if(crop_method == "watershed"){
@@ -193,7 +193,7 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_rati
 
   while(counter<OOI){
     counter <- counter+1
-    pixel_area = x$s.area[counter]
+    pixel_area <- x$s.area[counter]
     semi_maj <- x$s.radius.max[counter]
     semi_min <- x$s.radius.min[counter]
     # if statement checking if it's the wrong area
@@ -269,9 +269,9 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
   row_list <- c()
   col_list <- c()
   # I think this is quick enough for now.. takes less than 10s...
-  xx = data.frame(as.numeric(tmp_img))
+  xx <- data.frame(as.numeric(tmp_img))
   xx <- data.frame(bwlabel(tmp_img))
-  my_matrix = t(as.matrix(xx))
+  my_matrix <- t(as.matrix(xx))
   i <- 0
   ### now loop over matrix
   for(row in 1:nrow(my_matrix)) {
@@ -328,19 +328,19 @@ crop_single_object <- function(retained, OOI_final,counter_final,img_orig,img_or
       print(file_dna)
       file_dna <- gsub('-SYCP3.jpeg','', file_base)
       print(file_dna)
-      filename_crop = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-SYCP3.jpeg")
+      filename_crop <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-SYCP3.jpeg")
       writeImage(new_img, filename_crop)
 
       new_img_foci <- noise_gone_foci[ix, iy]
       #file_foci <- tools::file_path_sans_ext(file_foci)
       file_foci <- gsub('-MLH3.jpeg','', file_foci)
-      filename_crop_foci = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-MLH3.jpeg")
+      filename_crop_foci <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-MLH3.jpeg")
       writeImage(new_img_foci, filename_crop_foci)
 
       new_img_DAPI <- noise_gone_DAPI[ix, iy]
       #file_foci <- tools::file_path_sans_ext(file_foci)
       file_DAPI <- gsub('-DAPI.jpeg','', file_DAPI)
-      filename_crop_DAPI = paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-DAPI.jpeg")
+      filename_crop_DAPI <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,"-DAPI.jpeg")
       writeImage(new_img_DAPI, filename_crop_DAPI)
 
       if(annotation=="on"){

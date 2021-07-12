@@ -44,11 +44,11 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
   #colnames(df_lengths) <- df_cols
   ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
-    filename_path_test = paste0(img_path,"/crops/",stage,"/", img_file)
-    img_file = filename_path_test
+    filename_path_test <- paste0(img_path,"/crops/",stage,"/", img_file)
+    img_file <- filename_path_test
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
     #if(grepl("*SYCP3.jpeg", file)){
-      file_dna = img_file
+      file_dna <- img_file
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
@@ -56,7 +56,7 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
     }
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
     #if(grepl("*MLH3.jpeg", file)){
-      file_foci = img_file
+      file_foci <- img_file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
       # call functions: get
@@ -69,11 +69,11 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
       new_img<-img_orig
       #display(new_img)
       #### now see which have the right amount of strands
-      disc = makeBrush(21, "disc")
-      disc = disc / sum(disc)
-      localBackground = filter2(new_img, disc)
-      offset = offset_px
-      thresh_crop = (new_img - localBackground > offset)
+      disc <- makeBrush(21, "disc")
+      disc <- disc / sum(disc)
+      localBackground <- filter2(new_img, disc)
+      offset <- offset_px
+      thresh_crop <- (new_img - localBackground > offset)
       strands <- bwlabel(thresh_crop)
       #display(strands)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
@@ -90,7 +90,7 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
       coincident_foci <- bwlabel(foci_label*strands)
-      overlap_no = table(coincident_foci)
+      overlap_no <- table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
       image_mat <- as.matrix(foci_mask_crop)
       image_mat <- image_mat[image_mat > 1e-06]
@@ -193,13 +193,13 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
             window2 <- window*3
             ### start function here
             bright_loc <- find_start(window,noise_gone,cx,cy)
-            mean_x = as.numeric(bright_loc[1,1]) +cx -window2-1
-            mean_y = as.numeric(bright_loc[1,2]) +cy-window2-1
+            mean_x <- as.numeric(bright_loc[1,1]) +cx -window2-1
+            mean_y <- as.numeric(bright_loc[1,2]) +cy-window2-1
             ##
             ix <- (round(mean_x)-window):(round(mean_x)+window)
             iy <- (round(mean_y)-window):(round(mean_y)+window)
             chosen_dir <- get_first_dir(noise_gone,ix,iy,window)
-            walkers[round(mean(ix)),round(mean(iy))] = 1
+            walkers[round(mean(ix)),round(mean(iy))] <- 1
             ix1 <- ix
             ix2 <- ix
             iy1 <- iy
@@ -218,8 +218,8 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
             dir_2 <- first_step[(4*next_cord+4)]
             new_square_1 <-  noise_gone[ix1,iy1]
             new_square_2 <-  noise_gone[ix2,iy2]
-            walkers[round(mean(ix1)),round(mean(iy1))] = 1
-            walkers[round(mean(ix2)),round(mean(iy2))] = 1
+            walkers[round(mean(ix1)),round(mean(iy1))] <- 1
+            walkers[round(mean(ix2)),round(mean(iy2))] <- 1
             ## take step in the opposite direction. record new coordinates.
             ## now loop in both directions
             ## set directions to "not done yet" = 0. "done" = 1
@@ -240,7 +240,7 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
               first_dir <- dir_1_out[(2*next_cord+3)]
               start_dir <- dir_1_out[(2*next_cord+4)]
 
-              walkers[round(mean(ix1)),round(mean(iy1))] = 1
+              walkers[round(mean(ix1)),round(mean(iy1))] <- 1
               ## make the new cropped image.
               new_square_1 <-  noise_gone[ix1,iy1]
               if(distance_strand >100){
@@ -258,7 +258,7 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
               dir_2 <- dir_2_out[(2*next_cord+1)]
               second_dir <- dir_2_out[(2*next_cord+3)]
               start_dir2 <- dir_2_out[(2*next_cord+4)]
-              walkers[round(mean(ix2)),round(mean(iy2))] = 1
+              walkers[round(mean(ix2)),round(mean(iy2))] <- 1
               ## make the new cropped image.
               new_square_2 <-  noise_gone[ix2,iy2]
               if(distance_strand_2 >100){
@@ -383,8 +383,8 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
       }
     }
     bright_loc_fi <- which(my_distance_matrix_fi == min(my_distance_matrix_fi),arr.ind = TRUE)
-    mean_x = as.numeric(bright_loc_fi[1,1])
-    mean_y = as.numeric(bright_loc_fi[1,2])
+    mean_x <- as.numeric(bright_loc_fi[1,1])
+    mean_y <- as.numeric(bright_loc_fi[1,2])
     distance_fi <- (strand_info$m.cy[iter]-mean_x)^2 +(strand_info$m.cx[iter]-mean_y)^2
 
     if(grepl( WT_str, img_file, fixed = TRUE) == TRUE){
@@ -442,9 +442,9 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
         print("and this was a pass/fail")
         print(strand_test)
         if(annotation == "on"){
-          ch1 = bwlabel(noise_gone)
+          ch1 <- bwlabel(noise_gone)
           ch1 <-channel(noise_gone,"grey")
-          ch2 = bwlabel(foci_label)
+          ch2 <- bwlabel(foci_label)
           ch2 <- channel(foci_label,"grey")
           bluered <- rgbImage(ch1, ch2, 0*ch1)
           plot(bluered)

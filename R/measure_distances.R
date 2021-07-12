@@ -44,11 +44,11 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
   #colnames(df_lengths) <- df_cols
   ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
-    filename_path_test = paste0(img_path,"/crops/",stage,"/", img_file)
-    img_file = filename_path_test
+    filename_path_test <- paste0(img_path,"/crops/",stage,"/", img_file)
+    img_file <- filename_path_test
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
     #if(grepl("*SYCP3.jpeg", file)){
-      file_dna = img_file
+      file_dna <- img_file
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
@@ -56,7 +56,7 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
     }
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
     #if(grepl("*MLH3.jpeg", file)){
-      file_foci = img_file
+      file_foci <- img_file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
       # call functions: get
@@ -69,15 +69,15 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
       new_img<-img_orig
       #display(new_img)
       #### now see which have the right amount of strands
-      disc = makeBrush(21, "disc")
-      disc = disc / sum(disc)
-      localBackground = filter2(new_img, disc)
-      offset = offset_px
+      disc <- makeBrush(21, "disc")
+      disc <- disc / sum(disc)
+      localBackground <- filter2(new_img, disc)
+      offset <- offset_px
       if(stage == "pachytene"){
-        thresh_crop = (new_img - localBackground > offset)
+        thresh_crop <- (new_img - localBackground > offset)
       }
       else{
-        thresh_crop = new_img > offset
+        thresh_crop <- new_img > offset
       }
       strands <- bwlabel(thresh_crop)
       #display(strands)
@@ -106,7 +106,7 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
         coincident_foci <- watershed(bwlabel(foci_label*strands)*as.matrix(img_orig_foci),tolerance=watershed_tol, ext=watershed_radius)
       }
       #coincident_foci <- bwlabel(foci_label*strands)
-      overlap_no = table(coincident_foci)
+      overlap_no <- table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
       ### foci counting stuff ends
       image_mat <- as.matrix(foci_mask_crop)
@@ -143,10 +143,10 @@ measure_distances <- function(img_path,offset_px = 0.2, offset_factor = 3, brush
 #' @return A black white mask with SCs as objects
 #'
 threshold_SC_crop <- function(image, offset){
-  disc = makeBrush(21, "disc")
-  disc = disc / sum(disc)
-  localBackground = filter2(image, disc)
-  thresh_crop = (image - localBackground > offset)
+  disc <- makeBrush(21, "disc")
+  disc <- disc / sum(disc)
+  localBackground <- filter2(image, disc)
+  thresh_crop <- (image - localBackground > offset)
   strands <- bwlabel(thresh_crop)
   return(strands)
 }
@@ -167,23 +167,23 @@ threshold_SC_crop <- function(image, offset){
 #'
 threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma,stage){
   bg <- mean(image)
-  offset = offset_factor*bg
+  offset <- offset_factor*bg
 
   ### new stuff July
   if(stage != "pachytene"){
-    foci_th = image > bg + offset
+    foci_th <- image > bg + offset
     #foci_th <- watershed(bwlabel(foci_th)*as.matrix(img_orig_foci),tolerance=0.05, ext=1)
   }
   else{
     ### smooth it
-    img_tmp_contrast = image
-    w = makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
+    img_tmp_contrast <- image
+    w <- makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
     #w = makeBrush(size = 1, shape = 'gaussian', sigma = 3)
-    img_flo = filter2(img_tmp_contrast, w)
+    img_flo <- filter2(img_tmp_contrast, w)
     ## smooth foci channel
-    foci_th = img_flo > bg + offset
+    foci_th <- img_flo > bg + offset
   }
-  foci_label = bwlabel(foci_th)
+  foci_label <- bwlabel(foci_th)
   foci_label <- channel(foci_label, "grey")
   return(foci_label)
 }
@@ -256,13 +256,13 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
             window2 <- window*3
             ### start function here
             bright_loc <- find_start(window,noise_gone,cx,cy)
-            mean_x = as.numeric(bright_loc[1,1]) +cx -window2-1
-            mean_y = as.numeric(bright_loc[1,2]) +cy-window2-1
+            mean_x <- as.numeric(bright_loc[1,1]) +cx -window2-1
+            mean_y <- as.numeric(bright_loc[1,2]) +cy-window2-1
             ##
             ix <- (round(mean_x)-window):(round(mean_x)+window)
             iy <- (round(mean_y)-window):(round(mean_y)+window)
             chosen_dir <- get_first_dir(noise_gone,ix,iy,window)
-            walkers[round(mean(ix)),round(mean(iy))] = 1
+            walkers[round(mean(ix)),round(mean(iy))] <- 1
             ix1 <- ix
             ix2 <- ix
             iy1 <- iy
@@ -281,8 +281,8 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
             dir_2 <- first_step[(4*next_cord+4)]
             new_square_1 <-  noise_gone[ix1,iy1]
             new_square_2 <-  noise_gone[ix2,iy2]
-            walkers[round(mean(ix1)),round(mean(iy1))] = 1
-            walkers[round(mean(ix2)),round(mean(iy2))] = 1
+            walkers[round(mean(ix1)),round(mean(iy1))] <- 1
+            walkers[round(mean(ix2)),round(mean(iy2))] <- 1
             ## take step in the opposite direction. record new coordinates.
             ## now loop in both directions
             ## set directions to "not done yet" = 0. "done" = 1
@@ -303,7 +303,7 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
               first_dir <- dir_1_out[(2*next_cord+3)]
               start_dir <- dir_1_out[(2*next_cord+4)]
 
-              walkers[round(mean(ix1)),round(mean(iy1))] = 1
+              walkers[round(mean(ix1)),round(mean(iy1))] <- 1
               ## make the new cropped image.
               new_square_1 <-  noise_gone[ix1,iy1]
               if(distance_strand >100){
@@ -321,7 +321,7 @@ get_distance <- function(strands,num_strands,new_img,foci_label, foci_count_stra
               dir_2 <- dir_2_out[(2*next_cord+1)]
               second_dir <- dir_2_out[(2*next_cord+3)]
               start_dir2 <- dir_2_out[(2*next_cord+4)]
-              walkers[round(mean(ix2)),round(mean(iy2))] = 1
+              walkers[round(mean(ix2)),round(mean(iy2))] <- 1
               ## make the new cropped image.
               new_square_2 <-  noise_gone[ix2,iy2]
               if(distance_strand_2 >100){
@@ -1189,23 +1189,23 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
 
   #### find max. plot these onto the images.
   bright_loc_f1 <- which(my_distance_matrix_f1 == min(my_distance_matrix_f1),arr.ind = TRUE)
-  mean_x_f1 = as.numeric(bright_loc_f1[1,1])
-  mean_y_f1 = as.numeric(bright_loc_f1[1,2])
+  mean_x_f1 <- as.numeric(bright_loc_f1[1,1])
+  mean_y_f1 <- as.numeric(bright_loc_f1[1,2])
 
   distance_f1 <- (foci_1_y-mean_x_f1)^2 +(foci_1_x-mean_y_f1)^2
 
   ###
   bright_loc_f2 <- which(my_distance_matrix_f2 == min(my_distance_matrix_f2),arr.ind = TRUE)
-  mean_x_f2 = as.numeric(bright_loc_f2[1,1])
-  mean_y_f2 = as.numeric(bright_loc_f2[1,2])
+  mean_x_f2 <- as.numeric(bright_loc_f2[1,1])
+  mean_y_f2 <- as.numeric(bright_loc_f2[1,2])
 
 
   distance_f2 <- (foci_2_y-mean_x_f2)^2 +(foci_2_x-mean_y_f2)^2
   # deleting for now
   if (annotation=="on"){
-    ch1 = bwlabel(noise_gone)
+    ch1 <-  bwlabel(noise_gone)
     ch1 <-channel(noise_gone,"grey")
-    ch2 = bwlabel(foci_label)
+    ch2 <-  bwlabel(foci_label)
     ch2 <- channel(foci_label,"grey")
     bluered <- rgbImage(ch1, ch2, 0*ch1)
     plot(bluered)
@@ -1663,11 +1663,11 @@ get_distance_between_two <- function(distance_strand,distance_strand_2,per_stran
       plot(noise_gone)
       text(x = foci_1_x, y = foci_1_y, label = "+", col = "red", cex = 2)
       text(x = foci_2_x, y = foci_2_y, label = "+", col = "blue", cex = 2)
-      ch1 = bwlabel(walkers)
+      ch1 <- bwlabel(walkers)
       ch1 <- channel(ch1, "grey")
-      ch2 = bwlabel(noise_gone)
+      ch2 <- bwlabel(noise_gone)
       ch2 <-channel(noise_gone,"grey")
-      ch3 = bwlabel(per_strand)
+      ch3 <- bwlabel(per_strand)
       ch3 <- channel(per_strand,"grey")
       bluered <- rgbImage(ch2, ch1, ch3)
       #print("break")

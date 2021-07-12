@@ -37,13 +37,13 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
   file_list <- list.files(img_path_new)
   ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
-    file_base = img_file
-    filename_path_test = paste0(img_path,"/crops/", img_file)
-    img_file = filename_path_test
+    file_base <- img_file
+    filename_path_test <- paste0(img_path,"/crops/", img_file)
+    img_file <- filename_path_test
     #if(grepl("*SYCP3.jpeg", file)){
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
-      file_dna = img_file
-      file_base_dna = file_base
+      file_dna <- img_file
+      file_base_dna <- file_base
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(image, "grey")
@@ -51,8 +51,8 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
     }
     #if(grepl("*MLH3.jpeg", file)){
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
-      file_base_foci = file_base
-      file_foci = img_file
+      file_base_foci <- file_base
+      file_foci <- img_file
       #print(file_foci)
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
@@ -64,10 +64,10 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       antibody2_store <- 0
       new_img<-img_orig
       #### now see which have the right amount of strands
-      disc = makeBrush(21, "disc")
-      disc = disc / sum(disc)
-      localBackground = filter2(new_img, disc)
-      thresh_crop = (new_img - localBackground > offset)
+      disc <- makeBrush(21, "disc")
+      disc <- disc / sum(disc)
+      localBackground <- filter2(new_img, disc)
+      thresh_crop <- (new_img - localBackground > offset)
       strands <- bwlabel(thresh_crop)
       color_img_strands<- colorLabels(strands, normalize = TRUE)
       num_strands <- computeFeatures.shape(strands)
@@ -111,14 +111,14 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
             df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,px_mask, px_total,px_fraction, mean_ecc,mean_ratio,skew,sd_bright_px,stage_classification)))
             pachytene_count <- pachytene_count + 1
             file_dna <- tools::file_path_sans_ext(file_base_dna)
-            filename_crop = paste0(img_path_new,"/pachytene/", file_dna,".jpeg")
+            filename_crop <- paste0(img_path_new,"/pachytene/", file_dna,".jpeg")
             writeImage(img_orig, filename_crop)
             if(annotation == "on"){
               print("decided the following is pachytene")
               display(img_orig)
             }
             file_foci <- tools::file_path_sans_ext(file_base_foci)
-            filename_crop_foci = paste0(img_path_new,"/pachytene/", file_foci,".jpeg")
+            filename_crop_foci <- paste0(img_path_new,"/pachytene/", file_foci,".jpeg")
             writeImage(img_orig_foci, filename_crop_foci)
           }
         }
