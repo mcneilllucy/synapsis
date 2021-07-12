@@ -46,26 +46,26 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
   colnames(df_cells) <- df_cols
 
   ## for each image that is *-dna.jpeg,
-  for (file in file_list){
+  for (img_file in file_list){
     if(stage == "pachytene"){
-      filename_path_test = paste0(img_path,"/crops/",stage,"/", file)
+      filename_path_test = paste0(img_path,"/crops/",stage,"/", img_file)
     }
     else{
-      filename_path_test = paste0(img_path,"/crops/", file)
+      filename_path_test = paste0(img_path,"/crops/", img_file)
     }
 
-    file = filename_path_test
+    img_file = filename_path_test
     #if(grepl("*SYCP3.jpeg", file)){
-    if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), file)){
-      file_dna = file
+    if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
+      file_dna = img_file
       image_count <- image_count +1
       image <- readImage(file_dna)
       img_orig <- channel(2*image, "grey")
       antibody1_store <- 1
     }
     #if(grepl("*MLH3.jpeg", file)){
-    if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), file)){
-      file_foci = file
+    if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
+      file_foci = img_file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
       # call functions: get
@@ -131,7 +131,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       ### multiply strands by foci_label
       if(annotation == "on"){
         print("at file")
-        print(file)
+        print(img_file)
         print("cell counter is")
         print(cell_count)
         print("original images")
@@ -192,15 +192,15 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       }
       tryCatch({
         ### data frame stuff
-        if(grepl( WT_str, file, fixed = TRUE) == TRUE){
+        if(grepl( WT_str, img_file, fixed = TRUE) == TRUE){
           genotype <- WT_out
         }
 
-        if(grepl( KO_str, file, fixed = TRUE) == TRUE){
+        if(grepl( KO_str, img_file, fixed = TRUE) == TRUE){
           genotype <- KO_out
         }
         ### data frame stuff ends
-        df_cells <- rbind(df_cells,t(c(file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat),alone_foci)))
+        df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat),alone_foci)))
       },
       error = function(e) {
         #what should be done in case of exception?
