@@ -12,7 +12,7 @@ get_distance(
   foci_label,
   foci_count_strand,
   strand_iter,
-  file,
+  img_file,
   annotation,
   eccentricity_min,
   max_strand_area,
@@ -36,7 +36,7 @@ get_distance(
 
 \item{strand_iter, }{Strand number in iteration over all in cell}
 
-\item{file, }{original filename that cell candidate came from. Used to identify e.g. genotype for data frame.}
+\item{img_file, }{original filename that cell candidate came from. Used to identify e.g. genotype for data frame.}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 

@@ -21,7 +21,7 @@ get_distance_between_two(
   mean_x,
   mean_y,
   strand_iter,
-  file,
+  img_file,
   annotation,
   cell_count,
   uid_strand,
@@ -64,7 +64,7 @@ get_distance_between_two(
 
 \item{strand_iter, }{Strand number in iteration over all in cell}
 
-\item{file, }{original filename that cell candidate came from. Used to identify e.g. genotype for data frame.}
+\item{img_file, }{original filename that cell candidate came from. Used to identify e.g. genotype for data frame.}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
