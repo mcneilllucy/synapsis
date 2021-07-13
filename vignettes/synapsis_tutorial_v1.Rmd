@@ -127,7 +127,7 @@ You can type
 ```
 There is an annotation setting, which we switch to "on".  max_cell_area and  min_cell_area have been calibrated to our data set, where the subject are mouse cells and magnification kept constant. You could run it on the first five images by setting e.g. test_amount = 5. But for now we will just look at the single image.
 ```{r}
-auto_crop_fast(path, annotation = "on", max_cell_area = 30000, min_cell_area = 7000, test_amount = 1)
+auto_crop_fast(path, annotation = "on", max_cell_area = 30000, min_cell_area = 7000)
 ```
 Here we called path, plus other optional parameters (that would otherwise take on default values). But only path is essential. This is because auto_crop_fast has built-in default values which are assumed when the user doesn't specify.
 
@@ -141,13 +141,13 @@ SYCP3_stats <- get_pachytene(path,ecc_thresh = 0.8, area_thresh = 0.04, annotati
 SYCP3_stats is a data frame summarizing some features of the cells classified as pachytene.
 ## Counting foci 
 ```{r}
-foci_counts <- count_foci(path,offset_factor = 3, brush_size = 3, brush_sigma = 3, annotation = "on",stage = "pachytene")
+foci_counts <- count_foci(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on",stage = "pachytene")
 ```
 foci_counts is a data frame summarizing some features (including foci counts) of the cells classified as pachytene.
 
 ## Distance between foci on SC
 ```{r}
-df_dist <- measure_distances_general(path, annotation = "on",target_foci_number = 2)
+df_dist <- measure_distances_general(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on", stage = "pachytene",target_foci_number = 2)
 ```
 
 # Bigger data set

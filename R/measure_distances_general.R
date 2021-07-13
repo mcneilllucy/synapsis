@@ -254,8 +254,6 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
               }
               ### call get_distance_along
               dimensionless_dist <- rbind(dimensionless_dist,get_distances_along(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_count,img_file,annotation,cell_count,strand_iter, per_strand_obj,KO_str ,WT_str,KO_out, WT_out,max_dist_sq))
-              print("printing the 2 foci row")
-              print(dimensionless_dist)
             }
 
           }
@@ -335,8 +333,6 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
             }
             ### call get_distance_along
             dimensionless_dist <- rbind(dimensionless_dist,get_distances_along(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_count,img_file,annotation,cell_count,strand_iter, per_strand_obj,KO_str ,WT_str,KO_out, WT_out,max_dist_sq))
-            print("printing the 2 foci row")
-            print(dimensionless_dist)
           }
           ### then the number of foci was 1
           else if(nrow(per_strand_obj)==1){
@@ -472,7 +468,7 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
         print("I found a focus, which is this many pixels along:")
         foci_dist_along <- dist_along
         print(dist_along)
-        print("and its distance to the actual foci centre was")
+        print("and its distance (squared) to the actual foci centre was")
         print(distance_fi)
         print("and this was a pass/fail")
         print(strand_test)
