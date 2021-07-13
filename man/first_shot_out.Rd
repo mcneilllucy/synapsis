@@ -15,7 +15,8 @@ first_shot_out(
 )
 }
 \arguments{
-\item{chosen_dir}{string: brightest direction of a line passing through starting point}
+\item{chosen_dir}{string: brightest direction of a line passing through
+starting point}
 
 \item{ix1, }{starting point x}
 

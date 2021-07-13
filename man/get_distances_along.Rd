@@ -40,9 +40,11 @@ get_distances_along(
 
 \item{per_strand, }{Mask with colocalizing foci}
 
-\item{foci_label, }{black white mask with foci as objects, not necessarily on SC. Needed for computefeatures.}
+\item{foci_label, }{black white mask with foci as objects, not necessarily
+on SC. Needed for computefeatures.}
 
-\item{walkers, }{black white mask containing the line that traces through the middle of the SC. Computed earlier in get_distance}
+\item{walkers, }{black white mask containing the line that traces through
+the middle of the SC. Computed earlier in get_distance}
 
 \item{noise_gone, }{Black white mask with the single SC to be measured}
 
@@ -54,19 +56,25 @@ get_distances_along(
 
 \item{start_y2, }{y pixel location of where second branch terminated}
 
-\item{start_dir, }{direction that the first branch was traveling along when it terminated}
+\item{start_dir, }{direction that the first branch was traveling along
+when it terminated}
 
-\item{cx, }{centre of intensity x of the SC from computefeatures (annotation purposes only)}
+\item{cx, }{centre of intensity x of the SC from computefeatures
+(annotation purposes only)}
 
-\item{cy, }{centre of intensity y of the SC from computefeatures (annotation purposes only)}
+\item{cy, }{centre of intensity y of the SC from computefeatures
+(annotation purposes only)}
 
-\item{mean_x, }{starting point x that the two branches move away from to trace out the SC (annotation purposes only)}
+\item{mean_x, }{starting point x that the two branches move away from
+to trace out the SC (annotation purposes only)}
 
-\item{mean_y, }{starting point x that the two branches move away from to trace out the SC (annotation purposes only)}
+\item{mean_y, }{starting point x that the two branches move away from
+to trace out the SC (annotation purposes only)}
 
 \item{strand_iter, }{Strand number in iteration over all in cell}
 
-\item{img_file, }{original filename that cell candidate came from. Used to identify e.g. genotype for data frame.}
+\item{img_file, }{original filename that cell candidate came from.
+Used to identify e.g. genotype for data frame.}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
@@ -76,18 +84,24 @@ get_distances_along(
 
 \item{per_strand_object}{Foci per strand object}
 
-\item{KO_str}{string in filename corresponding to knockout genotype. Defaults to --.}
+\item{KO_str}{string in filename corresponding to knockout genotype.
+Defaults to --.}
 
-\item{WT_str}{string in filename corresponding to wildtype genotype. Defaults to ++.}
+\item{WT_str}{string in filename corresponding to wildtype genotype.
+Defaults to ++.}
 
-\item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
+\item{KO_out}{string in output csv in genotype column, for knockout.
+Defaults to -/-.}
 
-\item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
+\item{WT_out}{string in output csv in genotype column, for knockout.
+Defaults to +/+.}
 
-\item{max_dist_sq}{maximum distance (squared) between the centre of a foci vs its projected location on the line. Defaults to 20.}
+\item{max_dist_sq}{maximum distance (squared) between the centre of a
+foci vs its projected location on the line. Defaults to 20.}
 }
 \value{
-List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
+List of fractional distances between foci for all SCs with two.
+Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
 }
 \description{
 Calculates the pixel distance

@@ -11,7 +11,8 @@ find_start(window, noise_gone, cx, cy)
 
 \item{noise_gone}{Image containing only the SC of interest without background}
 
-\item{cx, cy}{The location of the "centre of intensity" using computeFeatures (not necessarily on SC)}
+\item{cx, cy}{The location of the "centre of intensity" using computeFeatures
+(not necessarily on SC)}
 }
 \value{
 The location of the starting point (on the SC)

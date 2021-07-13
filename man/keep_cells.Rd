@@ -19,5 +19,6 @@ keep_cells(candidate, max_cell_area, min_cell_area, cell_aspect_ratio)
 Mask of cell candidates which meet size criteria
 }
 \description{
-Deletes objects in mask which are too small, large, oblong i.e. unlikely to be a cell
+Deletes objects in mask which are too small, large, oblong
+i.e. unlikely to be a cell
 }

@@ -29,47 +29,70 @@ count_foci(
 \arguments{
 \item{img_path, }{path containing image data to analyse}
 
-\item{stage, }{meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.}
+\item{stage, }{meiosis stage of interest. Currently count_foci determines
+this with thresholding/ object properties in the dna channel. But will be
+classified using ML model in future versions.}
 
 \item{offset_px, }{Pixel value offset used in thresholding of dna channel}
 
 \item{offset_factor, }{Pixel value offset used in thresholding of foci channel}
 
-\item{brush_size, }{size of brush to smooth the foci channel. Should be small to avoid erasing foci.}
+\item{brush_size, }{size of brush to smooth the foci channel. Should be small
+to avoid erasing foci.}
 
-\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.}
+\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be
+small to avoid erasing foci.}
 
 \item{foci_norm, }{Mean intensity to normalise all foci channels to.}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
-\item{channel2_string}{String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3}
+\item{channel2_string}{String appended to the files showing the channel
+illuminating synaptonemal complexes. Defaults to SYCP3}
 
-\item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
+\item{channel1_string}{String appended to the files showing the channel
+illuminating foci. Defaults to MLH3}
 
 \item{file_ext}{file extension of your images e.g. tiff jpeg or png.}
 
-\item{KO_str}{string in filename corresponding to knockout genotype. Defaults to --.}
+\item{KO_str}{string in filename corresponding to knockout genotype.
+Defaults to --.}
 
-\item{WT_str}{string in filename corresponding to wildtype genotype. Defaults to ++.}
+\item{WT_str}{string in filename corresponding to wildtype genotype.
+Defaults to ++.}
 
-\item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
+\item{KO_out}{string in output csv in genotype column, for knockout.
+Defaults to -/-.}
 
-\item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
+\item{WT_out}{string in output csv in genotype column, for knockout.
+Defaults to +/+.}
 
 \item{watershed_stop}{Turn off default watershed method with "off"}
 
-\item{watershed_radius}{Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)}
+\item{watershed_radius}{Radius (ext variable) in watershed method used
+in foci channel. Defaults to 1 (small)}
 
 \item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
 
-\item{crowded_foci}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.}
+\item{crowded_foci}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+have foci > 100 or so.}
 }
 \value{
 foci count per cell
 }
 \description{
-Count coincident foci in cropped SC and foci channel per cell
+Calculates coincident foci in SC and foci channel, per cell
+}
+\details{
+In this function, masks for the synaptonemal complex (SC) and foci channel
+are created from the saved crops of single/individual cells.
+These masks are computed using (optional) input parameters related
+to meiosis stage/ how well spread chromosomes are (for the former)
+and related to smoothing, thresholding and how "crowded" foci are for the
+latter. Finally, these two masks are multiplied, and the number of
+objects found with EBImage's computeFeatures are the colocalizing foci.
+
+The file, cell number, foci count etc. are output as a data frame.
 }
 \examples{
 demo_path = paste0(system.file("extdata",package = "synapsis"))

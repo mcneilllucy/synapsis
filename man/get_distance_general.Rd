@@ -39,29 +39,38 @@ get_distance_general(
 
 \item{strand_iter, }{Strand number in iteration over all in cell}
 
-\item{img_file, }{original filename that cell candidate came from. Used to identify e.g. genotype for data frame.}
+\item{img_file, }{original filename that cell candidate came from.
+Used to identify e.g. genotype for data frame.}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
-\item{eccentricity_min, }{The minimum eccentricity (from computefeatures) of a strand to proceed with measuring}
+\item{eccentricity_min, }{The minimum eccentricity (from computefeatures)
+of a strand to proceed with measuring}
 
 \item{max_strand_area, }{Maximum pixel area of a strand}
 
 \item{cell_count}{Unique cell counter}
 
-\item{KO_str}{string in filename corresponding to knockout genotype. Defaults to --.}
+\item{KO_str}{string in filename corresponding to knockout genotype.
+Defaults to --.}
 
-\item{WT_str}{string in filename corresponding to wildtype genotype. Defaults to ++.}
+\item{WT_str}{string in filename corresponding to wildtype genotype.
+Defaults to ++.}
 
-\item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
+\item{KO_out}{string in output csv in genotype column, for knockout.
+Defaults to -/-.}
 
-\item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
+\item{WT_out}{string in output csv in genotype column, for knockout.
+Defaults to +/+.}
 
-\item{target_foci_number}{User can specify the number of foci on a strand. Otherwise defaults to any number.}
+\item{target_foci_number}{User can specify the number of foci on a strand.
+Otherwise defaults to any number.}
 
-\item{max_dist_sq}{maximum distance (squared) between the centre of a foci vs its projected location on the line. Defaults to 20.}
+\item{max_dist_sq}{maximum distance (squared) between the centre of a foci
+vs its projected location on the line. Defaults to 20.}
 
-\item{SC_intens_stop}{mean intensity of a forward moving branch to terminate measuring}
+\item{SC_intens_stop}{mean intensity of a forward moving branch to
+terminate measuring}
 }
 \value{
 Data frame with properties of synaptonemal (SC) measurements

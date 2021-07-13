@@ -32,29 +32,40 @@ auto_crop_fast(
 
 \item{min_cell_area, }{Minimum pixel area of a cell candidate}
 
-\item{mean_pix, }{Mean pixel intensity of cell crop (in SYCP3 channel) for normalisation}
+\item{mean_pix, }{Mean pixel intensity of cell crop (in SYCP3 channel)
+for normalisation}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
-\item{blob_factor, }{Contrast factor to multiply original image by before smoothing/smudging}
+\item{blob_factor, }{Contrast factor to multiply original image by before
+smoothing/smudging}
 
-\item{bg_blob_factor, }{Contrast factor to multiply original image by to take background. Used prior to thresholding.}
+\item{bg_blob_factor, }{Contrast factor to multiply original image by to
+take background. Used prior to thresholding.}
 
-\item{offset, }{Pixel value offset from bg_blob_factor. Used in thresholding to make blob mask.}
+\item{offset, }{Pixel value offset from bg_blob_factor. Used in thresholding
+to make blob mask.}
 
-\item{final_blob_amp, }{Contrast factor to multiply smoothed/smudged image. Used in thresholding to make blob mask.}
+\item{final_blob_amp, }{Contrast factor to multiply smoothed/smudged image.
+Used in thresholding to make blob mask.}
 
-\item{test_amount, }{Optional number of first N images you want to run function on. For troubleshooting/testing/variable calibration purposes.}
+\item{test_amount, }{Optional number of first N images you want to run
+function on. For troubleshooting/testing/variable calibration purposes.}
 
 \item{brush_size_blob, }{Brush size for smudging the dna channel to make blobs}
 
-\item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel to make blobs}
+\item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel
+to make blobs}
 
-\item{channel3_string}{Optional. String appended to the files showing the channel illuminating cell structures. Defaults to DAPI, if third channel == "on".}
+\item{channel3_string}{Optional. String appended to the files showing the
+channel illuminating cell structures. Defaults to DAPI, if
+third channel == "on".}
 
-\item{channel2_string}{String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3}
+\item{channel2_string}{String appended to the files showing the channel
+illuminating synaptonemal complexes. Defaults to SYCP3}
 
-\item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
+\item{channel1_string}{String appended to the files showing the channel
+illuminating foci. Defaults to MLH3}
 
 \item{file_ext}{file extension of your images e.g. tif jpeg or png.}
 
@@ -67,6 +78,17 @@ cropped SC and foci channels around single cells, regardless of stage
 }
 \description{
 crop an image around each viable cell candidate.
+}
+\details{
+This function takes all images in a directory, and crops around individual
+cells according to the antibody that stains synaptonemal complexes e.g.
+SYCP3. First, it increases the brightness and smudges the image with a Gaussian
+brush, and creates a mask using thresholding (get_blobs).
+Then it deletes cell candidates in the mask deemed too large, too small,
+or too long (keep_cells). Using the computeFeatures functions from
+EBImage to locate centre and radius, the cropping area is determined and
+the original image cropped. These images are saved in either a user specified
+directory, or a crops folder at the location of the image files.
 }
 \examples{
 demo_path = paste0(system.file("extdata",package = "synapsis"))

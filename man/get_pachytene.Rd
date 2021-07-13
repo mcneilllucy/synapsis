@@ -53,6 +53,16 @@ Pairs of foci and SC channel crops for pachytene
 \description{
 Identifies crops in pachytene
 }
+\details{
+This function takes the crops make by auto_crop fast, and determines the
+number of synaptonemal complex candidates by considering the local background
+and using EBImage functions. In general, very bright objects which contrast
+highly with the background will be classified as the same object. Dim objects
+will likely be classified as many different objects. If the number of objects
+is too high compared to the species number (species_num) then the cell is
+determined to not be in pachytene. Note that this function has been optimized
+for mouse cells which can be very well spread / separated.
+}
 \examples{
 demo_path = paste0(system.file("extdata",package = "synapsis"))
 SYCP3_stats <- get_pachytene(demo_path,ecc_thresh = 0.8, area_thresh = 0.04, annotation = "on")

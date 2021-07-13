@@ -17,11 +17,14 @@ threshold_foci_crop(
 
 \item{offset_factor, }{Pixel value offset used in thresholding of foci channel}
 
-\item{brush_size, }{size of brush to smooth the foci channel. Should be small to avoid erasing foci.}
+\item{brush_size, }{size of brush to smooth the foci channel. Should be small
+to avoid erasing foci.}
 
-\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.}
+\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be
+small to avoid erasing foci.}
 
-\item{crowded_foci}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.}
+\item{crowded_foci}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+have foci > 100 or so.}
 }
 \value{
 A black white mask with foci as objects

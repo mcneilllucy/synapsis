@@ -1,27 +1,49 @@
 #' count_foci
 #'
-#' Count coincident foci in cropped SC and foci channel per cell
+#' Calculates coincident foci in SC and foci channel, per cell
+#'
+#' In this function, masks for the synaptonemal complex (SC) and foci channel
+#' are created from the saved crops of single/individual cells.
+#' These masks are computed using (optional) input parameters related
+#' to meiosis stage/ how well spread chromosomes are (for the former)
+#' and related to smoothing, thresholding and how "crowded" foci are for the
+#' latter. Finally, these two masks are multiplied, and the number of
+#' objects found with EBImage's computeFeatures are the colocalizing foci.
+#'
+#' The file, cell number, foci count etc. are output as a data frame.
 #'
 #' @export count_foci
 #' @param img_path, path containing image data to analyse
-#' @param stage, meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.
+#' @param stage, meiosis stage of interest. Currently count_foci determines
+#' this with thresholding/ object properties in the dna channel. But will be
+#' classified using ML model in future versions.
 #' @param offset_px, Pixel value offset used in thresholding of dna channel
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
-#' @param brush_size, size of brush to smooth the foci channel. Should be small to avoid erasing foci.
-#' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.
+#' @param brush_size, size of brush to smooth the foci channel. Should be small
+#' to avoid erasing foci.
+#' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be
+#' small to avoid erasing foci.
 #' @param foci_norm, Mean intensity to normalise all foci channels to.
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
-#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
-#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param channel1_string String appended to the files showing the channel
+#' illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel
+#' illuminating synaptonemal complexes. Defaults to SYCP3
 #' @param file_ext file extension of your images e.g. tiff jpeg or png.
-#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
-#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
-#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
-#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
+#' @param KO_str string in filename corresponding to knockout genotype.
+#' Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype.
+#' Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout.
+#' Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout.
+#' Defaults to +/+.
 #' @param watershed_stop Turn off default watershed method with "off"
-#' @param watershed_radius Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)
+#' @param watershed_radius Radius (ext variable) in watershed method used
+#' in foci channel. Defaults to 1 (small)
 #' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
-#' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.
+#' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+#' have foci > 100 or so.
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' foci_counts <- count_foci(demo_path,offset_factor = 3, brush_size = 3,
 #' brush_sigma = 3, annotation = "on",stage = "pachytene")
@@ -55,7 +77,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       filename_path_test <- paste0(img_path,"/crops/", img_file)
     }
     img_file <- filename_path_test
-    #if(grepl("*SYCP3.jpeg", file)){
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
       file_dna <- img_file
       image_count <- image_count +1
@@ -63,7 +84,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       img_orig <- channel(2*image, "grey")
       antibody1_store <- 1
     }
-    #if(grepl("*MLH3.jpeg", file)){
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
       file_foci <- img_file
       image <- readImage(file_foci)
@@ -104,7 +124,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         ### smooth it
         img_tmp_contrast <- foci_mask_crop
         w <- makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
-        #w = makeBrush(size = 1, shape = 'gaussian', sigma = 3)
         img_flo <- filter2(img_tmp_contrast, w)
         ## smooth foci channel
         foci_th <- img_flo > bg + offset
@@ -141,7 +160,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       }
       image_mat <- as.matrix(foci_mask_crop)
       image_mat <- image_mat[image_mat > 1e-06]
-      #hist(image_mat)
       mean_ratio <- median(image_mat)/mean(image_mat)
       skew <- (median(image_mat)-mean(image_mat))/sd(image_mat)
       ### look at properties of the foci.
@@ -173,6 +191,11 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         }
         if(grepl( KO_str, img_file, fixed = TRUE) == TRUE){
           genotype <- KO_out
+        }
+
+        if(foci_per_cell < 2){
+          ### force statistics about foci areas to all be zero rather than fail
+          foci_areas <- c(0,0)
         }
         ### data frame stuff ends
         df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat),alone_foci)))

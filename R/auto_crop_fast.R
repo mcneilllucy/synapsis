@@ -1,27 +1,52 @@
 #' auto_crop_fast
 #'
 #' crop an image around each viable cell candidate.
+#'
+#' This function takes all images in a directory, and crops around individual
+#' cells according to the antibody that stains synaptonemal complexes e.g.
+#' SYCP3. First, it increases the brightness and smudges the image with a Gaussian
+#' brush, and creates a mask using thresholding (get_blobs).
+#' Then it deletes cell candidates in the mask deemed too large, too small,
+#' or too long (keep_cells). Using the computeFeatures functions from
+#' EBImage to locate centre and radius, the cropping area is determined and
+#' the original image cropped. These images are saved in either a user specified
+#' directory, or a crops folder at the location of the image files.
+#'
 #' @importFrom stats median sd
-#' @importFrom EBImage bwlabel channel colorLabels computeFeatures computeFeatures.basic computeFeatures.moment computeFeatures.shape display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage watershed
+#' @importFrom EBImage bwlabel channel colorLabels computeFeatures
+#' computeFeatures.basic computeFeatures.moment computeFeatures.shape
+#' display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
+#' watershed
 #' @importFrom graphics text
 #' @importFrom utils str
 #' @export auto_crop_fast
 #' @param img_path, path containing image data to analyse
 #' @param max_cell_area, Maximum pixel area of a cell candidate
 #' @param min_cell_area, Minimum pixel area of a cell candidate
-#' @param mean_pix, Mean pixel intensity of cell crop (in SYCP3 channel) for normalisation
+#' @param mean_pix, Mean pixel intensity of cell crop (in SYCP3 channel)
+#' for normalisation
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
-#' @param blob_factor, Contrast factor to multiply original image by before smoothing/smudging
-#' @param bg_blob_factor, Contrast factor to multiply original image by to take background. Used prior to thresholding.
-#' @param offset, Pixel value offset from bg_blob_factor. Used in thresholding to make blob mask.
-#' @param final_blob_amp, Contrast factor to multiply smoothed/smudged image. Used in thresholding to make blob mask.
-#' @param test_amount, Optional number of first N images you want to run function on. For troubleshooting/testing/variable calibration purposes.
+#' @param blob_factor, Contrast factor to multiply original image by before
+#' smoothing/smudging
+#' @param bg_blob_factor, Contrast factor to multiply original image by to
+#' take background. Used prior to thresholding.
+#' @param offset, Pixel value offset from bg_blob_factor. Used in thresholding
+#' to make blob mask.
+#' @param final_blob_amp, Contrast factor to multiply smoothed/smudged image.
+#'  Used in thresholding to make blob mask.
+#' @param test_amount, Optional number of first N images you want to run
+#' function on. For troubleshooting/testing/variable calibration purposes.
 #' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
 #' @param cell_aspect_ratio Maximum aspect ratio of blob to be defined as a cell
-#' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to make blobs
-#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
-#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
-#' @param channel3_string Optional. String appended to the files showing the channel illuminating cell structures. Defaults to DAPI, if third channel == "on".
+#' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel
+#' to make blobs
+#' @param channel1_string String appended to the files showing the channel
+#' illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel
+#' illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param channel3_string Optional. String appended to the files showing the
+#' channel illuminating cell structures. Defaults to DAPI, if
+#' third channel == "on".
 #' @param third_channel Optional, defaults to "off".
 #' @param file_ext file extension of your images e.g. tif jpeg or png.
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
@@ -116,9 +141,12 @@ cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " 
 #'
 #' Creates mask for every individual cell candidate in mask
 #'
-#' @param retained Mask of cell candidates which meet size criteria. After smoothing/smudging and thresholding.
-#' @param OOI_final, Objects of interest count. Total number of cell candidates in retained.
-#' @param counter_final, Counter for single cell we are focussing on. Remove all other cells where counter_single not equal to counter_final.
+#' @param retained Mask of cell candidates which meet size criteria.
+#' After smoothing/smudging and thresholding.
+#' @param OOI_final, Objects of interest count. Total number of cell
+#' candidates in retained.
+#' @param counter_final, Counter for single cell we are focussing on. Remove
+#' all other cells where counter_single not equal to counter_final.
 #' @param img_orig, description
 #' @param img_orig_foci, description
 #' @param img_orig_DAPI, description
@@ -126,16 +154,22 @@ cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " 
 #' @param file_foci, filename of foci channel image
 #' @param file_DAPI, filename of DAPI channel image
 #' @param cell_count, counter for successful crops around cells
-#' @param mean_pix, Mean pixel intensity of cell crop (in SYCP3 channel) for normalisation
+#' @param mean_pix, Mean pixel intensity of cell crop (in SYCP3 channel)
+#' for normalisation
 #' @param r_max maximum radius of blob for cropping
 #' @param cx centre of blob x
 #' @param cy centre of blob y
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
-#' @param file_base, filename base common to all three channels i.e. without -MLH3.jpeg etc.
+#' @param file_base, filename base common to all three channels
+#' i.e. without -MLH3.jpeg etc.
 #' @param img_path, path containing image data to analyse
-#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
-#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
-#' @param channel3_string Optional. String appended to the files showing the channel illuminating cell structures. Defaults to DAPI, if third channel == "on".
+#' @param channel1_string String appended to the files showing the channel
+#' illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel
+#' illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param channel3_string Optional. String appended to the files showing the
+#' channel illuminating cell structures. Defaults to DAPI,
+#' if third channel == "on".
 #' @param third_channel Optional, defaults to "off".
 #' @param file_ext file extension of your images e.g. tif jpeg or png.
 
@@ -229,16 +263,24 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
 
 #' get_blobs
 #'
-#' Makes mask of all objects bright enough
+#' Makes mask of all objects bright enough to be classified as a cell
+#' cadidate
+#'
+#'
 #'
 #' @param img_orig Original image
 #'
-#' @param blob_factor, Contrast factor to multiply original image by before smoothing/smudging
-#' @param bg_blob_factor, Contrast factor to multiply original image by to take background. Used prior to thresholding.
-#' @param offset, Pixel value offset from bg_blob_factor. Used in thresholding to make blob mask.
-#' @param final_blob_amp, Contrast factor to multiply smoothed/smudged image. Used in thresholding to make blob mask.
+#' @param blob_factor, Contrast factor to multiply original image by before
+#' smoothing/smudging
+#' @param bg_blob_factor, Contrast factor to multiply original image by to take
+#' background. Used prior to thresholding.
+#' @param offset, Pixel value offset from bg_blob_factor. Used in thresholding
+#' to make blob mask.
+#' @param final_blob_amp, Contrast factor to multiply smoothed/smudged image.
+#' Used in thresholding to make blob mask.
 #' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
-#' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to make blobs
+#' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to
+#' make blobs
 #' @return Mask with cell candidates
 
 get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_amp, brush_size_blob,sigma_blob){
@@ -257,7 +299,8 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
 
 #' keep_cells
 #'
-#' Deletes objects in mask which are too small, large, oblong i.e. unlikely to be a cell
+#' Deletes objects in mask which are too small, large, oblong
+#' i.e. unlikely to be a cell
 #'
 #' @param candidate Mask of individual cell candidates
 #' @param max_cell_area, Maximum pixel area of a cell candidate

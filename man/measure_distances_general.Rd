@@ -38,53 +38,95 @@ measure_distances_general(
 
 \item{offset_factor, }{Pixel value offset used in thresholding of foci channel}
 
-\item{brush_size, }{size of brush to smooth the foci channel. Should be small to avoid erasing foci.}
+\item{brush_size, }{size of brush to smooth the foci channel. Should be
+small to avoid erasing foci.}
 
-\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.}
+\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be
+small to avoid erasing foci.}
 
 \item{foci_norm, }{Mean intensity to normalise all foci channels to.}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
-\item{stage, }{meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.}
+\item{stage, }{meiosis stage of interest. Currently count_foci determines
+this with thresholding/ object properties in the dna channel. But will be
+classified using ML model in future versions.}
 
-\item{eccentricity_min, }{The minimum eccentricity (from computefeatures) of a strand to proceed with measuring}
+\item{eccentricity_min, }{The minimum eccentricity (from computefeatures)
+of a strand to proceed with measuring}
 
 \item{max_strand_area, }{Maximum pixel area of a strand}
 
-\item{channel2_string}{String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3}
+\item{channel2_string}{String appended to the files showing the channel
+illuminating synaptonemal complexes. Defaults to SYCP3}
 
-\item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
+\item{channel1_string}{String appended to the files showing the channel
+illuminating foci. Defaults to MLH3}
 
 \item{file_ext}{file extension of your images e.g. tiff jpeg or png.}
 
-\item{KO_str}{string in filename corresponding to knockout genotype. Defaults to --.}
+\item{KO_str}{string in filename corresponding to knockout genotype.
+Defaults to --.}
 
-\item{WT_str}{string in filename corresponding to wildtype genotype. Defaults to ++.}
+\item{WT_str}{string in filename corresponding to wildtype genotype.
+Defaults to ++.}
 
-\item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
+\item{KO_out}{string in output csv in genotype column, for knockout.
+Defaults to -/-.}
 
-\item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
+\item{WT_out}{string in output csv in genotype column, for knockout.
+Defaults to +/+.}
 
 \item{watershed_stop}{Turn off default watershed method with "off"}
 
-\item{watershed_radius}{Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)}
+\item{watershed_radius}{Radius (ext variable) in watershed method used in
+foci channel. Defaults to 1 (small)}
 
-\item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
+\item{watershed_tol}{Intensity tolerance for watershed method.
+Defaults to 0.05.}
 
-\item{crowded_foci}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.}
+\item{crowded_foci}{TRUE or FALSE, defaults to FALSE.
+Set to TRUE if you have foci > 100 per cell or so.}
 
-\item{target_foci_number}{User can specify the number of foci on a strand. Otherwise defaults to any number.}
+\item{target_foci_number}{User can specify the number of foci on a strand.
+Otherwise defaults to any number.}
 
-\item{max_dist_sq}{maximum distance (squared) between the centre of a foci vs its projected location on the line. Defaults to 20.}
+\item{max_dist_sq}{maximum distance (squared) between the centre of a foci
+vs its projected location on the line. Defaults to 20.}
 
-\item{SC_intens_stop}{mean intensity of a forward moving branch to terminate measuring}
+\item{SC_intens_stop}{mean intensity of a forward moving branch to
+terminate measuring}
 }
 \value{
 Data frame with properties of synaptonemal (SC) measurements
 }
 \description{
 Measure the distance between foci on a synaptonemal complex
+}
+\details{
+This function first creates masks of synaptonemal complex (SC) and foci
+channels, where it is assumed that chromosomes are well spread.
+The user can specify if crowded_foci = TRUE (i.e. >100 foci per cell or so)
+so that the foci mask is determined with a watershed method.
+Using the SC mask, individual SCs are isolated and the number of
+colocalizing foci on a particular strand is determined
+(in get_distance_general). If a strand meets eccentricity requirements
+(from EBImage's computeFeatures) and has more than one foci, a middle pixel
+location is determined with computeFeatures. From here, the function starts
+counting the distance along the strand in opposite directions
+(find_start, first_shot_out)
+It proceeds (get_next_first_dir, get_next_second_dir) by following the
+maximum intensity in front of it / a gradient
+approach. These two branches continue until the options to move forward are
+too dark, i.e. at the end of the SC where a branch will terminate.
+
+After a line has been traced out representing an SC, the closest locations
+of the colocalizing foci to this line are determined. Starting at one end
+of the line, it starts counting again, recording the pixel distance along
+that it passes a foci location (get_distances_along).
+
+This information is output as a data frame (filename, cell, foci per strand,
+distances of each along)
 }
 \examples{
 demo_path = paste0(system.file("extdata",package = "synapsis"))

@@ -2,31 +2,72 @@
 #'
 #' Measure the distance between foci on a synaptonemal complex
 #'
+#' This function first creates masks of synaptonemal complex (SC) and foci
+#' channels, where it is assumed that chromosomes are well spread.
+#' The user can specify if crowded_foci = TRUE (i.e. >100 foci per cell or so)
+#' so that the foci mask is determined with a watershed method.
+#' Using the SC mask, individual SCs are isolated and the number of
+#' colocalizing foci on a particular strand is determined
+#' (in get_distance_general). If a strand meets eccentricity requirements
+#' (from EBImage's computeFeatures) and has more than one foci, a middle pixel
+#' location is determined with computeFeatures. From here, the function starts
+#' counting the distance along the strand in opposite directions
+#' (find_start, first_shot_out)
+#' It proceeds (get_next_first_dir, get_next_second_dir) by following the
+#' maximum intensity in front of it / a gradient
+#' approach. These two branches continue until the options to move forward are
+#' too dark, i.e. at the end of the SC where a branch will terminate.
+#'
+#' After a line has been traced out representing an SC, the closest locations
+#' of the colocalizing foci to this line are determined. Starting at one end
+#' of the line, it starts counting again, recording the pixel distance along
+#' that it passes a foci location (get_distances_along).
+#'
+#' This information is output as a data frame (filename, cell, foci per strand,
+#' distances of each along)
+#'
 #' @export
 #' @param img_path, path containing image data to analyse
-#' @param stage, meiosis stage of interest. Currently count_foci determines this with thresholding/ object properties in the dna channel. But will be classified using ML model in future versions.
+#' @param stage, meiosis stage of interest. Currently count_foci determines
+#' this with thresholding/ object properties in the dna channel. But will be
+#' classified using ML model in future versions.
 #' @param offset_px, Pixel value offset used in thresholding of dna channel
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
-#' @param brush_size, size of brush to smooth the foci channel. Should be small to avoid erasing foci.
-#' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.
+#' @param brush_size, size of brush to smooth the foci channel. Should be
+#' small to avoid erasing foci.
+#' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be
+#' small to avoid erasing foci.
 #' @param foci_norm, Mean intensity to normalise all foci channels to.
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
-#' @param eccentricity_min, The minimum eccentricity (from computefeatures) of a strand to proceed with measuring
+#' @param eccentricity_min, The minimum eccentricity (from computefeatures)
+#' of a strand to proceed with measuring
 #' @param max_strand_area, Maximum pixel area of a strand
-#' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
-#' @param channel2_string String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3
+#' @param channel1_string String appended to the files showing the channel
+#' illuminating foci. Defaults to MLH3
+#' @param channel2_string String appended to the files showing the channel
+#' illuminating synaptonemal complexes. Defaults to SYCP3
 #' @param file_ext file extension of your images e.g. tiff jpeg or png.
-#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
-#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
-#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
-#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
+#' @param KO_str string in filename corresponding to knockout genotype.
+#' Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype.
+#' Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout.
+#' Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout.
+#' Defaults to +/+.
 #' @param watershed_stop Turn off default watershed method with "off"
-#' @param watershed_radius Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)
-#' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
-#' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.
-#' @param target_foci_number User can specify the number of foci on a strand. Otherwise defaults to any number.
-#' @param max_dist_sq maximum distance (squared) between the centre of a foci vs its projected location on the line. Defaults to 20.
-#' @param SC_intens_stop mean intensity of a forward moving branch to terminate measuring
+#' @param watershed_radius Radius (ext variable) in watershed method used in
+#'  foci channel. Defaults to 1 (small)
+#' @param watershed_tol Intensity tolerance for watershed method.
+#' Defaults to 0.05.
+#' @param crowded_foci TRUE or FALSE, defaults to FALSE.
+#' Set to TRUE if you have foci > 100 per cell or so.
+#' @param target_foci_number User can specify the number of foci on a strand.
+#' Otherwise defaults to any number.
+#' @param max_dist_sq maximum distance (squared) between the centre of a foci
+#' vs its projected location on the line. Defaults to 20.
+#' @param SC_intens_stop mean intensity of a forward moving branch to
+#' terminate measuring
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' df_dist <- measure_distances_general(demo_path,offset_factor = 5,
 #' brush_size = 1, brush_sigma = 1, annotation = "on", stage = "pachytene")
@@ -64,7 +105,7 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
       img_orig_foci <- channel(image, "gray")
       antibody2_store <- 1
     }
-    if(  antibody1_store +antibody2_store == 2){
+    if(antibody1_store +antibody2_store == 2){
       antibody1_store <- 0
       antibody2_store <- 0
       cell_count <- cell_count +1
@@ -121,18 +162,27 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
 #' @param foci_label, A black white mask with foci as objects
 #' @param foci_count_strand, Number of foci counted located on the one SC
 #' @param strand_iter, Strand number in iteration over all in cell
-#' @param img_file, original filename that cell candidate came from. Used to identify e.g. genotype for data frame.
+#' @param img_file, original filename that cell candidate came from.
+#' Used to identify e.g. genotype for data frame.
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
-#' @param eccentricity_min, The minimum eccentricity (from computefeatures) of a strand to proceed with measuring
+#' @param eccentricity_min, The minimum eccentricity (from computefeatures)
+#' of a strand to proceed with measuring
 #' @param max_strand_area, Maximum pixel area of a strand
 #' @param cell_count Unique cell counter
-#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
-#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
-#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
-#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
-#' @param target_foci_number User can specify the number of foci on a strand. Otherwise defaults to any number.
-#' @param max_dist_sq maximum distance (squared) between the centre of a foci vs its projected location on the line. Defaults to 20.
-#' @param SC_intens_stop mean intensity of a forward moving branch to terminate measuring
+#' @param KO_str string in filename corresponding to knockout genotype.
+#' Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype.
+#' Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout.
+#' Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout.
+#' Defaults to +/+.
+#' @param target_foci_number User can specify the number of foci on a strand.
+#' Otherwise defaults to any number.
+#' @param max_dist_sq maximum distance (squared) between the centre of a foci
+#' vs its projected location on the line. Defaults to 20.
+#' @param SC_intens_stop mean intensity of a forward moving branch to
+#' terminate measuring
 #' @return Data frame with properties of synaptonemal (SC) measurements
 #'
 get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,img_file,annotation, eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out, target_foci_number, max_dist_sq,SC_intens_stop){
@@ -372,30 +422,44 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
 #' @param distance_strand, total distance along first branch
 #' @param distance_strand_2, total distance along second branch
 #' @param per_strand, Mask with colocalizing foci
-#' @param foci_label, black white mask with foci as objects, not necessarily on SC. Needed for computefeatures.
-#' @param walkers, black white mask containing the line that traces through the middle of the SC. Computed earlier in get_distance
+#' @param foci_label, black white mask with foci as objects, not necessarily
+#' on SC. Needed for computefeatures.
+#' @param walkers, black white mask containing the line that traces through
+#' the middle of the SC. Computed earlier in get_distance
 #' @param noise_gone, Black white mask with the single SC to be measured
 #' @param start_x, x pixel location of where first branch terminated
 #' @param start_y, y pixel location of where first branch terminated
 #' @param start_x2, x pixel location of where second branch terminated
 #' @param start_y2, y pixel location of where second branch terminated
-#' @param start_dir, direction that the first branch was traveling along when it terminated
-#' @param cx, centre of intensity x of the SC from computefeatures (annotation purposes only)
-#' @param cy, centre of intensity y of the SC from computefeatures (annotation purposes only)
-#' @param mean_x, starting point x that the two branches move away from to trace out the SC (annotation purposes only)
-#' @param mean_y, starting point x that the two branches move away from to trace out the SC (annotation purposes only)
+#' @param start_dir, direction that the first branch was traveling along
+#' when it terminated
+#' @param cx, centre of intensity x of the SC from computefeatures
+#' (annotation purposes only)
+#' @param cy, centre of intensity y of the SC from computefeatures
+#' (annotation purposes only)
+#' @param mean_x, starting point x that the two branches move away from
+#' to trace out the SC (annotation purposes only)
+#' @param mean_y, starting point x that the two branches move away from
+#' to trace out the SC (annotation purposes only)
 #' @param strand_iter, Strand number in iteration over all in cell
-#' @param img_file, original filename that cell candidate came from. Used to identify e.g. genotype for data frame.
+#' @param img_file, original filename that cell candidate came from.
+#' Used to identify e.g. genotype for data frame.
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
 #' @param cell_count Unique cell number
 #' @param uid_strand Unique strand number
 #' @param  per_strand_object Foci per strand object
-#' @param KO_str string in filename corresponding to knockout genotype. Defaults to --.
-#' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
-#' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
-#' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
-#' @param max_dist_sq maximum distance (squared) between the centre of a foci vs its projected location on the line. Defaults to 20.
-#' @return List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
+#' @param KO_str string in filename corresponding to knockout genotype.
+#' Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype.
+#' Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout.
+#' Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout.
+#' Defaults to +/+.
+#' @param max_dist_sq maximum distance (squared) between the centre of a
+#' foci vs its projected location on the line. Defaults to 20.
+#' @return List of fractional distances between foci for all SCs with two.
+#' Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.
 #'
 get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foci_label, walkers, noise_gone,start_x,start_y,start_x2,start_y2,start_dir,cx,cy,mean_x,mean_y,strand_iter,img_file,annotation,cell_count, uid_strand,per_strand_object,KO_str ,WT_str,KO_out, WT_out, max_dist_sq){
   strand_info <- computeFeatures.moment(bwlabel(per_strand),as.matrix(foci_label))
@@ -727,9 +791,12 @@ threshold_SC_crop <- function(image, offset){
 #'
 #' @param image foci channel image
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
-#' @param brush_size, size of brush to smooth the foci channel. Should be small to avoid erasing foci.
-#' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be small to avoid erasing foci.
-#' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.
+#' @param brush_size, size of brush to smooth the foci channel. Should be small
+#'  to avoid erasing foci.
+#' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be
+#' small to avoid erasing foci.
+#' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+#' have foci > 100 or so.
 #' @return A black white mask with foci as objects
 #'
 threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma, crowded_foci){
@@ -762,7 +829,8 @@ threshold_foci_crop <- function(image, offset_factor, brush_size, brush_sigma, c
 #'
 #' @param window window size that we want to look in
 #' @param noise_gone Image containing only the SC of interest without background
-#' @param cx,cy The location of the "centre of intensity" using computeFeatures (not necessarily on SC)
+#' @param cx,cy The location of the "centre of intensity" using computeFeatures
+#' (not necessarily on SC)
 #' @return The location of the starting point (on the SC)
 #'
 find_start <- function(window,noise_gone,cx,cy){
@@ -822,7 +890,8 @@ get_first_dir <- function(noise_gone,ix,iy,window){
 #'
 #' Moves one pixel away from the starting point
 #'
-#' @param chosen_dir string: brightest direction of a line passing through starting point
+#' @param chosen_dir string: brightest direction of a line passing through
+#' starting point
 #' @param ix1, starting point x
 #' @param ix2, starting point x
 #' @param iy1, starting point y
@@ -891,15 +960,19 @@ first_shot_out <- function(chosen_dir, ix1,ix2,iy1,iy2,distance_strand, distance
 #' Moves one pixel away one first branch
 #'
 
-#' @param new_square_1, the subsquare that contains the x y location of first branch walker in the middle.
+#' @param new_square_1, the subsquare that contains the x y location of
+#' first branch walker in the middle.
 #' @param ix1, current x position of first branch walker along SC
 #' @param iy1, current y position of first branch walker along SC
 #' @param dir_1, The direction (choice of 8) of the first branch step
-#' @param window, number of pixels ahead that the intensity gradient is computed with
+#' @param window, number of pixels ahead that the intensity gradient is
+#' computed with
 #' @param chosen_dir The brightest direction (choice of 4) of the previous step
 #' @param distance_strand, current distance along the first branch
-#' @param first_dir, zero while still measuring along first branch, one when first branch terminates and counting stops.
-#' @param SC_intens_stop mean intensity of a forward moving branch to terminate measuring
+#' @param first_dir, zero while still measuring along first branch, one when
+#' first branch terminates and counting stops.
+#' @param SC_intens_stop mean intensity of a forward moving branch to
+#' terminate measuring
 #' @return New sub square for first branch after taking one step
 #'
 get_next_first_dir <- function(new_square_1,ix1,iy1,dir_1,window,chosen_dir,distance_strand,first_dir,SC_intens_stop){
@@ -1178,15 +1251,20 @@ get_next_first_dir <- function(new_square_1,ix1,iy1,dir_1,window,chosen_dir,dist
 #' get_next_second_dir
 #'
 #' Moves one pixel away one second branch. Terminates if at the end of the SC.
-#' @param new_square_2, the subsquare that contains the x y location of second branch walker in the middle.
+#' @param new_square_2, the subsquare that contains the x y location of second
+#' branch walker in the middle.
 #' @param ix2, current x position of second branch walker along SC
 #' @param iy2, current y position of second branch walker along SC
-#' @param dir_2, The direction (choice of 8) of the second (opposite to first) branch step
-#' @param window, number of pixels ahead that the intensity gradient is computed with
+#' @param dir_2, The direction (choice of 8) of the second (opposite to first)
+#' branch step
+#' @param window, number of pixels ahead that the intensity gradient is computed
+#' with
 #' @param chosen_dir The brightest direction (choice of 4) of the previous step
 #' @param distance_strand_2, current distance along the second branch
-#' @param second_dir, zero while still measuring along first branch, one when first branch terminates and counting stops.
-#' @param SC_intens_stop mean intensity of a forward moving branch to terminate measuring
+#' @param second_dir, zero while still measuring along first branch, one when
+#' first branch terminates and counting stops.
+#' @param SC_intens_stop mean intensity of a forward moving branch to terminate
+#' measuring
 
 #' @return New sub square for second branch after taking one step
 #'
@@ -1391,7 +1469,7 @@ get_next_second_dir <- function(new_square_2,ix2,iy2,dir_2,window,chosen_dir,dis
       chosen_dir <- "up"
     }
   }
-  ## need some condition to stop measuring? If mean is < 0.1? something like this..
+  ## need condition to stop measuring. SC_intens_stop
   if(max_mean < SC_intens_stop){
     second_dir <- 1
   }

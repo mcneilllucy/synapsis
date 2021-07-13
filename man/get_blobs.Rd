@@ -17,21 +17,27 @@ get_blobs(
 \arguments{
 \item{img_orig}{Original image}
 
-\item{blob_factor, }{Contrast factor to multiply original image by before smoothing/smudging}
+\item{blob_factor, }{Contrast factor to multiply original image by before
+smoothing/smudging}
 
-\item{bg_blob_factor, }{Contrast factor to multiply original image by to take background. Used prior to thresholding.}
+\item{bg_blob_factor, }{Contrast factor to multiply original image by to take
+background. Used prior to thresholding.}
 
-\item{offset, }{Pixel value offset from bg_blob_factor. Used in thresholding to make blob mask.}
+\item{offset, }{Pixel value offset from bg_blob_factor. Used in thresholding
+to make blob mask.}
 
-\item{final_blob_amp, }{Contrast factor to multiply smoothed/smudged image. Used in thresholding to make blob mask.}
+\item{final_blob_amp, }{Contrast factor to multiply smoothed/smudged image.
+Used in thresholding to make blob mask.}
 
 \item{brush_size_blob, }{Brush size for smudging the dna channel to make blobs}
 
-\item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel to make blobs}
+\item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel to
+make blobs}
 }
 \value{
 Mask with cell candidates
 }
 \description{
-Makes mask of all objects bright enough
+Makes mask of all objects bright enough to be classified as a cell
+cadidate
 }

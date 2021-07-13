@@ -30,11 +30,14 @@ crop_single_object_fast(
 )
 }
 \arguments{
-\item{retained}{Mask of cell candidates which meet size criteria. After smoothing/smudging and thresholding.}
+\item{retained}{Mask of cell candidates which meet size criteria.
+After smoothing/smudging and thresholding.}
 
-\item{OOI_final, }{Objects of interest count. Total number of cell candidates in retained.}
+\item{OOI_final, }{Objects of interest count. Total number of cell
+candidates in retained.}
 
-\item{counter_final, }{Counter for single cell we are focussing on. Remove all other cells where counter_single not equal to counter_final.}
+\item{counter_final, }{Counter for single cell we are focussing on. Remove
+all other cells where counter_single not equal to counter_final.}
 
 \item{img_orig, }{description}
 
@@ -50,11 +53,13 @@ crop_single_object_fast(
 
 \item{cell_count, }{counter for successful crops around cells}
 
-\item{mean_pix, }{Mean pixel intensity of cell crop (in SYCP3 channel) for normalisation}
+\item{mean_pix, }{Mean pixel intensity of cell crop (in SYCP3 channel)
+for normalisation}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
 
-\item{file_base, }{filename base common to all three channels i.e. without -MLH3.jpeg etc.}
+\item{file_base, }{filename base common to all three channels
+i.e. without -MLH3.jpeg etc.}
 
 \item{img_path, }{path containing image data to analyse}
 
@@ -64,11 +69,15 @@ crop_single_object_fast(
 
 \item{cy}{centre of blob y}
 
-\item{channel3_string}{Optional. String appended to the files showing the channel illuminating cell structures. Defaults to DAPI, if third channel == "on".}
+\item{channel3_string}{Optional. String appended to the files showing the
+channel illuminating cell structures. Defaults to DAPI,
+if third channel == "on".}
 
-\item{channel2_string}{String appended to the files showing the channel illuminating synaptonemal complexes. Defaults to SYCP3}
+\item{channel2_string}{String appended to the files showing the channel
+illuminating synaptonemal complexes. Defaults to SYCP3}
 
-\item{channel1_string}{String appended to the files showing the channel illuminating foci. Defaults to MLH3}
+\item{channel1_string}{String appended to the files showing the channel
+illuminating foci. Defaults to MLH3}
 
 \item{file_ext}{file extension of your images e.g. tif jpeg or png.}
 
