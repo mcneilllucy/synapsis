@@ -52,7 +52,7 @@ Currently, synapsis also supports
 
 synapsis has four main functions. These are:
 
-- auto_crop
+- auto_crop_fast
 
 - get_pachytene
 
@@ -62,7 +62,7 @@ synapsis has four main functions. These are:
 
 We summarise them in the following subsections:
 
-### auto_crop
+### auto_crop_fast
 
 input: `path` to original grey scale image files of (1) Synaptonemal complexes ("SC", e.g. SYCP3 anti-body) (2) foci (e.g. MLH1, MLH3 anti-body) and (3) cell boundary structure (e.g. DAPI stain) channels from e.g. Nikon .nd2 files. See setup vignette for the details of getting files ready.
 
@@ -128,17 +128,17 @@ In the next figure, we summarise how synapsis counts foci for a cell. It takes t
 
 *Figure 4: workflow for the count_foci function. We start with the two crops of the foci and SC channels found in Figure 3. These are also subject to gaussian smoothing followed by thresholding, and then the overlap of these two masks is determined (upper right, multicoloured spots). The function returns the number of coincident foci for this cell.*
 
-### measure_distances
+### measure_distances_general
 
 input: crops of SC and foci channels in pachytene phase (from get_pachytene)
 
 output: a measure of the separation between two foci in the case that they are on the same synaptonemal complex in the SC channel (red).
 
-Calling measure_distances
+Calling measure_distances_general
 
 ```r
-# using measure_distances
-measure_distances(path)
+# using measure_distances_general
+measure_distances(path, target_foci_number = 2)
 ```
 
 The following figure shows a summary of the measure_distances function. Once we have masks of both the SC and foci channel (Figure 3), we take all the objects in the SC channel which colocalise with TWO foci (circled in magenta). Then, for each of these SCs (four in total in Figure 5), synapsis locates a bright spot on the SC to start drawing a line from. Walkers in two directions move away from this point, guided by the direction of maximum brightness. Eventually, a white line is traced out that runs through the middle of an SC. Then, the locations on this line which are closest to the foci on the SC are calculated, and shown with magenta crosshairs. The total distance (in pixels) of the SC (white line) is calculated (by ascribing a value of 1 to horizontal and vertical movements, and sqrt(2) to diagonal movements between pixels) and then the pixel distance between foci is also measured.
