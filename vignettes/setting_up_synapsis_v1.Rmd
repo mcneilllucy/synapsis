@@ -24,17 +24,17 @@ library(EBImage)
 
 In this notebook we will give a comprehensive guide for preparing image data so that it is compatible with synapsis.
 
-Since synapsis relies on EBImage, target files must also be .jpeg, .tiff, or .png.
+Since synapsis relies on EBImage, target files must also be .jpeg, .tif, or .png.
 
 Synapsis also requires that a single microscope image has been converted into independent channels, i.e. there are two or three images corresponding to the same original image.
 
 But microscopes output many different file formats e.g. .lif, .nd2 etc.
 
-If your dataset is a series of .jpegs, .pngs, or .tiffs (which haven't been split into channels yet), use *section A*
+If your dataset is a series of .jpegs, .pngs, or .tifs (which haven't been split into channels yet), use *section A*
 
 If your dataset is a series of .nd2 files, use *section B.*
 
-If your data set is already a series of double or triple .jpegs, .pngs, or .tiffs corresponding to the same image, labelled by the two or three antibodies/ stains, you are ready to use synapsis on your data.
+If your data set is already a series of double or triple .jpegs, .pngs, or .tifs corresponding to the same image, labelled by the two or three antibodies/ stains, you are ready to use synapsis on your data.
 
 ## File naming convention
 
@@ -55,14 +55,14 @@ MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002
 We isolate the individual channels, and rename them with the antibody or stain appended to the file name base. 
 For example, if the three channels are DAPI, MLH3 and SYCP3, then we create three images from this file called
 ```{r, eval = FALSE}
-MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002-DAPI.tiff
-MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002-SYCP3.tiff
-MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002-MLH3.tiff
+MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002-DAPI.tif
+MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002-SYCP3.tif
+MLH3mouse488_SYCP3mouse647_fancm_fvb_x_fancm_bl6_exon2_875--_VT_002-MLH3.tif
 ```
 Synapsis has particular purposes for families of stains/ antibodies (i.e. foci channel, chromosome channel etc), so users have to be aware of which channel is which and make sure channels are named accordingly.
 
 
-## Section A: splitting a folder full of .jpeg, .png or .tiff files using EBImage
+## Section A: splitting a folder full of .jpeg, .png or .tif files using EBImage
 The three colour .jpeg files have SYCP3 as red, MLH3 as green and DAPI as blue.
 ```{r}
 path = paste0(system.file("extdata",package = "synapsis"))
@@ -85,7 +85,7 @@ And now we can save
 ```
 To do this for a whole folder, where in this example all images end in "-RGB.jpeg", use this loop instead:
 ```{r, eval = FALSE}
-# location of the jpeg/png/tiff files to convert into three channel jpeg/png/tiff
+# location of the jpeg/png/tif files to convert into three channel jpeg/png/tif
 path = paste0(system.file("extdata",package = "synapsis"))
 file_list <- list.files(path)
 print(file_list)
@@ -96,16 +96,16 @@ for (file in file_list){
     print(file_base)
     image_3channel <- readImage(paste0(path,'/',file))
     r = channel(image_3channel,"r")
-    writeImage(r, paste0(paste0(path,'/',file_base,'-SYCP3.tiff')))
+    writeImage(r, paste0(paste0(path,'/',file_base,'-SYCP3.tif')))
     g = channel(image_3channel,"g")
-    writeImage(g, paste0(paste0(path,'/',file_base,'-MLH3.tiff')))
+    writeImage(g, paste0(paste0(path,'/',file_base,'-MLH3.tif')))
     b = channel(image_3channel,"b")
-    writeImage(b, paste0(paste0(path,'/',file_base,'-DAPI.tiff')))
+    writeImage(b, paste0(paste0(path,'/',file_base,'-DAPI.tif')))
   }
     
 }
 ```
-Where you can freely convert between jpeg, tiff, png conversions as you wish.
+Where you can freely convert between jpeg, tif, png conversions as you wish.
 
 ## Section B: splitting a folder full of .nd2 files into three channels using python
 
@@ -122,7 +122,7 @@ import os
 import glob
 from PIL import Image
 
-# location of the nd2 files to convert into three channel jpeg/png/tiff
+# location of the nd2 files to convert into three channel jpeg/png/tif
 parent_dir = 'data-folder/from-sharepoint/OneDrive_1_01-06-2021'
 filenames = []
 filenames_base = []
