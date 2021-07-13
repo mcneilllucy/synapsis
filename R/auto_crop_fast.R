@@ -109,7 +109,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
     }
   }
 print("out of")
-print(image_count-1)
+print(image_count)
 print("images, we got")
 print(cell_count)
 print("viable cells")
