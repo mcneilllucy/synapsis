@@ -281,5 +281,5 @@ t.test(as.numeric(distance_KO),as.numeric(distance_WT))
 
 ## .nd2 files
 
-## 3 channel / false colour jpeg, tiff or pngs
+## 3 channel / false colour jpeg, tif or pngs
 
