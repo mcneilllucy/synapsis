@@ -42,9 +42,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
   else{
     img_path_new <- paste0(img_path,"/crops/")
   }
-
   file_list <- list.files(img_path_new)
-  print(file_list)
   df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px", "percent_on","sd_px","lone_foci")
   df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_cells) <- df_cols
@@ -124,17 +122,14 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       }
       ### multiply strands by foci_label
       if(annotation == "on"){
-        print("at file")
-        print(img_file)
-        print("cell counter is")
-        print(cell_count)
+        cat("at file",img_file, sep = " ")
+        cat("cell counter is", cell_count, sep= " ")
         print("original images")
         plot(new_img)
         plot(img_orig_foci)
-        print("displaying resulting foci count")
-        print("Overlay two channels")
+        print("displaying resulting foci count plots. Overlay two channels:")
         plot(rgbImage(strands,foci_label,0*foci_label))
-        print("coincident foci")
+        print("coincident foci:")
         plot(colorLabels(coincident_foci))
         print("two channels, only coincident foci")
         plot(rgbImage(strands,coincident_foci,coincident_foci))
@@ -142,8 +137,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       overlap_no <- table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
       if(annotation=="on"){
-        print("which counts this many foci:")
-        print(foci_per_cell)
+        cat("which counts this many foci:",foci_per_cell, sep = " ")
       }
       image_mat <- as.matrix(foci_mask_crop)
       image_mat <- image_mat[image_mat > 1e-06]
@@ -161,17 +155,16 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       ### number of foci NOT on an SC
       alone_foci <- nrow(foci_candidates) - foci_per_cell
       if(annotation == "on"){
-        print("number of alone foci")
-        print(alone_foci)
+        cat("number of alone foci",alone_foci, sep = " ")
         if(alone_foci < 0){
           print("this one had a negative lone foci amount. Suspect overcounting of foci in this one:")
           plot(rgbImage(strands,foci_label,0*foci_label))
+          alone_foci <- 0
         }
       }
       percent_px <- sum(overlap)/sum(foci_areas)
       if(annotation == "on"){
-        print("percentage of foci channel coincident:")
-        print(percent_px*100)
+        cat("percentage of foci channel coincident:", percent_px*100, sep = " ")
       }
       tryCatch({
         ### data frame stuff

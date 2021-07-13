@@ -101,8 +101,7 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
       foci_candidates <- data.frame(foci_candidates)
       foci_areas <- foci_candidates$s.area
       if(annotation == "on"){
-        print("looking at cell number:")
-        print(cell_count)
+        cat("\n looking at cell number:", cell_count, sep = " ")
       }
       dimensionless_dist <- get_distance_general(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,img_file,annotation,eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out,target_foci_number, max_dist_sq,SC_intens_stop)
       df_lengths <- rbind(df_lengths, dimensionless_dist)
@@ -403,8 +402,7 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
   strand_info <- as.data.frame(strand_info)
   #### turn this into a table/ data frame
   no_foci <- nrow(strand_info)
-  print("the number of foci in this strand is")
-  print(no_foci)
+  cat("\n the number of foci in this strand is", no_foci, sep = " ")
   df_col <- c("file","cell_id","genotype","strand_iter","foci_per_strand","iteration_on_strand","foci_x","foci_y","foci_x_line","foci_y_line","total_length","distance_squared","distance_along","SC_pass_fail")
   foci_df <- data.frame(matrix(ncol = length(df_col), nrow = 0))
   my_walkers_matrix <- t(as.matrix(walkers))
@@ -412,8 +410,7 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
   iter <- 0
   while(iter<= no_foci-1){
     iter <- iter + 1
-    print("looking at position data of foci number")
-    print(iter)
+    cat("\n looking at position data of foci number",iter, sep = " ")
     foci_x <- strand_info$m.cx[iter]
     foci_y <- strand_info$m.cy[iter]
     #### finding closest point
@@ -465,13 +462,10 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
       colnames(foci_df) <- df_col
       if(x_curr == as.numeric(foci_df$foci_x_line[iter]) && y_curr == as.numeric(foci_df$foci_y_line[iter])){
         ### record the distance along
-        print("I found a focus, which is this many pixels along:")
         foci_dist_along <- dist_along
-        print(dist_along)
-        print("and its distance (squared) to the actual foci centre was")
-        print(distance_fi)
-        print("and this was a pass/fail")
-        print(strand_test)
+        cat("\n I found a focus, which is this many pixels along:", dist_along, sep = " ")
+        cat("\n and its distance (squared) to the actual foci centre was", distance_fi, sep = " ")
+        cat("\n and this was a pass/fail", strand_test,  sep = " ")
         if(annotation == "on"){
           ch1 <- bwlabel(noise_gone)
           ch1 <-channel(noise_gone,"grey")

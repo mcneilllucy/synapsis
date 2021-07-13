@@ -121,8 +121,7 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       }
     }
   }
-print("number of cells kept")
-print(pachytene_count)
+cat("number of cells kept",pachytene_count, sep = " ")
 colnames(df_cells) <- df_cols
 return(df_cells)
 }

@@ -108,11 +108,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       antibody3_store <- 0
     }
   }
-print("out of")
-print(image_count)
-print("images, we got")
-print(cell_count)
-print("viable cells")
+cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " ")
 }
 
 
