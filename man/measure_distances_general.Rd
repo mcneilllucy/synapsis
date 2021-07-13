@@ -25,7 +25,10 @@ measure_distances_general(
   watershed_stop = "off",
   watershed_radius = 1,
   watershed_tol = 0.05,
-  crowded_foci = FALSE
+  crowded_foci = FALSE,
+  target_foci_number = FALSE,
+  max_dist_sq = 20,
+  SC_intens_stop = 0.7
 )
 }
 \arguments{
@@ -70,10 +73,24 @@ measure_distances_general(
 \item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
 
 \item{crowded_foci}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.}
+
+\item{target_foci_number}{User can specify the number of foci on a strand. Otherwise defaults to any number.}
+
+\item{max_dist_sq}{maximum distance (squared) between the centre of a foci vs its projected location on the line. Defaults to 20.}
+
+\item{SC_intens_stop}{mean intensity of a forward moving branch to terminate measuring}
 }
 \value{
 Data frame with properties of synaptonemal (SC) measurements
 }
 \description{
 Measure the distance between foci on a synaptonemal complex
+}
+\examples{
+demo_path = paste0(system.file("extdata",package = "synapsis"))
+df_dist <- measure_distances_general(demo_path,offset_factor = 5,
+brush_size = 1, brush_sigma = 1, annotation = "on", stage = "pachytene")
+}
+\author{
+Lucy McNeill
 }

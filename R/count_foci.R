@@ -22,6 +22,10 @@
 #' @param watershed_radius Radius (ext variable) in watershed method used in foci channel. Defaults to 1 (small)
 #' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
 #' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you have foci > 100 or so.
+#' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
+#' foci_counts <- count_foci(demo_path,offset_factor = 3, brush_size = 3,
+#' brush_sigma = 3, annotation = "on",stage = "pachytene")
+#' @author Lucy McNeill
 #' @return foci count per cell
 
 
@@ -41,11 +45,9 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
 
   file_list <- list.files(img_path_new)
   print(file_list)
-
   df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px", "percent_on","sd_px","lone_foci")
   df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_cells) <- df_cols
-
   ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
     if(stage == "pachytene"){
@@ -54,7 +56,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
     else{
       filename_path_test <- paste0(img_path,"/crops/", img_file)
     }
-
     img_file <- filename_path_test
     #if(grepl("*SYCP3.jpeg", file)){
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
@@ -76,7 +77,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       antibody1_store <- 0
       antibody2_store <- 0
       cell_count <- cell_count + 1
-
       new_img<-img_orig
       disc <- makeBrush(21, "disc")
       disc <- disc / sum(disc)
@@ -97,12 +97,10 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       orig_mean <- mean(img_orig_foci)
       mean_factor <- foci_norm/orig_mean
       img_orig_foci <- img_orig_foci*mean_factor
-
       #### normalise the foci image
       offset <- offset_factor*bg
       if(crowded_foci == TRUE){
         foci_th <- foci_mask_crop > bg + offset
-        #foci_th <- watershed(bwlabel(foci_th)*as.matrix(img_orig_foci),tolerance=0.05, ext=1)
       }
       else{
         ### smooth it
@@ -113,13 +111,10 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         ## smooth foci channel
         foci_th <- img_flo > bg + offset
       }
-
-
       foci_label <- bwlabel(foci_th)
       foci_label <- channel(foci_label, "grey")
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
-
       ##### print properties of the images
       if(watershed_stop != "off"){
         coincident_foci <- bwlabel(foci_label*strands)
@@ -127,8 +122,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       else{
         coincident_foci <- watershed(bwlabel(foci_th*strands)*as.matrix(img_orig_foci),tolerance=watershed_tol, ext=watershed_radius)
       }
-
-
       ### multiply strands by foci_label
       if(annotation == "on"){
         print("at file")
@@ -141,42 +134,32 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         print("displaying resulting foci count")
         print("Overlay two channels")
         plot(rgbImage(strands,foci_label,0*foci_label))
-        #print("showing the watershed masks")
-        #display(foci_th)
-        #display(colorLabels(watershed(bwlabel(foci_th)*as.matrix(img_orig_foci),tolerance=0.05, ext=1)))
         print("coincident foci")
         plot(colorLabels(coincident_foci))
         print("two channels, only coincident foci")
         plot(rgbImage(strands,coincident_foci,coincident_foci))
       }
-
       overlap_no <- table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
       if(annotation=="on"){
         print("which counts this many foci:")
         print(foci_per_cell)
-
       }
       image_mat <- as.matrix(foci_mask_crop)
       image_mat <- image_mat[image_mat > 1e-06]
       #hist(image_mat)
-
       mean_ratio <- median(image_mat)/mean(image_mat)
       skew <- (median(image_mat)-mean(image_mat))/sd(image_mat)
-
       ### look at properties of the foci.
       foci_candidates <- computeFeatures.shape(foci_label)
       foci_candidates <- data.frame(foci_candidates)
       foci_areas <- foci_candidates$s.area
-
       ### look at properties of the overlap foci.
       overlap_candidates <- computeFeatures.shape(coincident_foci)
       overlap_candidates <- data.frame(overlap_candidates)
       overlap <- overlap_candidates$s.area
-
       ### number of foci NOT on an SC
       alone_foci <- nrow(foci_candidates) - foci_per_cell
-
       if(annotation == "on"){
         print("number of alone foci")
         print(alone_foci)
@@ -186,7 +169,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         }
       }
       percent_px <- sum(overlap)/sum(foci_areas)
-
       if(annotation == "on"){
         print("percentage of foci channel coincident:")
         print(percent_px*100)
@@ -196,7 +178,6 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         if(grepl( WT_str, img_file, fixed = TRUE) == TRUE){
           genotype <- WT_out
         }
-
         if(grepl( KO_str, img_file, fixed = TRUE) == TRUE){
           genotype <- KO_out
         }

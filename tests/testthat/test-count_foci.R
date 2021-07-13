@@ -4,6 +4,8 @@ test_that("outputs data frame which has correct number of columns", {
   expect_s3_class(test_df, "data.frame")
 })
 
+
+
 test_that("outputs data frame which has correct number of rows", {
   demo_path <-paste0(system.file("extdata",package = "synapsis"),"/")
   demo_path_2 <-paste0(system.file("extdata",package = "synapsis"),"/crops/pachytene/")

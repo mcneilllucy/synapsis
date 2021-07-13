@@ -68,3 +68,11 @@ cropped SC and foci channels around single cells, regardless of stage
 \description{
 crop an image around each viable cell candidate.
 }
+\examples{
+demo_path = paste0(system.file("extdata",package = "synapsis"))
+auto_crop_fast(demo_path, annotation = "on", max_cell_area = 30000,
+min_cell_area = 7000)
+}
+\author{
+Lucy McNeill
+}

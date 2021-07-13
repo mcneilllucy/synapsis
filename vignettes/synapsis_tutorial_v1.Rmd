@@ -147,7 +147,7 @@ foci_counts is a data frame summarizing some features (including foci counts) of
 
 ## Distance between foci on SC
 ```{r}
-df_dist <- measure_distances(path, annotation = "on")
+df_dist <- measure_distances_general(path, annotation = "on",target_foci_number = 2)
 ```
 
 # Bigger data set

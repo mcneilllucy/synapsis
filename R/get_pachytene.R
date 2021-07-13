@@ -17,6 +17,9 @@
 #' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
 #' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
 #' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
+#' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
+#' SYCP3_stats <- get_pachytene(demo_path,ecc_thresh = 0.8, area_thresh = 0.04, annotation = "on")
+#' @author Lucy McNeill
 #' @return Pairs of foci and SC channel crops for pachytene
 #'
 
@@ -35,12 +38,10 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
   img_path_new <- paste0(img_path,"/crops")
   dir.create(paste0(img_path_new,"/pachytene"))
   file_list <- list.files(img_path_new)
-  ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
     file_base <- img_file
     filename_path_test <- paste0(img_path,"/crops/", img_file)
     img_file <- filename_path_test
-    #if(grepl("*SYCP3.jpeg", file)){
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
       file_dna <- img_file
       file_base_dna <- file_base
@@ -49,14 +50,11 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       img_orig <- channel(image, "grey")
       antibody1_store <- 1
     }
-    #if(grepl("*MLH3.jpeg", file)){
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
       file_base_foci <- file_base
       file_foci <- img_file
-      #print(file_foci)
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
-      # call functions: get
       antibody2_store <- 1
     }
     if(antibody1_store + antibody2_store ==2){
@@ -92,12 +90,10 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
         SC_candidates <- data.frame(SC_candidates)
         SC_areas <- SC_candidates$s.area
         moment_info <- computeFeatures.moment(bwlabel(strands),as.matrix(new_img))
-        #moment_info <- computeFeatures.haralick(bwlabel(tmp_img),as.matrix(noise_gone))
         moment_info <- as.data.frame(moment_info)
         ## might actually want to find the real centre first..
         ### data frame stuff ends
         dim_img <- nrow(new_img)
-        #dim_img <- dim_img[1,1]
         num_px <- dim_img*dim_img
         px_mask <- sum(SC_areas)
         px_total <- num_px

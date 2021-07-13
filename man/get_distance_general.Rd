@@ -20,7 +20,10 @@ get_distance_general(
   KO_str,
   WT_str,
   KO_out,
-  WT_out
+  WT_out,
+  target_foci_number,
+  max_dist_sq,
+  SC_intens_stop
 )
 }
 \arguments{
@@ -53,6 +56,12 @@ get_distance_general(
 \item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
 
 \item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
+
+\item{target_foci_number}{User can specify the number of foci on a strand. Otherwise defaults to any number.}
+
+\item{max_dist_sq}{maximum distance (squared) between the centre of a foci vs its projected location on the line. Defaults to 20.}
+
+\item{SC_intens_stop}{mean intensity of a forward moving branch to terminate measuring}
 }
 \value{
 Data frame with properties of synaptonemal (SC) measurements

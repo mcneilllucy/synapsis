@@ -29,7 +29,8 @@ get_distances_along(
   KO_str,
   WT_str,
   KO_out,
-  WT_out
+  WT_out,
+  max_dist_sq
 )
 }
 \arguments{
@@ -82,6 +83,8 @@ get_distances_along(
 \item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
 
 \item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
+
+\item{max_dist_sq}{maximum distance (squared) between the centre of a foci vs its projected location on the line. Defaults to 20.}
 }
 \value{
 List of fractional distances between foci for all SCs with two. Optional: total distances of SCs. Optional: images of all resulting traces/ foci locations.

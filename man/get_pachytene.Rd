@@ -53,3 +53,10 @@ Pairs of foci and SC channel crops for pachytene
 \description{
 Identifies crops in pachytene
 }
+\examples{
+demo_path = paste0(system.file("extdata",package = "synapsis"))
+SYCP3_stats <- get_pachytene(demo_path,ecc_thresh = 0.8, area_thresh = 0.04, annotation = "on")
+}
+\author{
+Lucy McNeill
+}

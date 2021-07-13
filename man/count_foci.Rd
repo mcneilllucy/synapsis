@@ -71,3 +71,11 @@ foci count per cell
 \description{
 Count coincident foci in cropped SC and foci channel per cell
 }
+\examples{
+demo_path = paste0(system.file("extdata",package = "synapsis"))
+foci_counts <- count_foci(demo_path,offset_factor = 3, brush_size = 3,
+brush_sigma = 3, annotation = "on",stage = "pachytene")
+}
+\author{
+Lucy McNeill
+}
