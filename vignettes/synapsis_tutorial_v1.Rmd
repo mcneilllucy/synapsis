@@ -145,6 +145,8 @@ foci_counts <- count_foci(path,offset_factor = 5, brush_size = 1, brush_sigma = 
 ```
 foci_counts is a data frame summarizing some features (including foci counts) of the cells classified as pachytene.
 
+**note: count_foci and measure_distances_general take in the same arguments used to create the coincident foci mask. To save time, find the optimum settings for e.g. offset_factor, brush_size, brush_sigma, watershed_stop etc. with count_foci (a much faster function). When you are confident that these settings are identifying the correct amount of foci per cell, run measure_distances_general (slower)**
+
 ## Distance between foci on SC
 ```{r}
 df_dist <- measure_distances_general(path,offset_factor = 5, brush_size = 1, brush_sigma = 1, annotation = "on", stage = "pachytene",target_foci_number = 2)
