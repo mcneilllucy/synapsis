@@ -188,6 +188,13 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
 #'
 get_distance_general <- function(strands,num_strands,new_img,new_img_foci,foci_label, foci_count_strand, strand_iter,img_file,annotation, eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out, target_foci_number, max_dist_sq,SC_intens_stop){
   tryCatch({
+    if(annotation == "on"){
+      cat("\n looking at the cell in file", img_file, "whose 2 channel image is:" , sep = " ")
+      ch1 <-channel(0.5*new_img,"grey")
+      ch2 <- channel(new_img_foci,"grey")
+      greenred <- rgbImage(ch1, ch2, 0*ch1)
+      plot(greenred)
+    }
     no_strands <- nrow(num_strands)
     strand_count<- 0
     df_cols <- c("file","cell_id","genotype","strand_iter","foci_per_strand","iteration_on_strand","foci_x","foci_y","foci_x_line","foci_y_line","total_length", "distance_squared","distance_along","SC_pass_fail")
@@ -229,12 +236,6 @@ get_distance_general <- function(strands,num_strands,new_img,new_img_foci,foci_l
             if(moment_info$m.eccentricity > eccentricity_min && nrow(per_strand_obj)==target_foci_number){
               ### call the general distance function.
               ## draw box around the middle, find max, locally, use noise_gone as original
-              if(annotation == "on"){
-                cat("\n looking at the cell in file", img_file, "whose 2 channel image is:" , sep = " ")
-                ch1 <-channel(new_img,"grey")
-                ch2 <- channel(new_img_foci,"grey")
-                bluered <- rgbImage(ch1, ch2, 0*ch1)
-              }
               walkers <- 0*noise_gone
               noise_gone <- 2*noise_gone
               window <- 2
@@ -481,7 +482,6 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
   iter <- 0
   while(iter<= no_foci-1){
     iter <- iter + 1
-    cat("\n looking at position data of foci number",iter, sep = " ")
     foci_x <- strand_info$m.cx[iter]
     foci_y <- strand_info$m.cy[iter]
     #### finding closest point
@@ -534,6 +534,7 @@ get_distances_along <- function(distance_strand,distance_strand_2,per_strand,foc
       if(x_curr == as.numeric(foci_df$foci_x_line[iter]) && y_curr == as.numeric(foci_df$foci_y_line[iter])){
         ### record the distance along
         foci_dist_along <- dist_along
+        cat("\n the current strand has a total pixel length of",(distance_strand+distance_strand_2), sep = " ")
         cat("\n I found a focus, which is this many pixels along:", dist_along, sep = " ")
         cat("\n and its distance (squared) to the actual foci centre was", distance_fi, sep = " ")
         cat("\n and this was a pass/fail", strand_test,  sep = " ")
