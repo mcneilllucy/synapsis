@@ -143,14 +143,17 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       if(annotation == "on"){
         cat("at file",img_file, sep = " ")
         cat("cell counter is", cell_count, sep= " ")
-        print("original images")
+        cat("\n original images")
         plot(new_img)
         plot(img_orig_foci)
-        print("displaying resulting foci count plots. Overlay two channels:")
-        plot(rgbImage(strands,foci_label,0*foci_label))
-        print("coincident foci:")
+        ch1 <-channel(new_img,"grey")
+        ch2 <- channel(foci_mask_crop,"grey")
+        bluered <- rgbImage(ch1, ch2, 0*ch1)
+        cat("\n displaying resulting foci count plots. Overlay two channels:")
+        plot(rgbImage(ch1,ch2,0*foci_label))
+        cat("\n coincident foci:")
         plot(colorLabels(coincident_foci))
-        print("two channels, only coincident foci")
+        cat("\n two channels, only coincident foci")
         plot(rgbImage(strands,coincident_foci,coincident_foci))
       }
       overlap_no <- table(coincident_foci)
@@ -175,7 +178,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       if(annotation == "on"){
         cat("number of alone foci",alone_foci, sep = " ")
         if(alone_foci < 0){
-          print("this one had a negative lone foci amount. Suspect overcounting of foci in this one:")
+          cat("\n this one had a negative lone foci amount. Suspect overcounting of foci in this one:")
           plot(rgbImage(strands,foci_label,0*foci_label))
           alone_foci <- 0
         }
@@ -203,7 +206,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       error = function(e) {
         #what should be done in case of exception?
         str(e) # #prints structure of exception
-        print("something went wrong while making the data frame")
+        cat("\n something went wrong while making the data frame")
       }
       )
     }
