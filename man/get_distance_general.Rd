@@ -9,6 +9,7 @@ get_distance_general(
   strands,
   num_strands,
   new_img,
+  new_img_foci,
   foci_label,
   foci_count_strand,
   strand_iter,
@@ -32,6 +33,8 @@ get_distance_general(
 \item{num_strands, }{Number of individual strands on SC mask}
 
 \item{new_img, }{Original strand/dna/SYCP3 channel image with noise removed.}
+
+\item{new_img_foci, }{Original foci channel image with noise removed.}
 
 \item{foci_label, }{A black white mask with foci as objects}
 

@@ -144,7 +144,7 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
       if(annotation == "on"){
         cat("\n looking at cell number:", cell_count, sep = " ")
       }
-      dimensionless_dist <- get_distance_general(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,img_file,annotation,eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out,target_foci_number, max_dist_sq,SC_intens_stop)
+      dimensionless_dist <- get_distance_general(strands,num_strands,new_img,img_orig_foci,foci_label, foci_count_strand, strand_iter,img_file,annotation,eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out,target_foci_number, max_dist_sq,SC_intens_stop)
       df_lengths <- rbind(df_lengths, dimensionless_dist)
     }
   }
@@ -159,6 +159,7 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
 #' @param strands, A black white mask with SCs as objects
 #' @param num_strands, Number of individual strands on SC mask
 #' @param new_img, Original strand/dna/SYCP3 channel image with noise removed.
+#' @param new_img_foci, Original foci channel image with noise removed.
 #' @param foci_label, A black white mask with foci as objects
 #' @param foci_count_strand, Number of foci counted located on the one SC
 #' @param strand_iter, Strand number in iteration over all in cell
@@ -185,7 +186,7 @@ measure_distances_general <- function(img_path,offset_px = 0.2, offset_factor = 
 #' terminate measuring
 #' @return Data frame with properties of synaptonemal (SC) measurements
 #'
-get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_count_strand, strand_iter,img_file,annotation, eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out, target_foci_number, max_dist_sq,SC_intens_stop){
+get_distance_general <- function(strands,num_strands,new_img,new_img_foci,foci_label, foci_count_strand, strand_iter,img_file,annotation, eccentricity_min, max_strand_area,cell_count,KO_str ,WT_str,KO_out, WT_out, target_foci_number, max_dist_sq,SC_intens_stop){
   tryCatch({
     no_strands <- nrow(num_strands)
     strand_count<- 0
@@ -228,6 +229,12 @@ get_distance_general <- function(strands,num_strands,new_img,foci_label, foci_co
             if(moment_info$m.eccentricity > eccentricity_min && nrow(per_strand_obj)==target_foci_number){
               ### call the general distance function.
               ## draw box around the middle, find max, locally, use noise_gone as original
+              if(annotation == "on"){
+                cat("\n looking at the cell in file", img_file, "whose 2 channel image is:" , sep = " ")
+                ch1 <-channel(new_img,"grey")
+                ch2 <- channel(new_img_foci,"grey")
+                bluered <- rgbImage(ch1, ch2, 0*ch1)
+              }
               walkers <- 0*noise_gone
               noise_gone <- 2*noise_gone
               window <- 2
