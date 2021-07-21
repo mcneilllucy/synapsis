@@ -44,6 +44,7 @@
 #' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
 #' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you
 #' have foci > 100 or so.
+#' @param artificial_amp_factor For annotation only.
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' foci_counts <- count_foci(demo_path,offset_factor = 3, brush_size = 3,
 #' brush_sigma = 3, annotation = "on",stage = "pachytene")
@@ -51,7 +52,7 @@
 #' @return foci count per cell
 
 
-count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE)
+count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1)
 {
   cell_count <- 0
   image_count <-0
@@ -147,7 +148,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         plot(0.5*new_img)
         plot(img_orig_foci)
         ch1 <-channel(0.5*new_img,"grey")
-        ch2 <- channel(foci_mask_crop,"grey")
+        ch2 <- channel(artificial_amp_factor*foci_mask_crop,"grey")
         bluered <- rgbImage(ch1, ch2, 0*ch1)
         cat("\n displaying resulting foci count plots. Overlay two channels:")
         plot(rgbImage(ch1,ch2,0*foci_label))

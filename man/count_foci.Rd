@@ -23,7 +23,8 @@ count_foci(
   watershed_stop = "off",
   watershed_radius = 1,
   watershed_tol = 0.05,
-  crowded_foci = TRUE
+  crowded_foci = TRUE,
+  artificial_amp_factor = 1
 )
 }
 \arguments{
@@ -76,6 +77,8 @@ in foci channel. Defaults to 1 (small)}
 
 \item{crowded_foci}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you
 have foci > 100 or so.}
+
+\item{artificial_amp_factor}{For annotation only.}
 }
 \value{
 foci count per cell
