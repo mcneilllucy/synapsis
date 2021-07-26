@@ -45,6 +45,7 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
   colnames(df_cells) <- df_cols
   img_path_new <- paste0(img_path,"/crops")
   dir.create(paste0(img_path_new,"/pachytene"))
+  dir.create(paste0(img_path_new,"/pachytene-RGB"))
   file_list <- list.files(img_path_new)
   for (img_file in file_list){
     file_base <- img_file
@@ -124,6 +125,12 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
             file_foci <- tools::file_path_sans_ext(file_base_foci)
             filename_crop_foci <- paste0(img_path_new,"/pachytene/", file_foci,".jpeg")
             writeImage(img_orig_foci, filename_crop_foci)
+            ### add RGB channel
+            ch1 <-channel(img_orig,"grey")
+            ch2 <- channel(img_orig_foci,"grey")
+            RGB_img <- rgbImage(ch1,ch2,0*ch1)
+            filename_crop_RGB <- paste0(img_path_new,"/pachytene-RGB/", file_dna,".jpeg")
+            writeImage(RGB_img, filename_crop_RGB)
           }
         }
       }
