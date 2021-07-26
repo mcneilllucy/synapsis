@@ -142,12 +142,12 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       }
       ### multiply strands by foci_label
       if(annotation == "on"){
-        cat("at file",img_file, sep = " ")
-        cat("cell counter is", cell_count, sep= " ")
+        cat("\n at file",img_file, sep = " ")
+        cat("\n cell counter is", cell_count, sep= " ")
         cat("\n original images")
-        plot(0.5*new_img)
+        plot(new_img)
         plot(img_orig_foci)
-        ch1 <-channel(0.5*new_img,"grey")
+        ch1 <-channel(new_img,"grey")
         ch2 <- channel(artificial_amp_factor*foci_mask_crop,"grey")
         bluered <- rgbImage(ch1, ch2, 0*ch1)
         cat("\n displaying resulting foci count plots. Overlay two channels:")
@@ -160,7 +160,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       overlap_no <- table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
       if(annotation=="on"){
-        cat("which counts this many foci:",foci_per_cell, sep = " ")
+        cat("\n which counts this many foci:",foci_per_cell, sep = " ")
       }
       image_mat <- as.matrix(foci_mask_crop)
       image_mat <- image_mat[image_mat > 1e-06]
@@ -177,7 +177,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       ### number of foci NOT on an SC
       alone_foci <- nrow(foci_candidates) - foci_per_cell
       if(annotation == "on"){
-        cat("number of alone foci",alone_foci, sep = " ")
+        cat("\n number of alone foci",alone_foci, sep = " ")
         if(alone_foci < 0){
           cat("\n this one had a negative lone foci amount. Suspect overcounting of foci in this one:")
           plot(rgbImage(strands,foci_label,0*foci_label))
@@ -186,7 +186,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       }
       percent_px <- sum(overlap)/sum(foci_areas)
       if(annotation == "on"){
-        cat("percentage of foci channel coincident:", percent_px*100, sep = " ")
+        cat("\n percentage of foci channel coincident:", percent_px*100, sep = " ")
       }
       tryCatch({
         ### data frame stuff

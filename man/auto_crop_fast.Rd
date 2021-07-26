@@ -22,7 +22,8 @@ auto_crop_fast(
   channel1_string = "MLH3",
   file_ext = "jpeg",
   third_channel = "off",
-  cell_aspect_ratio = 2
+  cell_aspect_ratio = 2,
+  strand_amp = 2
 )
 }
 \arguments{
@@ -72,6 +73,8 @@ illuminating foci. Defaults to MLH3}
 \item{third_channel}{Optional, defaults to "off".}
 
 \item{cell_aspect_ratio}{Maximum aspect ratio of blob to be defined as a cell}
+
+\item{strand_amp}{multiplication of strand channel for get_blobs function.}
 }
 \value{
 cropped SC and foci channels around single cells, regardless of stage

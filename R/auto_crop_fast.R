@@ -48,6 +48,7 @@
 #' channel illuminating cell structures. Defaults to DAPI, if
 #' third channel == "on".
 #' @param third_channel Optional, defaults to "off".
+#' @param strand_amp multiplication of strand channel for get_blobs function.
 #' @param file_ext file extension of your images e.g. tif jpeg or png.
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' auto_crop_fast(demo_path, annotation = "on", max_cell_area = 30000,
@@ -55,10 +56,11 @@
 #' @author Lucy McNeill
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
-auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2)
+auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2)
 {
   file_list <- list.files(img_path)
   dir.create(paste0(img_path,"/crops"))
+  dir.create(paste0(img_path,"/crops-RGB"))
   cell_count <- 0
   image_count <-0
   antibody1_store <- 0
@@ -81,7 +83,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       file_dna <- img_file
       print(file)
       image <- readImage(file_dna)
-      img_orig <- channel(2*image, "grey")
+      img_orig <- channel(image, "grey")
       antibody1_store <- 1
     }
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
@@ -99,7 +101,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
         break
       }
       #### blur the image with get_blobs. call it on img_orig, optional offset
-      blob_th <- get_blobs(img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp,brush_size_blob, sigma_blob)
+      blob_th <- get_blobs(strand_amp*img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp,brush_size_blob, sigma_blob)
       blob_label <- bwlabel(blob_th)
       blob_label <- channel(blob_label, "gray")
       candidate <- bwlabel(blob_label)
@@ -229,6 +231,12 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
     file_foci <- gsub(file_stub,'', file_foci)
     filename_crop_foci <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
     writeImage(new_img_foci, filename_crop_foci)
+    ### add RGB channel
+    ch1 <-channel(new_img,"grey")
+    ch2 <- channel(new_img_foci,"grey")
+    RGB_img <- rgbImage(ch1,ch2,0*ch1)
+    filename_crop_RGB <- paste0(img_path,"/crops-RGB/", file_dna,"-crop-",cell_count,file_stub)
+    writeImage(RGB_img, filename_crop_RGB)
     if(third_channel == "on"){
       new_img_DAPI <- noise_gone_DAPI[ix, iy]
       file_stub <- paste0('-',channel3_string,'.',file_ext)
