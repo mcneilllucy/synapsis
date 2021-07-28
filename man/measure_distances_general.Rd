@@ -32,7 +32,7 @@ measure_distances_general(
 )
 }
 \arguments{
-\item{img_path, }{path containing image data to analyse}
+\item{img_path, }{path containing crops to analyse}
 
 \item{offset_px, }{Pixel value offset used in thresholding of dna channel}
 

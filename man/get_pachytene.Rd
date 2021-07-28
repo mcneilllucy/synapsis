@@ -17,11 +17,12 @@ get_pachytene(
   KO_str = "--",
   WT_str = "++",
   KO_out = "-/-",
-  WT_out = "+/+"
+  WT_out = "+/+",
+  path_out = img_path
 )
 }
 \arguments{
-\item{img_path, }{path containing image data to analyse}
+\item{img_path, }{path containing crops analyse}
 
 \item{species_num, }{number of chromosomes in the species}
 
@@ -46,6 +47,8 @@ get_pachytene(
 \item{KO_out}{string in output csv in genotype column, for knockout. Defaults to -/-.}
 
 \item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
+
+\item{path_out, }{user specified output path. Defaults to img_path}
 }
 \value{
 Pairs of foci and SC channel crops for pachytene

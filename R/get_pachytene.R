@@ -12,7 +12,8 @@
 #' for mouse cells which can be very well spread / separated.
 #'
 #' @export get_pachytene
-#' @param img_path, path containing image data to analyse
+#' @param img_path, path containing crops analyse
+#' @param path_out, user specified output path. Defaults to img_path
 #' @param species_num, number of chromosomes in the species
 #' @param offset, Pixel value offset used in therholding for the dna (SYCP3) channel
 #' @param ecc_thresh, The minimum average eccentricity of all objects in mask determined by computefeatures, for a cell to be pachytene.
@@ -32,7 +33,7 @@
 #'
 
 
-get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+")
+get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", path_out = img_path)
 {
   cell_count <- 0
   image_count <-0
@@ -44,8 +45,17 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
   df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_cells) <- df_cols
   img_path_new <- paste0(img_path,"/crops")
-  dir.create(paste0(img_path_new,"/pachytene"))
-  dir.create(paste0(img_path_new,"/pachytene-RGB"))
+  if(img_path == path_out){
+    img_path_out <- img_path_new
+    dir.create(paste0(img_path_new,"/pachytene"))
+    dir.create(paste0(img_path_new,"/pachytene-RGB"))
+  }
+  else{
+    img_path_out <- path_out
+    dir.create(paste0(path_out,"/pachytene"))
+    dir.create(paste0(path_out,"/pachytene-RGB"))
+  }
+
   file_list <- list.files(img_path_new)
   for (img_file in file_list){
     file_base <- img_file
@@ -116,20 +126,20 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
             df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,px_mask, px_total,px_fraction, mean_ecc,mean_ratio,skew,sd_bright_px,stage_classification)))
             pachytene_count <- pachytene_count + 1
             file_dna <- tools::file_path_sans_ext(file_base_dna)
-            filename_crop <- paste0(img_path_new,"/pachytene/", file_dna,".jpeg")
+            filename_crop <- paste0(img_path_out,"/pachytene/", file_dna,".jpeg")
             writeImage(img_orig, filename_crop)
             if(annotation == "on"){
               print("decided the following is pachytene")
               display(img_orig)
             }
             file_foci <- tools::file_path_sans_ext(file_base_foci)
-            filename_crop_foci <- paste0(img_path_new,"/pachytene/", file_foci,".jpeg")
+            filename_crop_foci <- paste0(img_path_out,"/pachytene/", file_foci,".jpeg")
             writeImage(img_orig_foci, filename_crop_foci)
             ### add RGB channel
             ch1 <-channel(img_orig,"grey")
             ch2 <- channel(img_orig_foci,"grey")
             RGB_img <- rgbImage(ch1,ch2,0*ch1)
-            filename_crop_RGB <- paste0(img_path_new,"/pachytene-RGB/", file_dna,".jpeg")
+            filename_crop_RGB <- paste0(img_path_out,"/pachytene-RGB/", file_dna,".jpeg")
             writeImage(RGB_img, filename_crop_RGB)
           }
         }

@@ -13,7 +13,7 @@
 #' The file, cell number, foci count etc. are output as a data frame.
 #'
 #' @export count_foci
-#' @param img_path, path containing image data to analyse
+#' @param img_path, path containing crops to analyse
 #' @param stage, meiosis stage of interest. Currently count_foci determines
 #' this with thresholding/ object properties in the dna channel. But will be
 #' classified using ML model in future versions.

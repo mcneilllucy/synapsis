@@ -27,7 +27,7 @@
 #' distances of each along)
 #'
 #' @export
-#' @param img_path, path containing image data to analyse
+#' @param img_path, path containing crops to analyse
 #' @param stage, meiosis stage of interest. Currently count_foci determines
 #' this with thresholding/ object properties in the dna channel. But will be
 #' classified using ML model in future versions.

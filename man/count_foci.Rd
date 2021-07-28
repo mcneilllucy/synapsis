@@ -28,7 +28,7 @@ count_foci(
 )
 }
 \arguments{
-\item{img_path, }{path containing image data to analyse}
+\item{img_path, }{path containing crops to analyse}
 
 \item{stage, }{meiosis stage of interest. Currently count_foci determines
 this with thresholding/ object properties in the dna channel. But will be

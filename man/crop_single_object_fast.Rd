@@ -26,7 +26,8 @@ crop_single_object_fast(
   channel2_string,
   channel1_string,
   file_ext,
-  third_channel
+  third_channel,
+  path_out
 )
 }
 \arguments{
@@ -82,6 +83,8 @@ illuminating foci. Defaults to MLH3}
 \item{file_ext}{file extension of your images e.g. tif jpeg or png.}
 
 \item{third_channel}{Optional, defaults to "off".}
+
+\item{path_out, }{user specified output path. Defaults to img_path}
 }
 \value{
 Crops around all candidates in both channels

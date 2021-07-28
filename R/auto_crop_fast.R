@@ -21,6 +21,7 @@
 #' @importFrom utils str
 #' @export auto_crop_fast
 #' @param img_path, path containing image data to analyse
+#' @param path_out, user specified output path. Defaults to img_path
 #' @param max_cell_area, Maximum pixel area of a cell candidate
 #' @param min_cell_area, Minimum pixel area of a cell candidate
 #' @param mean_pix, Mean pixel intensity of cell crop (in SYCP3 channel)
@@ -56,11 +57,11 @@
 #' @author Lucy McNeill
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
-auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2)
+auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path)
 {
   file_list <- list.files(img_path)
-  dir.create(paste0(img_path,"/crops"))
-  dir.create(paste0(img_path,"/crops-RGB"))
+  dir.create(paste0(path_out,"/crops"))
+  dir.create(paste0(path_out,"/crops-RGB"))
   cell_count <- 0
   image_count <-0
   antibody1_store <- 0
@@ -124,10 +125,10 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
         ### row of interest is the counter_final'th row of x_final
         cell_count <- cell_count +1
         if(third_channel=="on"){
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out)
         }
         else{
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_dna,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_dna,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out)
         }
       }
       antibody1_store <- 0
@@ -165,6 +166,7 @@ cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " 
 #' @param file_base, filename base common to all three channels
 #' i.e. without -MLH3.jpeg etc.
 #' @param img_path, path containing image data to analyse
+#' @param path_out, user specified output path. Defaults to img_path
 #' @param channel1_string String appended to the files showing the channel
 #' illuminating foci. Defaults to MLH3
 #' @param channel2_string String appended to the files showing the channel
@@ -179,7 +181,7 @@ cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " 
 
 #' @return Crops around all candidates in both channels
 #'
-crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_dna,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel){
+crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_dna,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out){
   tmp_img <- retained
   ## have a single object
   ### delete all other objects
@@ -217,6 +219,7 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
 ### cropping finished
   ## cropping part
   tryCatch({
+    img_path_out <- path_out
     new_img <- noise_gone[ix, iy]
     ## want all images to have the same mean (mean_pix)
     orig_mean <- mean(new_img)
@@ -224,24 +227,24 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
     new_img <- new_img*mean_factor
     file_stub <- paste0('-',channel2_string,'.',file_ext)
     file_dna <- gsub(file_stub,'', file_base)
-    filename_crop <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+    filename_crop <- paste0(img_path_out,"/crops/", file_dna,"-crop-",cell_count,file_stub)
     writeImage(new_img, filename_crop)
     new_img_foci <- noise_gone_foci[ix, iy]
     file_stub <- paste0('-',channel1_string,'.',file_ext)
     file_foci <- gsub(file_stub,'', file_foci)
-    filename_crop_foci <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+    filename_crop_foci <- paste0(img_path_out,"/crops/", file_dna,"-crop-",cell_count,file_stub)
     writeImage(new_img_foci, filename_crop_foci)
     ### add RGB channel
     ch1 <-channel(new_img,"grey")
     ch2 <- channel(new_img_foci,"grey")
     RGB_img <- rgbImage(ch1,ch2,0*ch1)
-    filename_crop_RGB <- paste0(img_path,"/crops-RGB/", file_dna,"-crop-",cell_count,file_stub)
+    filename_crop_RGB <- paste0(img_path_out,"/crops-RGB/", file_dna,"-crop-",cell_count,file_stub)
     writeImage(RGB_img, filename_crop_RGB)
     if(third_channel == "on"){
       new_img_DAPI <- noise_gone_DAPI[ix, iy]
       file_stub <- paste0('-',channel3_string,'.',file_ext)
       file_DAPI <- gsub(file_stub,'', file_DAPI)
-      filename_crop_DAPI <- paste0(img_path,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+      filename_crop_DAPI <- paste0(img_path_out,"/crops/", file_dna,"-crop-",cell_count,file_stub)
       writeImage(new_img_DAPI, filename_crop_DAPI)
     }
 
