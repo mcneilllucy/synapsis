@@ -44,7 +44,8 @@
 #' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
 #' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you
 #' have foci > 100 or so.
-#' @param artificial_amp_factor For annotation only.
+#' @param artificial_amp_factor Amplification of foci channel, for annotation only.
+#' @param strand_amp multiplication of strand channel to make masks
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' foci_counts <- count_foci(demo_path,offset_factor = 3, brush_size = 3,
 #' brush_sigma = 3, annotation = "on",stage = "pachytene")
@@ -52,7 +53,7 @@
 #' @return foci count per cell
 
 
-count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1)
+count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1, strand_amp = 2)
 {
   cell_count <- 0
   image_count <-0
@@ -82,7 +83,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       file_dna <- img_file
       image_count <- image_count +1
       image <- readImage(file_dna)
-      img_orig <- channel(2*image, "grey")
+      img_orig <- channel(strand_amp*image, "grey")
       antibody1_store <- 1
     }
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
@@ -142,20 +143,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       }
       ### multiply strands by foci_label
       if(annotation == "on"){
-        cat("\n at file",img_file, sep = " ")
-        cat("\n cell counter is", cell_count, sep= " ")
-        cat("\n original images")
-        plot(new_img)
-        plot(img_orig_foci)
-        ch1 <-channel(new_img,"grey")
-        ch2 <- channel(artificial_amp_factor*foci_mask_crop,"grey")
-        bluered <- rgbImage(ch1, ch2, 0*ch1)
-        cat("\n displaying resulting foci count plots. Overlay two channels:")
-        plot(rgbImage(ch1,ch2,0*foci_label))
-        cat("\n coincident foci:")
-        plot(colorLabels(coincident_foci))
-        cat("\n two channels, only coincident foci")
-        plot(rgbImage(strands,coincident_foci,coincident_foci))
+        annotate_foci_counting(img_file,cell_count,new_img,img_orig_foci,artificial_amp_factor,foci_mask_crop,strands,coincident_foci)
       }
       overlap_no <- table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
@@ -217,5 +205,36 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
 }
 
 
+
+#' annotate_foci_counting
+#'
+#' Contains all plotting routines for count foci annotation
+#'
+#' @param img_file cell's file name
+#' @param cell_count unique cell counter
+#' @param new_img cropped strand channel
+#' @param img_orig_foci cropped foci channel
+#' @param artificial_amp_factor amplification factor
+#' @param foci_mask_crop black white mask of foci channel
+#' @param strands black white mask of strand channel
+#' @param coincident_foci mask of overlap between strand and foci channel
+#'
+#'
+annotate_foci_counting <- function(img_file,cell_count,new_img,img_orig_foci,artificial_amp_factor,foci_mask_crop,strands,coincident_foci){
+  cat("\n at file",img_file, sep = " ")
+  cat("\n cell counter is", cell_count, sep= " ")
+  cat("\n original images")
+  plot(new_img)
+  plot(img_orig_foci)
+  ch1 <-channel(new_img,"grey")
+  ch2 <- channel(artificial_amp_factor*foci_mask_crop,"grey")
+  bluered <- rgbImage(ch1, ch2, 0*ch1)
+  cat("\n displaying resulting foci count plots. Overlay two channels:")
+  plot(rgbImage(ch1,ch2,0*new_img))
+  cat("\n coincident foci:")
+  plot(colorLabels(coincident_foci))
+  cat("\n two channels, only coincident foci")
+  plot(rgbImage(strands,coincident_foci,coincident_foci))
+}
 
 

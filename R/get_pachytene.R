@@ -26,6 +26,8 @@
 #' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
 #' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
 #' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
+#' @param artificial_amp_factor Amplification of foci channel, for RGB output files. Deaults to 3.
+#' @param strand_amp multiplication of strand channel.
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' SYCP3_stats <- get_pachytene(demo_path,ecc_thresh = 0.8, area_thresh = 0.04, annotation = "on")
 #' @author Lucy McNeill
@@ -33,7 +35,7 @@
 #'
 
 
-get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", path_out = img_path)
+get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", path_out = img_path, artificial_amp_factor=3, strand_amp = 2)
 {
   cell_count <- 0
   image_count <-0
@@ -66,7 +68,7 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       file_base_dna <- file_base
       image_count <- image_count +1
       image <- readImage(file_dna)
-      img_orig <- channel(image, "grey")
+      img_orig <- channel(strand_amp*image, "grey")
       antibody1_store <- 1
     }
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){

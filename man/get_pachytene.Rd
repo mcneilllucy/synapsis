@@ -18,7 +18,9 @@ get_pachytene(
   WT_str = "++",
   KO_out = "-/-",
   WT_out = "+/+",
-  path_out = img_path
+  path_out = img_path,
+  artificial_amp_factor = 3,
+  strand_amp = 2
 )
 }
 \arguments{
@@ -49,6 +51,10 @@ get_pachytene(
 \item{WT_out}{string in output csv in genotype column, for knockout. Defaults to +/+.}
 
 \item{path_out, }{user specified output path. Defaults to img_path}
+
+\item{artificial_amp_factor}{Amplification of foci channel, for RGB output files. Deaults to 3.}
+
+\item{strand_amp}{multiplication of strand channel.}
 }
 \value{
 Pairs of foci and SC channel crops for pachytene

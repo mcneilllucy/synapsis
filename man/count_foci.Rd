@@ -24,7 +24,8 @@ count_foci(
   watershed_radius = 1,
   watershed_tol = 0.05,
   crowded_foci = TRUE,
-  artificial_amp_factor = 1
+  artificial_amp_factor = 1,
+  strand_amp = 2
 )
 }
 \arguments{
@@ -78,7 +79,9 @@ in foci channel. Defaults to 1 (small)}
 \item{crowded_foci}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you
 have foci > 100 or so.}
 
-\item{artificial_amp_factor}{For annotation only.}
+\item{artificial_amp_factor}{Amplification of foci channel, for annotation only.}
+
+\item{strand_amp}{multiplication of strand channel to make masks}
 }
 \value{
 foci count per cell
