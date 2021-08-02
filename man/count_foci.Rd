@@ -26,7 +26,7 @@ count_foci(
   crowded_foci = TRUE,
   artificial_amp_factor = 1,
   strand_amp = 2,
-  min_foci = 9
+  min_foci = 1
 )
 }
 \arguments{
