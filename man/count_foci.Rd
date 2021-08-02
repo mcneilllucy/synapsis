@@ -25,7 +25,8 @@ count_foci(
   watershed_tol = 0.05,
   crowded_foci = TRUE,
   artificial_amp_factor = 1,
-  strand_amp = 2
+  strand_amp = 2,
+  min_foci = 9
 )
 }
 \arguments{
@@ -82,6 +83,8 @@ have foci > 100 or so.}
 \item{artificial_amp_factor}{Amplification of foci channel, for annotation only.}
 
 \item{strand_amp}{multiplication of strand channel to make masks}
+
+\item{min_foci}{minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4}
 }
 \value{
 foci count per cell

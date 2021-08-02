@@ -24,7 +24,8 @@ auto_crop_fast(
   third_channel = "off",
   cell_aspect_ratio = 2,
   strand_amp = 2,
-  path_out = img_path
+  path_out = img_path,
+  resize_l = 720
 )
 }
 \arguments{
@@ -78,6 +79,8 @@ illuminating foci. Defaults to MLH3}
 \item{strand_amp}{multiplication of strand channel for get_blobs function.}
 
 \item{path_out, }{user specified output path. Defaults to img_path}
+
+\item{resize_l}{length for resized image}
 }
 \value{
 cropped SC and foci channels around single cells, regardless of stage

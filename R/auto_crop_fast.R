@@ -51,13 +51,14 @@
 #' @param third_channel Optional, defaults to "off".
 #' @param strand_amp multiplication of strand channel for get_blobs function.
 #' @param file_ext file extension of your images e.g. tif jpeg or png.
+#' @param resize_l length for resized image
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' auto_crop_fast(demo_path, annotation = "on", max_cell_area = 30000,
 #' min_cell_area = 7000)
 #' @author Lucy McNeill
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
-auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path)
+auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path, resize_l = 720)
 {
   file_list <- list.files(img_path)
   dir.create(paste0(path_out,"/crops"))
@@ -85,6 +86,8 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       print(file)
       image <- readImage(file_dna)
       img_orig <- channel(image, "grey")
+      img_orig_highres <- img_orig
+      img_orig <- resize(img_orig, w = resize_l, h = resize_l)
       antibody1_store <- 1
     }
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
@@ -125,10 +128,10 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
         ### row of interest is the counter_final'th row of x_final
         cell_count <- cell_count +1
         if(third_channel=="on"){
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l)
         }
         else{
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_dna,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_dna,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l)
         }
       }
       antibody1_store <- 0
@@ -175,13 +178,13 @@ cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " 
 #' channel illuminating cell structures. Defaults to DAPI,
 #' if third channel == "on".
 #' @param third_channel Optional, defaults to "off".
+#' @param img_orig_highres the original strand image with original resolution
 #' @param file_ext file extension of your images e.g. tif jpeg or png.
-
-
+#' @param resize_l length of square to resize original image to.
 
 #' @return Crops around all candidates in both channels
 #'
-crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_dna,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out){
+crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_dna,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l){
   tmp_img <- retained
   ## have a single object
   ### delete all other objects
@@ -194,33 +197,40 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
       tmp_img <- as.numeric(tmp_img)*rmObjects(bwlabel(retained), counter_single, reenumerate = TRUE)
     }
   }
-  noise_gone <- bwlabel(tmp_img)*as.matrix(img_orig)
-  noise_gone_foci <- bwlabel(tmp_img)*as.matrix(img_orig_foci)
+  #### resize your images here?
+  dim_orig <- dim(img_orig_highres)
+  new_l <- as.integer(dim_orig[1])
+  print(dim_orig)
+  print(new_l)
+  noise_gone_highres <- bwlabel(resize(tmp_img, h =  new_l, w =  new_l))*as.matrix(img_orig_highres)
+  noise_gone_foci <- bwlabel(resize(tmp_img, h =  new_l, w =  new_l))*as.matrix(img_orig_foci)
   if(third_channel == "on"){
-    noise_gone_DAPI <- bwlabel(tmp_img)*as.matrix(img_orig_DAPI)
+    noise_gone_DAPI <- bwlabel(resize(tmp_img, h =  new_l, w =  new_l))*as.matrix(img_orig_DAPI)
   }
-  ### use the features of tmp_img
-  ### here we have the single object. Need to identify its centre value and radius..
-  crop_r <- floor(r_max[counter_final])
-  cx <- cx[counter_final]
-  cy <- cy[counter_final]
+  crop_r_highres <- floor(r_max[counter_final]*round( new_l/resize_l))
+  cx_highres <- cx[counter_final]*( new_l/resize_l)
+  cy_highres <- cy[counter_final]*( new_l/resize_l)
+  cat("\n the cropping radius, cx and cy are", crop_r_highres, cx_highres, cy_highres, sep = " ")
   # might want to do this as a matrix
-  top_left_x <- floor(cx-crop_r)
-  top_left_y <- floor(cy-crop_r)
-  bottom_left_x <- floor(cx-crop_r)
-  bottom_left_y <- floor(cy+crop_r)
-  bottom_right_x <- floor(cx+crop_r)
-  bottom_right_y <- floor(cy+crop_r)
-  top_right_x <- floor(cx-crop_r)
-  top_right_y <- floor(cy+crop_r)
+  top_left_x_highres <- floor(cx_highres-crop_r_highres)
+  top_left_y_highres <- floor(cy_highres-crop_r_highres)
+  bottom_left_x_highres <- floor(cx_highres-crop_r_highres)
+  bottom_left_y_highres <- floor(cy_highres+crop_r_highres)
+  bottom_right_x_highres <- floor(cx_highres+crop_r_highres)
+  bottom_right_y_highres <- floor(cy_highres+crop_r_highres)
+  top_right_x_highres <- floor(cx_highres-crop_r_highres)
+  top_right_y_highres <- floor(cy_highres+crop_r_highres)
   ## crop image
-  ix <- bottom_left_x:bottom_right_x
-  iy <- top_left_y:bottom_left_y
+  ix <- bottom_left_x_highres:bottom_right_x_highres
+  iy <- top_left_y_highres:bottom_left_y_highres
+  ####### end high res stuff
+  #########
+
 ### cropping finished
   ## cropping part
   tryCatch({
     img_path_out <- path_out
-    new_img <- noise_gone[ix, iy]
+    new_img <- noise_gone_highres[ix, iy]
     ## want all images to have the same mean (mean_pix)
     orig_mean <- mean(new_img)
     mean_factor <- mean_pix/orig_mean
@@ -266,6 +276,7 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
       #str(e) # #prints structure of exception
       print("couldn't crop it since cell is on the edge. Neglected the following mask of a cell candidate:")
       display(tmp_img)
+      display(noise_gone_highres)
     }
   }
   )

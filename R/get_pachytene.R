@@ -26,6 +26,7 @@
 #' @param WT_str string in filename corresponding to wildtype genotype. Defaults to ++.
 #' @param KO_out string in output csv in genotype column, for knockout. Defaults to -/-.
 #' @param WT_out string in output csv in genotype column, for knockout. Defaults to +/+.
+#' @param resize_l length of resized square cell image.
 #' @param artificial_amp_factor Amplification of foci channel, for RGB output files. Deaults to 3.
 #' @param strand_amp multiplication of strand channel.
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
@@ -35,7 +36,7 @@
 #'
 
 
-get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", path_out = img_path, artificial_amp_factor=3, strand_amp = 2)
+get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 0.85, area_thresh = 0.06, annotation = "off", channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", path_out = img_path, artificial_amp_factor=3, strand_amp = 2, resize_l = 120)
 {
   cell_count <- 0
   image_count <-0
@@ -68,7 +69,9 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       file_base_dna <- file_base
       image_count <- image_count +1
       image <- readImage(file_dna)
+      img_orig_highres <- channel(image, "grey")
       img_orig <- channel(strand_amp*image, "grey")
+      img_orig <- resize(img_orig, w = resize_l, h = resize_l)
       antibody1_store <- 1
     }
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
@@ -92,7 +95,7 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
       num_strands <- computeFeatures.shape(strands)
       num_strands <- data.frame(num_strands)
       #### segment the strands
-      if (nrow(num_strands)<max_obj && nrow(num_strands)>5){
+      if (nrow(num_strands)<max_obj && nrow(num_strands)>3){
         cell_count <- cell_count + 1
         ### identified a good image. count foci
         ### data frame stuff
@@ -128,20 +131,20 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
             df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,px_mask, px_total,px_fraction, mean_ecc,mean_ratio,skew,sd_bright_px,stage_classification)))
             pachytene_count <- pachytene_count + 1
             file_dna <- tools::file_path_sans_ext(file_base_dna)
-            filename_crop <- paste0(img_path_out,"/pachytene/", file_dna,".jpeg")
-            writeImage(img_orig, filename_crop)
+            filename_crop <- paste0(img_path_out,"/pachytene/", file_dna,'.',file_ext)
+            writeImage(img_orig_highres, filename_crop)
             if(annotation == "on"){
               print("decided the following is pachytene")
-              display(img_orig)
+              display(img_orig_highres)
             }
             file_foci <- tools::file_path_sans_ext(file_base_foci)
-            filename_crop_foci <- paste0(img_path_out,"/pachytene/", file_foci,".jpeg")
+            filename_crop_foci <- paste0(img_path_out,"/pachytene/", file_foci,'.',file_ext)
             writeImage(img_orig_foci, filename_crop_foci)
             ### add RGB channel
-            ch1 <-channel(img_orig,"grey")
+            ch1 <-channel(img_orig_highres,"grey")
             ch2 <- channel(img_orig_foci,"grey")
             RGB_img <- rgbImage(ch1,ch2,0*ch1)
-            filename_crop_RGB <- paste0(img_path_out,"/pachytene-RGB/", file_dna,".jpeg")
+            filename_crop_RGB <- paste0(img_path_out,"/pachytene-RGB/", file_dna,'.',file_ext)
             writeImage(RGB_img, filename_crop_RGB)
           }
         }

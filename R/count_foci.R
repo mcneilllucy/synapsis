@@ -46,6 +46,7 @@
 #' have foci > 100 or so.
 #' @param artificial_amp_factor Amplification of foci channel, for annotation only.
 #' @param strand_amp multiplication of strand channel to make masks
+#' @param min_foci minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' foci_counts <- count_foci(demo_path,offset_factor = 3, brush_size = 3,
 #' brush_sigma = 3, annotation = "on",stage = "pachytene")
@@ -53,7 +54,7 @@
 #' @return foci count per cell
 
 
-count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1, strand_amp = 2)
+count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1, strand_amp = 2, min_foci =9)
 {
   cell_count <- 0
   image_count <-0
@@ -141,12 +142,18 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       else{
         coincident_foci <- watershed(bwlabel(foci_th*strands)*as.matrix(img_orig_foci),tolerance=watershed_tol, ext=watershed_radius)
       }
+      coincident_df <- data.frame(computeFeatures.shape(coincident_foci))
+      if(annotation == "on"){
+        print(coincident_df)
+      }
+      coincident_df <- coincident_df[coincident_df$s.area > min_foci,]
       ### multiply strands by foci_label
       if(annotation == "on"){
         annotate_foci_counting(img_file,cell_count,new_img,img_orig_foci,artificial_amp_factor,foci_mask_crop,strands,coincident_foci)
       }
       overlap_no <- table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
+      foci_per_cell <- nrow(coincident_df)
       if(annotation=="on"){
         cat("\n which counts this many foci:",foci_per_cell, sep = " ")
       }

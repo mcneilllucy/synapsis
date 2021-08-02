@@ -27,7 +27,9 @@ crop_single_object_fast(
   channel1_string,
   file_ext,
   third_channel,
-  path_out
+  path_out,
+  img_orig_highres,
+  resize_l
 )
 }
 \arguments{
@@ -85,6 +87,10 @@ illuminating foci. Defaults to MLH3}
 \item{third_channel}{Optional, defaults to "off".}
 
 \item{path_out, }{user specified output path. Defaults to img_path}
+
+\item{img_orig_highres}{the original strand image with original resolution}
+
+\item{resize_l}{length of square to resize original image to.}
 }
 \value{
 Crops around all candidates in both channels

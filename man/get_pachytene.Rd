@@ -20,7 +20,8 @@ get_pachytene(
   WT_out = "+/+",
   path_out = img_path,
   artificial_amp_factor = 3,
-  strand_amp = 2
+  strand_amp = 2,
+  resize_l = 120
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ get_pachytene(
 \item{artificial_amp_factor}{Amplification of foci channel, for RGB output files. Deaults to 3.}
 
 \item{strand_amp}{multiplication of strand channel.}
+
+\item{resize_l}{length of resized square cell image.}
 }
 \value{
 Pairs of foci and SC channel crops for pachytene
