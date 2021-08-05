@@ -54,7 +54,7 @@
 #' @return foci count per cell
 
 
-count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1, strand_amp = 2, min_foci =1)
+count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1, strand_amp = 2, min_foci =-1)
 {
   cell_count <- 0
   image_count <-0
@@ -149,7 +149,7 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       coincident_df <- coincident_df[coincident_df$s.area > min_foci,]
       ### multiply strands by foci_label
       if(annotation == "on"){
-        annotate_foci_counting(img_file,cell_count,new_img,img_orig_foci,artificial_amp_factor,foci_mask_crop,strands,coincident_foci)
+        annotate_foci_counting(img_file,cell_count,new_img,img_orig_foci,artificial_amp_factor,foci_mask_crop,strands,coincident_foci, foci_label)
       }
       overlap_no <- table(coincident_foci)
       foci_per_cell <-  length(overlap_no)
@@ -225,9 +225,10 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
 #' @param foci_mask_crop black white mask of foci channel
 #' @param strands black white mask of strand channel
 #' @param coincident_foci mask of overlap between strand and foci channel
+#' @param foci_label black and white mask of foci channel
 #'
 #'
-annotate_foci_counting <- function(img_file,cell_count,new_img,img_orig_foci,artificial_amp_factor,foci_mask_crop,strands,coincident_foci){
+annotate_foci_counting <- function(img_file,cell_count,new_img,img_orig_foci,artificial_amp_factor,foci_mask_crop,strands,coincident_foci, foci_label){
   cat("\n at file",img_file, sep = " ")
   cat("\n cell counter is", cell_count, sep= " ")
   cat("\n original images")
@@ -238,6 +239,8 @@ annotate_foci_counting <- function(img_file,cell_count,new_img,img_orig_foci,art
   bluered <- rgbImage(ch1, ch2, 0*ch1)
   cat("\n displaying resulting foci count plots. Overlay two channels:")
   plot(rgbImage(ch1,ch2,0*new_img))
+  cat("\n displaying resulting masks. Overlay two masks:")
+  plot(rgbImage(strands,foci_label,0*new_img))
   cat("\n coincident foci:")
   plot(colorLabels(coincident_foci))
   cat("\n two channels, only coincident foci")

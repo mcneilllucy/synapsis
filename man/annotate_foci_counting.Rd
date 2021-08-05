@@ -12,7 +12,8 @@ annotate_foci_counting(
   artificial_amp_factor,
   foci_mask_crop,
   strands,
-  coincident_foci
+  coincident_foci,
+  foci_label
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ annotate_foci_counting(
 \item{strands}{black white mask of strand channel}
 
 \item{coincident_foci}{mask of overlap between strand and foci channel}
+
+\item{foci_label}{black and white mask of foci channel}
 }
 \description{
 Contains all plotting routines for count foci annotation
