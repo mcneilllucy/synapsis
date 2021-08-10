@@ -180,31 +180,14 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
         }
       }
       percent_px <- sum(overlap)/sum(foci_areas)
+
+      ### if percent_px too small:
+
       if(annotation == "on"){
         cat("\n percentage of foci channel coincident:", percent_px*100, sep = " ")
       }
-      tryCatch({
-        ### data frame stuff
-        if(grepl( WT_str, img_file, fixed = TRUE) == TRUE){
-          genotype <- WT_out
-        }
-        if(grepl( KO_str, img_file, fixed = TRUE) == TRUE){
-          genotype <- KO_out
-        }
+      df_cells <- append_data_frame(WT_str,KO_str,WT_out,KO_out,img_file,foci_areas,df_cells,cell_count,stage,foci_per_cell,image_mat,percent_px,alone_foci)
 
-        if(foci_per_cell < 2){
-          ### force statistics about foci areas to all be zero rather than fail
-          foci_areas <- c(0,0)
-        }
-        ### data frame stuff ends
-        df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat),alone_foci)))
-      },
-      error = function(e) {
-        #what should be done in case of exception?
-        str(e) # #prints structure of exception
-        cat("\n something went wrong while making the data frame")
-      }
-      )
     }
   }
   colnames(df_cells) <- df_cols
@@ -247,4 +230,55 @@ annotate_foci_counting <- function(img_file,cell_count,new_img,img_orig_foci,art
   plot(rgbImage(strands,coincident_foci,coincident_foci))
 }
 
+#' append_data_frame
+#'
+#' applies new row to data frame
+#'
+#' @param img_file cell's file name
+#' @param cell_count unique cell counter
+#' @param KO_str string in filename corresponding to knockout genotype.
+#' Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype.
+#' Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout.
+#' Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout.
+#' Defaults to +/+.
+#' @param foci_areas pixel area of each foci
+#' @param df_cells current data frame
+#' @param stage meiotic stage
+#' @param foci_per_cell foci count for cell
+#' @param image_mat matrix with all pixel values above zero
+#' @param percent_px percentage of foci mask that coincides with strand channel
+#' small number indicates potentially problematic image.
+#' @param alone_foci estimated number of foci that are NOT on a strand.
+#'
+#'
+append_data_frame <- function(WT_str,KO_str,WT_out,KO_out,img_file,foci_areas,df_cells,cell_count,stage,foci_per_cell,image_mat,percent_px,alone_foci){
+  tryCatch({
+    ### data frame stuff
+    if(grepl( WT_str, img_file, fixed = TRUE) == TRUE){
+      genotype <- WT_out
+    }
+    if(grepl( KO_str, img_file, fixed = TRUE) == TRUE){
+      genotype <- KO_out
+    }
 
+    if(foci_per_cell < 2){
+      ### force statistics about foci areas to all be zero rather than fail
+      foci_areas <- c(0,0)
+    }
+    ### data frame stuff ends
+    df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat),alone_foci)))
+  },
+  error = function(e) {
+    #what should be done in case of exception?
+    str(e) # #prints structure of exception
+    cat("\n something went wrong while making the data frame")
+  }
+  )
+  return(df_cells)
+}
+
+
+### annotate when the flag has been raised that
