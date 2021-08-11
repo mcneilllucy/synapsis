@@ -7,10 +7,9 @@
 annotate_foci_counting(
   img_file,
   cell_count,
-  new_img,
+  img_orig,
   img_orig_foci,
   artificial_amp_factor,
-  foci_mask_crop,
   strands,
   coincident_foci,
   foci_label
@@ -21,13 +20,11 @@ annotate_foci_counting(
 
 \item{cell_count}{unique cell counter}
 
-\item{new_img}{cropped strand channel}
+\item{img_orig}{original strand crop}
 
 \item{img_orig_foci}{cropped foci channel}
 
 \item{artificial_amp_factor}{amplification factor}
-
-\item{foci_mask_crop}{black white mask of foci channel}
 
 \item{strands}{black white mask of strand channel}
 

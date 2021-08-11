@@ -26,7 +26,8 @@ count_foci(
   crowded_foci = TRUE,
   artificial_amp_factor = 1,
   strand_amp = 2,
-  min_foci = -1
+  min_foci = -1,
+  disc_size = 51
 )
 }
 \arguments{
@@ -85,6 +86,8 @@ have foci > 100 or so.}
 \item{strand_amp}{multiplication of strand channel to make masks}
 
 \item{min_foci}{minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4}
+
+\item{disc_size}{size of disc for local background calculation in dna channel}
 }
 \value{
 foci count per cell
