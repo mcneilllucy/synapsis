@@ -16,7 +16,7 @@
 #' @importFrom EBImage bwlabel channel colorLabels computeFeatures
 #' computeFeatures.basic computeFeatures.moment computeFeatures.shape
 #' display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
-#' watershed
+#' watershed resize
 #' @importFrom graphics text
 #' @importFrom utils str
 #' @export auto_crop_fast
@@ -52,13 +52,18 @@
 #' @param strand_amp multiplication of strand channel for get_blobs function.
 #' @param file_ext file extension of your images e.g. tif jpeg or png.
 #' @param resize_l length for resized image
+#' @param watershed_radius Radius (ext variable) in watershed method used
+#' in strand channel. Defaults to 1 (small)
+#' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
+#' @param crowded_cells TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+#' have many cells in a frame that almost touch
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' auto_crop_fast(demo_path, annotation = "on", max_cell_area = 30000,
 #' min_cell_area = 7000)
 #' @author Lucy McNeill
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
-auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path, resize_l = 720)
+auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path, resize_l = 720, crowded_cells = "FALSE", watershed_radius = 50, watershed_tol = 0.2)
 {
   file_list <- list.files(img_path)
   dir.create(paste0(path_out,"/crops"))
@@ -105,33 +110,56 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
         break
       }
       #### blur the image with get_blobs. call it on img_orig, optional offset
-      blob_th <- get_blobs(strand_amp*img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp,brush_size_blob, sigma_blob)
-      blob_label <- bwlabel(blob_th)
-      blob_label <- channel(blob_label, "gray")
-      candidate <- bwlabel(blob_label)
+      blob_th <- get_blobs(strand_amp*img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp,brush_size_blob, sigma_blob,  watershed_tol, watershed_radius, crowded_cells, annotation)
+      if(crowded_cells != "TRUE"){
+        blob_label <- bwlabel(blob_th)
+        blob_label <- channel(blob_label, "gray")
+        candidate <- bwlabel(blob_label)
+      }
+      else{
+        candidate <- blob_th
+      }
+
       ## remove things that aren't cells
-      retained <- keep_cells(candidate, max_cell_area, min_cell_area,cell_aspect_ratio)
+      retained <- keep_cells(candidate, max_cell_area, min_cell_area,cell_aspect_ratio, crowded_cells, annotation)
       ### crop over each cell
       ## Loop over all objects in this final "removed" image
-      x_final <- computeFeatures.shape(retained)
-      moment_info <- computeFeatures.moment(retained,as.matrix(img_orig))
-      x_final <- data.frame(x_final)
-      moment_info <- as.data.frame(moment_info)
-      OOI_final <- nrow(x_final)
-      counter_final <- 0
-      r_max <- x_final$s.radius.max
-      cx <- moment_info$m.cx
-      cy <- moment_info$m.cy
+      if(crowded_cells == "TRUE"){
+        ## do watershed on the mask again
+        y <- distmap(retained)
+        retained <- watershed(y)
+        ##
+        x_final <- computeFeatures.shape(retained)
+        moment_info <- computeFeatures.moment(retained,as.matrix(img_orig))
+        x_final <- data.frame(x_final)
+        moment_info <- as.data.frame(moment_info)
+        OOI_final <- nrow(x_final)
+        counter_final <- 0
+        r_max <- x_final$s.radius.max
+        cx <- moment_info$m.cx
+        cy <- moment_info$m.cy
+      }
+      else{
+        x_final <- computeFeatures.shape(retained)
+        moment_info <- computeFeatures.moment(retained,as.matrix(img_orig))
+        x_final <- data.frame(x_final)
+        moment_info <- as.data.frame(moment_info)
+        OOI_final <- nrow(x_final)
+        counter_final <- 0
+        r_max <- x_final$s.radius.max
+        cx <- moment_info$m.cx
+        cy <- moment_info$m.cy
+      }
       # looping through each object to crop
       while(counter_final<OOI_final){
         counter_final <- counter_final+1
         ### row of interest is the counter_final'th row of x_final
         cell_count <- cell_count +1
         if(third_channel=="on"){
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells)
         }
         else{
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_dna,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_dna,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells)
         }
       }
       antibody1_store <- 0
@@ -181,27 +209,45 @@ cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " 
 #' @param img_orig_highres the original strand image with original resolution
 #' @param file_ext file extension of your images e.g. tif jpeg or png.
 #' @param resize_l length of square to resize original image to.
-
+#' @param crowded_cells TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+#' have many cells in a frame that almost touch
 #' @return Crops around all candidates in both channels
 #'
-crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_dna,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l){
+crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_dna,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l, crowded_cells){
   tmp_img <- retained
+  ###added
+  y <- distmap(tmp_img)
+  blob_th <- watershed(y)
+  candidate <- blob_th
+  ### end added
   ## have a single object
   ### delete all other objects
   counter_single <- 0
   # looping over all other objects to crop
-  while(counter_single < OOI_final){
-    counter_single <- counter_single + 1
-    # iteratively remove all other objects
-    if(counter_single != counter_final){
-      tmp_img <- as.numeric(tmp_img)*rmObjects(bwlabel(retained), counter_single, reenumerate = TRUE)
+  if(crowded_cells == "TRUE"){
+    while(counter_single < OOI_final){
+      counter_single <- counter_single + 1
+      # iteratively remove all other objects
+      if(counter_single != counter_final){
+        retained <- as.numeric(retained)*rmObjects(candidate, counter_single, reenumerate = TRUE)
+        #tmp_img <- as.numeric(tmp_img)*rmObjects(bwlabel(retained), counter_single, reenumerate = TRUE)
+      }
+    }
+    tmp_img <- retained
+  }
+  else{
+    while(counter_single < OOI_final){
+      counter_single <- counter_single + 1
+      # iteratively remove all other objects
+      if(counter_single != counter_final){
+        tmp_img <- as.numeric(tmp_img)*rmObjects(bwlabel(retained), counter_single, reenumerate = TRUE)
+      }
     }
   }
+
   #### resize your images here?
   dim_orig <- dim(img_orig_highres)
   new_l <- as.integer(dim_orig[1])
-  print(dim_orig)
-  print(new_l)
   noise_gone_highres <- bwlabel(resize(tmp_img, h =  new_l, w =  new_l))*as.matrix(img_orig_highres)
   noise_gone_foci <- bwlabel(resize(tmp_img, h =  new_l, w =  new_l))*as.matrix(img_orig_foci)
   if(third_channel == "on"){
@@ -210,8 +256,6 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
   crop_r_highres <- floor(r_max[counter_final]*round( new_l/resize_l))
   cx_highres <- cx[counter_final]*( new_l/resize_l)
   cy_highres <- cy[counter_final]*( new_l/resize_l)
-  cat("\n the cropping radius, cx and cy are", crop_r_highres, cx_highres, cy_highres, sep = " ")
-  # might want to do this as a matrix
   top_left_x_highres <- floor(cx_highres-crop_r_highres)
   top_left_y_highres <- floor(cy_highres-crop_r_highres)
   bottom_left_x_highres <- floor(cx_highres-crop_r_highres)
@@ -261,11 +305,11 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
     if(annotation=="on"){
       print("from the file:")
       print(file_dna)
-      display(img_orig)
+      plot(img_orig)
       print("I cropped this cell:")
-      display(new_img)
+      plot(new_img)
       print("using this mask")
-      display(tmp_img)
+      plot(tmp_img)
       print("whose cell number is")
       print(cell_count)
     }
@@ -275,8 +319,8 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
     if(annotation=="on"){
       #str(e) # #prints structure of exception
       print("couldn't crop it since cell is on the edge. Neglected the following mask of a cell candidate:")
-      display(tmp_img)
-      display(noise_gone_highres)
+      plot(tmp_img)
+      plot(noise_gone_highres)
     }
   }
   )
@@ -303,9 +347,16 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
 #' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
 #' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to
 #' make blobs
+#' @param watershed_radius Radius (ext variable) in watershed method used
+#' in strand channel. Defaults to 1 (small)
+#' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
+#' @param crowded_cells TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+#' have many cells in a frame that almost touch
+#' @param annotation, Choice to output pipeline choices (recommended to knit)
+#' have many cells in a frame that almost touch
 #' @return Mask with cell candidates
 
-get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_amp, brush_size_blob,sigma_blob){
+get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_amp, brush_size_blob,sigma_blob, watershed_tol, watershed_radius, crowded_cells,annotation){
   thresh <- blob_factor*img_orig
   # subfunction: big blur to blobs
   img_tmp_dna <- img_orig
@@ -315,6 +366,26 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
   ## default amplification
   bg <- mean(bg_blob_factor*img_tmp)
   blob_th <- final_blob_amp*img_flo > bg + offset
+
+  if(crowded_cells != "TRUE"){
+    blob_th <- final_blob_amp*img_flo > bg + offset
+
+  }
+  else{
+    y <- distmap(blob_th)
+    blob_th <- watershed(y)
+  }
+  if(annotation == "on"){
+    cat("\n here is the mask")
+    if(crowded_cells == "TRUE"){
+      plot(colorLabels(blob_th))
+    }
+    else{
+      plot(blob_th)
+    }
+
+  }
+
   return(blob_th)
 }
 
@@ -328,9 +399,12 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
 #' @param max_cell_area, Maximum pixel area of a cell candidate
 #' @param min_cell_area, Minimum pixel area of a cell candidate
 #' @param cell_aspect_ratio Maximum aspect ratio of blob to be defined as a cell
+#' @param crowded_cells TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+#' @param annotation, Choice to output pipeline choices (recommended to knit)
+#' have many cells in a frame that almost touch
 
 #' @return Mask of cell candidates which meet size criteria
-keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_ratio){
+keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_ratio, crowded_cells, annotation){
 
   # delete everything that's too small
   colorimg<- colorLabels(candidate, normalize = TRUE)
@@ -353,6 +427,16 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_rati
       retained <- as.numeric(retained)*rmObjects(candidate, counter, reenumerate = TRUE)
     }
   }
+  if(annotation == "on"){
+    cat("\n displaying the retained cells in mask (correct size/ shape)")
+    if(crowded_cells == "TRUE"){
+      plot(colorLabels(retained))
+    }
+    else{
+      plot(colorLabels(retained))
+    }
+  }
+
   retained <- bwlabel(retained)
   return(retained)
 }

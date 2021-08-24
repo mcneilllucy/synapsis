@@ -11,7 +11,11 @@ get_blobs(
   offset,
   final_blob_amp,
   brush_size_blob,
-  sigma_blob
+  sigma_blob,
+  watershed_tol,
+  watershed_radius,
+  crowded_cells,
+  annotation
 )
 }
 \arguments{
@@ -33,6 +37,17 @@ Used in thresholding to make blob mask.}
 
 \item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel to
 make blobs}
+
+\item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
+
+\item{watershed_radius}{Radius (ext variable) in watershed method used
+in strand channel. Defaults to 1 (small)}
+
+\item{crowded_cells}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+have many cells in a frame that almost touch}
+
+\item{annotation, }{Choice to output pipeline choices (recommended to knit)
+have many cells in a frame that almost touch}
 }
 \value{
 Mask with cell candidates

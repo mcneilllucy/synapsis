@@ -29,7 +29,8 @@ crop_single_object_fast(
   third_channel,
   path_out,
   img_orig_highres,
-  resize_l
+  resize_l,
+  crowded_cells
 )
 }
 \arguments{
@@ -91,6 +92,9 @@ illuminating foci. Defaults to MLH3}
 \item{img_orig_highres}{the original strand image with original resolution}
 
 \item{resize_l}{length of square to resize original image to.}
+
+\item{crowded_cells}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+have many cells in a frame that almost touch}
 }
 \value{
 Crops around all candidates in both channels

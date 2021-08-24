@@ -25,7 +25,10 @@ auto_crop_fast(
   cell_aspect_ratio = 2,
   strand_amp = 2,
   path_out = img_path,
-  resize_l = 720
+  resize_l = 720,
+  crowded_cells = "FALSE",
+  watershed_radius = 50,
+  watershed_tol = 0.2
 )
 }
 \arguments{
@@ -81,6 +84,14 @@ illuminating foci. Defaults to MLH3}
 \item{path_out, }{user specified output path. Defaults to img_path}
 
 \item{resize_l}{length for resized image}
+
+\item{crowded_cells}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+have many cells in a frame that almost touch}
+
+\item{watershed_radius}{Radius (ext variable) in watershed method used
+in strand channel. Defaults to 1 (small)}
+
+\item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
 }
 \value{
 cropped SC and foci channels around single cells, regardless of stage
