@@ -54,16 +54,20 @@
 #' @param resize_l length for resized image
 #' @param watershed_radius Radius (ext variable) in watershed method used
 #' in strand channel. Defaults to 1 (small)
-#' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
+#' @param watershed_tol Intensity tolerance for watershed method. Defaults to
+#' 0.05.
 #' @param crowded_cells TRUE or FALSE, defaults to FALSE. Set to TRUE if you
 #' have many cells in a frame that almost touch
+#' @param cropping_factor size of cropping window square, as factor of
+#' characteristic blob radius. Defaults to 1. May need to increase if using
+#' watershed.
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' auto_crop_fast(demo_path, annotation = "on", max_cell_area = 30000,
 #' min_cell_area = 7000)
 #' @author Lucy McNeill
 #' @return cropped SC and foci channels around single cells, regardless of stage
 
-auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path, resize_l = 720, crowded_cells = "FALSE", watershed_radius = 50, watershed_tol = 0.2)
+auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path, resize_l = 720, crowded_cells = "FALSE", watershed_radius = 50, watershed_tol = 0.2, cropping_factor =1)
 {
   file_list <- list.files(img_path)
   dir.create(paste0(path_out,"/crops"))
@@ -156,10 +160,10 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
         ### row of interest is the counter_final'th row of x_final
         cell_count <- cell_count +1
         if(third_channel=="on"){
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor)
         }
         else{
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_dna,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_dna,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor)
         }
       }
       antibody1_store <- 0
@@ -211,9 +215,12 @@ cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " 
 #' @param resize_l length of square to resize original image to.
 #' @param crowded_cells TRUE or FALSE, defaults to FALSE. Set to TRUE if you
 #' have many cells in a frame that almost touch
+#' @param cropping_factor size of cropping window square, as factor of
+#' characteristic blob radius. Defaults to 1. May need to increase if using
+#' watershed.
 #' @return Crops around all candidates in both channels
 #'
-crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_dna,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l, crowded_cells){
+crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_dna,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l, crowded_cells,cropping_factor){
   tmp_img <- retained
   ###added
   y <- distmap(tmp_img)
@@ -253,7 +260,7 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
   if(third_channel == "on"){
     noise_gone_DAPI <- bwlabel(resize(tmp_img, h =  new_l, w =  new_l))*as.matrix(img_orig_DAPI)
   }
-  crop_r_highres <- floor(r_max[counter_final]*round( new_l/resize_l))
+  crop_r_highres <- floor(cropping_factor*floor(r_max[counter_final]*round( new_l/resize_l)))
   cx_highres <- cx[counter_final]*( new_l/resize_l)
   cy_highres <- cy[counter_final]*( new_l/resize_l)
   top_left_x_highres <- floor(cx_highres-crop_r_highres)

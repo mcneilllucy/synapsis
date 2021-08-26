@@ -30,7 +30,8 @@ crop_single_object_fast(
   path_out,
   img_orig_highres,
   resize_l,
-  crowded_cells
+  crowded_cells,
+  cropping_factor
 )
 }
 \arguments{
@@ -95,6 +96,10 @@ illuminating foci. Defaults to MLH3}
 
 \item{crowded_cells}{TRUE or FALSE, defaults to FALSE. Set to TRUE if you
 have many cells in a frame that almost touch}
+
+\item{cropping_factor}{size of cropping window square, as factor of
+characteristic blob radius. Defaults to 1. May need to increase if using
+watershed.}
 }
 \value{
 Crops around all candidates in both channels

@@ -28,7 +28,8 @@ auto_crop_fast(
   resize_l = 720,
   crowded_cells = "FALSE",
   watershed_radius = 50,
-  watershed_tol = 0.2
+  watershed_tol = 0.2,
+  cropping_factor = 1
 )
 }
 \arguments{
@@ -91,7 +92,12 @@ have many cells in a frame that almost touch}
 \item{watershed_radius}{Radius (ext variable) in watershed method used
 in strand channel. Defaults to 1 (small)}
 
-\item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
+\item{watershed_tol}{Intensity tolerance for watershed method. Defaults to
+0.05.}
+
+\item{cropping_factor}{size of cropping window square, as factor of
+characteristic blob radius. Defaults to 1. May need to increase if using
+watershed.}
 }
 \value{
 cropped SC and foci channels around single cells, regardless of stage
