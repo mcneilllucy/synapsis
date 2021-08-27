@@ -98,6 +98,10 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       img_orig_highres <- img_orig
       img_orig <- resize(img_orig, w = resize_l, h = resize_l)
       antibody1_store <- 1
+      if(annotation == "on"){
+        cat("\n displaying enhanced image of cell channel")
+        plot(rgbImage(blob_factor*img_orig, 0*img_orig, 0*img_orig))
+      }
     }
     if(grepl(paste0('*',channel1_string,'.',file_ext,'$'), img_file)){
       file_foci <- img_file
@@ -385,7 +389,14 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
   if(annotation == "on"){
     cat("\n here is the mask")
     if(crowded_cells == "TRUE"){
-      plot(colorLabels(blob_th))
+      tryCatch({
+        if(nrow(data.frame(blob_th)) > 0){
+          plot(colorLabels(blob_th))
+        }
+      },
+      error = function(e) {
+      }
+      )
     }
     else{
       plot(blob_th)
@@ -438,8 +449,8 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_rati
     cat("\n displaying the retained cells in mask (correct size/ shape)")
     if(crowded_cells == "TRUE"){
       tryCatch({
-        if(nrow(retained > 0)){
-          plot(colorLabels(retained))
+        if(nrow(data.frame(retained)) > 0){
+          plot(retained)
         }
       },
       error = function(e) {
