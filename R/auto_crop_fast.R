@@ -437,13 +437,20 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_rati
   if(annotation == "on"){
     cat("\n displaying the retained cells in mask (correct size/ shape)")
     if(crowded_cells == "TRUE"){
-      plot(colorLabels(retained))
+      tryCatch({
+        if(nrow(retained > 0)){
+          plot(colorLabels(retained))
+        }
+      },
+      error = function(e) {
+      }
+      )
+
     }
     else{
       plot(retained)
     }
   }
-
   retained <- bwlabel(retained)
   return(retained)
 }
