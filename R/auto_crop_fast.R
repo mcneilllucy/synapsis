@@ -440,7 +440,7 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_rati
       plot(colorLabels(retained))
     }
     else{
-      plot(colorLabels(retained))
+      plot(retained)
     }
   }
 
