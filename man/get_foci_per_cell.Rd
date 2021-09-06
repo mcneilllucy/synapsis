@@ -12,7 +12,6 @@ get_foci_per_cell(
   watershed_stop,
   foci_label,
   annotation,
-  min_foci,
   cell_count,
   img_orig,
   img_orig_foci,
@@ -29,13 +28,11 @@ get_foci_per_cell(
 
 \item{strands}{black white mask of strand channel}
 
-\item{watershed_stop}{Turn off default watershed method with "off"}
+\item{watershed_stop}{Stop default watershed method with "on"}
 
 \item{foci_label}{black and white mask of foci channel}
 
 \item{annotation, }{Choice to output pipeline choices (recommended to knit)}
-
-\item{min_foci}{minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4}
 
 \item{cell_count}{unique cell counter}
 
@@ -46,6 +43,9 @@ get_foci_per_cell(
 \item{artificial_amp_factor}{amplification factor}
 
 \item{coincident_foci}{mask of coincident foci}
+}
+\value{
+number of foci per cell
 }
 \description{
 creates mask for coincident foci

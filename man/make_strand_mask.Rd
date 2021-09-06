@@ -4,7 +4,14 @@
 \alias{make_strand_mask}
 \title{make_strand_mask}
 \usage{
-make_strand_mask(offset_px, stage, img_orig, disc_size)
+make_strand_mask(
+  offset_px,
+  stage,
+  img_orig,
+  disc_size,
+  brush_size,
+  brush_sigma
+)
 }
 \arguments{
 \item{offset_px, }{Pixel value offset used in thresholding of dna channel}
@@ -14,6 +21,15 @@ make_strand_mask(offset_px, stage, img_orig, disc_size)
 \item{img_orig}{original strand crop}
 
 \item{disc_size}{size of disc for local background calculation in dna channel}
+
+\item{brush_size, }{size of brush to smooth the foci channel. Should be small
+to avoid erasing foci.}
+
+\item{brush_sigma, }{sigma for Gaussian smooth of foci channel. Should be
+small to avoid erasing foci.}
+}
+\value{
+strand mask
 }
 \description{
 creates strand mask for strand channel crop

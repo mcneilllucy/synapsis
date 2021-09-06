@@ -27,7 +27,12 @@ count_foci(
   artificial_amp_factor = 1,
   strand_amp = 2,
   min_foci = -1,
-  disc_size = 51
+  disc_size = 51,
+  modify_problematic = "off",
+  disc_size_foci = 7,
+  C1 = 0.02,
+  C2 = 0.46,
+  C_weigh_foci_number = TRUE
 )
 }
 \arguments{
@@ -71,7 +76,7 @@ Defaults to -/-.}
 \item{WT_out}{string in output csv in genotype column, for knockout.
 Defaults to +/+.}
 
-\item{watershed_stop}{Turn off default watershed method with "off"}
+\item{watershed_stop}{Stop default watershed method with "on"}
 
 \item{watershed_radius}{Radius (ext variable) in watershed method used
 in foci channel. Defaults to 1 (small)}
@@ -88,9 +93,22 @@ have foci > 100 or so.}
 \item{min_foci}{minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4}
 
 \item{disc_size}{size of disc for local background calculation in dna channel}
+
+\item{modify_problematic}{option for synapsis to try and "save" images which
+have likely been counted incorrectly due to a number of reasons. Default
+settings are optimized for mouse pachytene. Defaults to "off"}
+
+\item{disc_size_foci}{size of disc for local background calculation in foci channel}
+
+\item{C1}{Default crispness criteria = sd(foci_area)/(mean(foci_area)+1)}
+
+\item{C2}{Alternative crisp criteria.}
+
+\item{C_weigh_foci_number}{choose crispness criteria- defaults to TRUE to use
+C1 (weighing with number). Otherwise set to FALSE to use C2}
 }
 \value{
-foci count per cell
+data frame with foci count per cell
 }
 \description{
 Calculates coincident foci in SC and foci channel, per cell

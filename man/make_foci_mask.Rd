@@ -29,6 +29,9 @@ to avoid erasing foci.}
 \item{brush_sigma}{sigma for Gaussian smooth of foci channel. Should be
 small to avoid erasing foci.}
 }
+\value{
+foci mask
+}
 \description{
 creates foci mask for foci channel crop
 }

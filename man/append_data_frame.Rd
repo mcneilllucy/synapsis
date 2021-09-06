@@ -17,7 +17,9 @@ append_data_frame(
   foci_per_cell,
   image_mat,
   percent_px,
-  alone_foci
+  alone_foci,
+  discrepant_category,
+  C1
 )
 }
 \arguments{
@@ -51,6 +53,13 @@ Defaults to -/-.}
 small number indicates potentially problematic image.}
 
 \item{alone_foci}{estimated number of foci that are NOT on a strand.}
+
+\item{discrepant_category}{estimated number of foci that are NOT on a strand.}
+
+\item{C1}{criteria}
+}
+\value{
+data frame with new row
 }
 \description{
 applies new row to data frame

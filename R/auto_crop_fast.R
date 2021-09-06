@@ -16,6 +16,7 @@
 #' @importFrom EBImage bwlabel channel colorLabels computeFeatures
 #' computeFeatures.basic computeFeatures.moment computeFeatures.shape
 #' display filter2 makeBrush readImage rgbImage rmObjects rotate writeImage
+#' distmap
 #' watershed resize
 #' @importFrom graphics text
 #' @importFrom utils str

@@ -38,7 +38,7 @@
 #' Defaults to -/-.
 #' @param WT_out string in output csv in genotype column, for knockout.
 #' Defaults to +/+.
-#' @param watershed_stop Turn off default watershed method with "off"
+#' @param watershed_stop Stop default watershed method with "on"
 #' @param watershed_radius Radius (ext variable) in watershed method used
 #' in foci channel. Defaults to 1 (small)
 #' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
@@ -48,14 +48,22 @@
 #' @param strand_amp multiplication of strand channel to make masks
 #' @param min_foci minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4
 #' @param disc_size size of disc for local background calculation in dna channel
+#' @param modify_problematic option for synapsis to try and "save" images which
+#' have likely been counted incorrectly due to a number of reasons. Default
+#' settings are optimized for mouse pachytene. Defaults to "off"
+#' @param disc_size_foci size of disc for local background calculation in foci channel
+#' @param C_weigh_foci_number choose crispness criteria- defaults to TRUE to use
+#' C1 (weighing with number). Otherwise set to FALSE to use C2
+#' @param C1 Default crispness criteria = sd(foci_area)/(mean(foci_area)+1)
+#' @param C2 Alternative crisp criteria.
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' foci_counts <- count_foci(demo_path,offset_factor = 3, brush_size = 3,
 #' brush_sigma = 3, annotation = "on",stage = "pachytene")
 #' @author Lucy McNeill
-#' @return foci count per cell
+#' @return data frame with foci count per cell
 
 
-count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1, strand_amp = 2, min_foci =-1, disc_size = 51)
+count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1, strand_amp = 2, min_foci =-1, disc_size = 51, modify_problematic = "off", disc_size_foci = 7, C1 = 0.02, C2 = 0.46, C_weigh_foci_number = TRUE)
 {
   cell_count <- 0
   image_count <-0
@@ -68,10 +76,9 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
     img_path_new <- paste0(img_path,"/crops/")
   }
   file_list <- list.files(img_path_new)
-  df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px", "percent_on","sd_px","lone_foci")
+  df_cols <- c("filename","cell_no","genotype","stage","foci_count", "sd_foci","mean_foci","median_foci","mean_px","median_px", "percent_on","sd_px","lone_foci","comments","verdict","C1")
   df_cells <- data.frame(matrix(ncol = length(df_cols), nrow = 0))
   colnames(df_cells) <- df_cols
-  ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
     if(stage == "pachytene"){
       filename_path_test <- paste0(img_path,"/crops/",stage,"/", img_file)
@@ -91,72 +98,23 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
       file_foci <- img_file
       image <- readImage(file_foci)
       img_orig_foci <- channel(image, "gray")
-      # call functions: get
       antibody2_store <- 1
     }
     if(antibody1_store +antibody2_store == 2){
+      C1_search <- TRUE
       antibody1_store <- 0
       antibody2_store <- 0
+      discrepant_category <- 0
       cell_count <- cell_count + 1
-      #### call mask strand channel
-      strands <- make_strand_mask(offset_px, stage, img_orig, disc_size)
-      color_img_strands<- colorLabels(strands, normalize = TRUE)
-      num_strands <- computeFeatures.shape(strands)
-      num_strands <- data.frame(num_strands)
-      ### call mask foci foci channel
-      bg <- mean(img_orig_foci)
-      #### normalise the foci image
-      foci_label <- make_foci_mask(offset_factor,bg,crowded_foci,img_orig_foci,brush_size,brush_sigma)
-      foci_label <- channel(foci_label, "grey")
-      foci_candidates <- computeFeatures.shape(foci_label)
-      foci_candidates <- data.frame(foci_candidates)
-      foci_areas <- foci_candidates$s.area
-      coincident_foci <- get_overlap_mask(strands, foci_label, watershed_stop, img_orig_foci, watershed_radius, watershed_tol)
-      foci_per_cell <- get_foci_per_cell(img_file,offset_px,stage,strands,watershed_stop,foci_label,annotation, min_foci,cell_count,img_orig, img_orig_foci, artificial_amp_factor,coincident_foci)
-      #### end foci counting function
-      if(annotation=="on"){
-        cat("\n which counts this many foci:",foci_per_cell, sep = " ")
-      }
-      image_mat <- as.matrix(img_orig_foci)
-      image_mat <- image_mat[image_mat > 1e-06]
-      mean_ratio <- median(image_mat)/mean(image_mat)
-      skew <- (median(image_mat)-mean(image_mat))/sd(image_mat)
-      ### look at properties of the overlap foci.
-
-      ##
-      overlap_candidates <- computeFeatures.shape(coincident_foci)
-      overlap_candidates <- data.frame(overlap_candidates)
-      overlap <- overlap_candidates$s.area
-      ### number of foci NOT on an SC
-      alone_foci <- nrow(foci_candidates) - foci_per_cell
-      if(annotation == "on"){
-        cat("\n number of alone foci",alone_foci, sep = " ")
-        if(alone_foci < 0){
-          cat("\n this one had a negative lone foci amount. Suspect overcounting of foci in this one:")
-          plot(rgbImage(strands,foci_label,0*foci_label))
-          alone_foci <- 0
-        }
-      }
-      percent_px <- sum(overlap)/sum(foci_areas)
-      ### if percent_px too small:
-      # count_low_contrast_image()
-      tryCatch({
-        if(percent_px < 0.3){
-          cat("\n file name", file_foci, "coincides", percent_px*100,
-              "percent. So decided to reduce the local background thresholding
-              requirements.", sep = " ")
-          foci_candidates <- make_foci_mask(0.5*offset_factor,0.5*bg,crowded_foci,img_orig_foci,brush_size,brush_sigma)
-          ### if it's zero percent... might be genuinely zero. Ignore?
-          ### if it's non zero, largish: probably noisy. No distinction between
-          ### high background/ high signal vs low bg low signal..
-        }
-      },
-      error = function(e) {
-        #what should be done in case of exception?
-        cat("\n percent on was a NaN. Suspect no/low signal")
-      }
-      )
-      df_cells <- append_data_frame(WT_str,KO_str,WT_out,KO_out,img_file,foci_areas,df_cells,cell_count,stage,foci_per_cell,image_mat,percent_px,alone_foci)
+      df_cells <- get_coincident_foci(offset_px, offset_factor, brush_size,
+                                      brush_sigma, annotation,watershed_stop,
+                                      watershed_radius, watershed_tol,
+                                      crowded_foci, artificial_amp_factor,
+                                      strand_amp, disc_size, disc_size_foci,
+                                      img_file,cell_count,img_orig,
+                                      img_orig_foci, stage,
+                                      WT_str,KO_str,WT_out,KO_out, C1_search,
+                                      discrepant_category,C1,C2,df_cells, C_weigh_foci_number)
     }
   }
   colnames(df_cells) <- df_cols
@@ -177,9 +135,13 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
 #' @param strands black white mask of strand channel
 #' @param coincident_foci mask of overlap between strand and foci channel
 #' @param foci_label black and white mask of foci channel
+#' @param percent_px percentage of foci mask that coincides with strand channel
+#' small number indicates potentially problematic image.
+#' @param alone_foci estimated number of foci that are NOT on a strand.
+#' @param foci_per_cell number of foci counted per cell
+#' @return displays key steps from raw image to coincident foci count
 #'
-#'
-annotate_foci_counting <- function(img_file,cell_count,img_orig,img_orig_foci,artificial_amp_factor,strands,coincident_foci, foci_label){
+annotate_foci_counting <- function(img_file,cell_count,img_orig,img_orig_foci,artificial_amp_factor,strands,coincident_foci, foci_label,alone_foci,percent_px,foci_per_cell){
   cat("\n at file",img_file, sep = " ")
   cat("\n cell counter is", cell_count, sep= " ")
   cat("\n original images")
@@ -196,6 +158,25 @@ annotate_foci_counting <- function(img_file,cell_count,img_orig,img_orig_foci,ar
   plot(colorLabels(coincident_foci))
   cat("\n two channels, only coincident foci")
   plot(rgbImage(strands,coincident_foci,coincident_foci))
+  cat("\n which counts this many foci:",foci_per_cell, sep = " ")
+  cat("\n number of alone foci",alone_foci, sep = " ")
+  if(alone_foci < 0){
+    cat("\n this one had a negative lone foci amount. Suspect overcounting of foci in this one:")
+    plot(rgbImage(strands,foci_label,0*foci_label))
+    #alone_foci <- 0
+  }
+  tryCatch({
+    if(percent_px < 0.3){
+      cat("\n file name", img_file, "coincides", percent_px*100,
+          "percent. So decided to reduce the local background thresholding
+              requirements.", sep = " ")
+    }
+  },
+  error = function(e) {
+    #what should be done in case of exception?
+    cat("\n percent on was a NaN. Suspect no/low signal")
+  }
+  )
 }
 
 #' append_data_frame
@@ -220,9 +201,12 @@ annotate_foci_counting <- function(img_file,cell_count,img_orig,img_orig_foci,ar
 #' @param percent_px percentage of foci mask that coincides with strand channel
 #' small number indicates potentially problematic image.
 #' @param alone_foci estimated number of foci that are NOT on a strand.
+#' @param discrepant_category estimated number of foci that are NOT on a strand.
+#' @param C1 criteria
 #'
+#' @return data frame with new row
 #'
-append_data_frame <- function(WT_str,KO_str,WT_out,KO_out,img_file,foci_areas,df_cells,cell_count,stage,foci_per_cell,image_mat,percent_px,alone_foci){
+append_data_frame <- function(WT_str,KO_str,WT_out,KO_out,img_file,foci_areas,df_cells,cell_count,stage,foci_per_cell,image_mat,percent_px,alone_foci,discrepant_category, C1){
   tryCatch({
     ### data frame stuff
     if(grepl( WT_str, img_file, fixed = TRUE) == TRUE){
@@ -237,7 +221,25 @@ append_data_frame <- function(WT_str,KO_str,WT_out,KO_out,img_file,foci_areas,df
       foci_areas <- c(0,0)
     }
     ### data frame stuff ends
-    df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,stage,foci_per_cell, sd(foci_areas),mean(foci_areas),median(foci_areas),mean(image_mat),median(image_mat),percent_px,sd(image_mat),alone_foci)))
+    if(discrepant_category == 0){
+      discrepant_comment <- "meets crisp-ness criteria"
+      verdict <- "keep"
+
+    }
+    else if(discrepant_category ==1){
+      discrepant_comment <- "does not meet crisp-ness criteria"
+      verdict <- "discard"
+    }
+    else if(discrepant_category >1){
+      discrepant_comment <- "does not meet crisp-ness criteria"
+      verdict <- "discard"
+    }
+
+    df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,stage,
+                                   foci_per_cell, sd(foci_areas),mean(foci_areas),
+                                   median(foci_areas),mean(image_mat),median(image_mat),
+                                   percent_px,sd(image_mat),alone_foci,discrepant_comment,
+                                   verdict,C1)))
   },
   error = function(e) {
     #what should be done in case of exception?
@@ -263,13 +265,36 @@ append_data_frame <- function(WT_str,KO_str,WT_out,KO_out,img_file,foci_areas,df
 #'
 #' applies new row to data frame
 #'
-#' @param mask current foci mask
+#' @param foci_label black and white mask of foci channel
+#' @param foci_candidates computeFeatures data frame of foci channel
+#' @param foci_areas the areas of the foci objects
 #'
 #'
-remove_XY <- function(){
+#'
+#' @return mask with XY blob removed
+#'
+#'
+remove_XY <- function(foci_label, foci_candidates, foci_areas){
   ### if the standard deviation was too big
   ### loop over and delete the giant blobs.
   ### after this function is run, coincident foci needs to be computed again.
+  median_px <- median(foci_areas)
+  #### takes in foci mask. Outputs the new mask without giant blob.
+  x <- computeFeatures.shape(foci_label)
+  x <- data.frame(x)
+  OOI <- nrow(x)
+  counter <- 0
+  retained <- foci_label
+  while(counter<OOI){
+    counter <- counter+1
+    pixel_area <- x$s.area[counter]
+    # if statement checking if it's the big blob
+    if(pixel_area> 10*median_px){
+      retained <- as.numeric(retained)*rmObjects(foci_label, counter, reenumerate = TRUE)
+    }
+  }
+  return(retained)
+  ## multiply with the original foci_label
 
 }
 
@@ -286,7 +311,7 @@ remove_XY <- function(){
 #' to avoid erasing foci.
 #' @param brush_sigma sigma for Gaussian smooth of foci channel. Should be
 #' small to avoid erasing foci.
-#'
+#' @return foci mask
 #'
 #'
 make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,brush_size,brush_sigma){
@@ -300,8 +325,15 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,brush_siz
     img_tmp_contrast <- foci_mask_crop
     w <- makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
     img_flo <- filter2(img_tmp_contrast, w)
-    ## smooth foci channel
-    foci_th <- img_flo > bg + offset
+    ### using local bg
+    disc_size = 5
+    new_img<-img_flo
+    disc <- makeBrush(disc_size, "disc")
+    disc <- disc / sum(disc)
+    localBackground <- filter2(new_img, disc)
+    offset <- 1/(2.8*offset_factor)
+    foci_th <- (new_img - localBackground > offset)
+
   }
   foci_label <- bwlabel(foci_th)
   return(foci_label)
@@ -319,16 +351,27 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,brush_siz
 #' @param stage meitoic stage, currently pachytene or not.
 #' @param img_orig original strand crop
 #' @param disc_size size of disc for local background calculation in dna channel
+#' @param brush_size, size of brush to smooth the foci channel. Should be small
+#' to avoid erasing foci.
+#' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be
+#' small to avoid erasing foci.
+#' @return strand mask
 #'
-#'
-make_strand_mask <- function(offset_px, stage, img_orig, disc_size){
-  new_img<-img_orig
+make_strand_mask <- function(offset_px, stage, img_orig, disc_size,brush_size,brush_sigma){
+  ### smooth it
+  ### smooth it
+  img_tmp_contrast <- img_orig
+  w <- makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
+  img_flo <- filter2(img_orig, w)
+  #### local bg
+  new_img<-img_flo
   disc <- makeBrush(disc_size, "disc")
   disc <- disc / sum(disc)
   localBackground <- filter2(new_img, disc)
   offset <- offset_px
   if(stage == "pachytene"){
     thresh_crop <- (new_img - localBackground > offset)
+
   }
   else{
     thresh_crop <- new_img > offset
@@ -342,12 +385,13 @@ make_strand_mask <- function(offset_px, stage, img_orig, disc_size){
 #' creates mask for coincident foci
 #'
 #' @param strands black white mask of strand channel
-#' @param watershed_stop Turn off default watershed method with "off"
+#' @param watershed_stop Stop default watershed method with "on"
 #' @param foci_label black and white mask of foci channel
 #' @param img_orig_foci cropped foci channel
 #' @param watershed_radius Radius (ext variable) in watershed method used
 #' in foci channel. Defaults to 1 (small)
 #' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
+#' @return mask with coincident foci on strands
 #'
 get_overlap_mask<- function(strands, foci_label, watershed_stop, img_orig_foci, watershed_radius, watershed_tol){
   num_strands <- computeFeatures.shape(strands)
@@ -370,28 +414,176 @@ get_overlap_mask<- function(strands, foci_label, watershed_stop, img_orig_foci, 
 #' @param offset_px, Pixel value offset used in thresholding of dna channel
 #' @param stage meitoic stage, currently pachytene or not.
 #' @param strands black white mask of strand channel
-#' @param watershed_stop Turn off default watershed method with "off"
+#' @param watershed_stop Stop default watershed method with "on"
 #' @param foci_label black and white mask of foci channel
 #' @param annotation, Choice to output pipeline choices (recommended to knit)
-#' @param min_foci minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4
 #' @param cell_count unique cell counter
 #' @param img_orig original strand crop
 #' @param img_orig_foci cropped foci channel
 #' @param artificial_amp_factor amplification factor
 #' @param coincident_foci mask of coincident foci
 #'
+#' @return number of foci per cell
 #'
-#'
-get_foci_per_cell <- function(img_file,offset_px,stage,strands,watershed_stop,foci_label, annotation, min_foci, cell_count, img_orig, img_orig_foci, artificial_amp_factor, coincident_foci){
+get_foci_per_cell <- function(img_file,offset_px,stage,strands,watershed_stop,foci_label, annotation, cell_count, img_orig, img_orig_foci, artificial_amp_factor, coincident_foci){
   coincident_df <- data.frame(computeFeatures.shape(coincident_foci))
   if(annotation == "on"){
     print(coincident_df)
   }
-  coincident_df <- coincident_df[coincident_df$s.area > min_foci,]
+  coincident_df <- coincident_df[coincident_df$s.area,]
   ### multiply strands by foci_label
-  if(annotation == "on"){
-    annotate_foci_counting(img_file,cell_count,img_orig,img_orig_foci,artificial_amp_factor,strands,coincident_foci, foci_label)
-  }
   foci_per_cell <- nrow(coincident_df)
   return(foci_per_cell)
 }
+
+
+#' annotate_foci_counting_adjusted
+#'
+#' Contains all plotting routines for count foci annotation
+#'
+#' @param img_file cell's file name
+#' @param cell_count unique cell counter
+#' @param img_orig original strand crop
+#' @param img_orig_foci cropped foci channel
+#' @param artificial_amp_factor amplification factor
+#' @param strands black white mask of strand channel
+#' @param coincident_foci mask of overlap between strand and foci channel
+#' @param foci_label black and white mask of foci channel
+#' @param percent_px percentage of foci mask that coincides with strand channel
+#' small number indicates potentially problematic image.
+#' @param alone_foci estimated number of foci that are NOT on a strand.
+#' @param foci_per_cell number of foci counted per cell
+#' @return displays key steps from raw image to coincident foci count
+#'
+annotate_foci_counting_adjusted <- function(img_file,cell_count,img_orig,img_orig_foci,artificial_amp_factor,strands,coincident_foci, foci_label,alone_foci,percent_px,foci_per_cell){
+  cat("\n at file",img_file, sep = " ")
+  cat("\n cell counter is", cell_count, sep= " ")
+  cat("\n original images")
+  plot(img_orig)
+  plot(img_orig_foci)
+  ch1 <-channel(img_orig,"grey")
+  ch2 <- channel(artificial_amp_factor*img_orig_foci,"grey")
+  bluered <- rgbImage(ch1, ch2, 0*ch1)
+  cat("\n displaying resulting foci count plots. Overlay two channels:")
+  plot(rgbImage(ch1,ch2,0*img_orig))
+  cat("\n displaying resulting masks. Overlay two masks:")
+  plot(rgbImage(strands,foci_label,0*img_orig))
+  cat("\n coincident foci:")
+  plot(colorLabels(coincident_foci))
+  cat("\n two channels, only coincident foci")
+  plot(rgbImage(strands,coincident_foci,coincident_foci))
+  cat("\n which counts this many foci:",foci_per_cell, sep = " ")
+  cat("\n number of alone foci",alone_foci, sep = " ")
+}
+
+
+#' get_C1
+#'
+#' calculates the statistic to compare to crisp_criteria, which determines
+#' whether the foci count will be reliable
+#'
+#' @param C_weigh_foci_number choose crispness criteria- defaults to TRUE to use
+#' C1 (weighing with number). Otherwise set to FALSE to use C2
+#' @param foci_areas pixel area of each foci
+#' @param foci_per_cell foci count for cell
+#' @return statistic to comapre to crisp_criteria
+
+get_C1 <- function(foci_areas, foci_per_cell, C_weigh_foci_number){
+  if(C_weigh_foci_number == TRUE){
+    C1 <- sd(foci_areas)/((mean(foci_areas))*(foci_per_cell+1))
+  }
+  else{
+    C1 <- sd(foci_areas)/((mean(foci_areas))*(foci_per_cell+1)/(foci_per_cell+1))
+  }
+  return(C1)
+}
+
+
+#' get_coincident_foci
+#'
+#' calculates the statistic to compare to crisp_criteria, which determines
+#' whether the foci count will be reliable
+#'
+#' @param C_weigh_foci_number choose crispness criteria- defaults to TRUE to use
+#' C1 (weighing with number). Otherwise set to FALSE to use C2
+#'
+#' @param stage, meiosis stage of interest. Currently count_foci determines
+#' this with thresholding/ object properties in the dna channel. But will be
+#' classified using ML model in future versions.
+#' @param offset_px, Pixel value offset used in thresholding of dna channel
+#' @param offset_factor, Pixel value offset used in thresholding of foci channel
+#' @param brush_size, size of brush to smooth the foci channel. Should be small
+#' to avoid erasing foci.
+#' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be
+#' small to avoid erasing foci.
+#' @param annotation, Choice to output pipeline choices (recommended to knit)
+#' @param KO_str string in filename corresponding to knockout genotype.
+#' Defaults to --.
+#' @param WT_str string in filename corresponding to wildtype genotype.
+#' Defaults to ++.
+#' @param KO_out string in output csv in genotype column, for knockout.
+#' Defaults to -/-.
+#' @param WT_out string in output csv in genotype column, for knockout.
+#' Defaults to +/+.
+#' @param watershed_stop Stop default watershed method with "on"
+#' @param watershed_radius Radius (ext variable) in watershed method used
+#' in foci channel. Defaults to 1 (small)
+#' @param watershed_tol Intensity tolerance for watershed method. Defaults to 0.05.
+#' @param crowded_foci TRUE or FALSE, defaults to FALSE. Set to TRUE if you
+#' have foci > 100 or so.
+#' @param artificial_amp_factor Amplification of foci channel, for annotation only.
+#' @param strand_amp multiplication of strand channel to make masks
+#' @param disc_size size of disc for local background calculation in dna channel
+#' @param disc_size_foci size of disc for local background calculation in foci channel
+#' @param C_weigh_foci_number choose crispness criteria- defaults to TRUE to use
+#' C1 (weighing with number). Otherwise set to FALSE to use C2
+#' @param C1 Default crispness criteria = sd(foci_area)/(mean(foci_area)+1)
+#' @param C2 Alternative crisp criteria.
+#'
+#' @return data frame with new row with most recent foci per cell appended
+#'
+#'
+get_coincident_foci <- function(offset_px, offset_factor, brush_size, brush_sigma, annotation, watershed_stop, watershed_radius, watershed_tol, crowded_foci, artificial_amp_factor, strand_amp, disc_size, disc_size_foci,img_file,cell_count,img_orig,img_orig_foci,stage,WT_str,KO_str,WT_out,KO_out, C1_search,discrepant_category,C1,C2,df_cells,C_weigh_foci_number){
+  strands <- make_strand_mask(offset_px, stage, img_orig, disc_size,brush_size,brush_sigma)
+  color_img_strands<- colorLabels(strands, normalize = TRUE)
+  num_strands <- computeFeatures.shape(strands)
+  num_strands <- data.frame(num_strands)
+  bg <- mean(img_orig_foci)
+  if(C_weigh_foci_number == TRUE){
+    crisp_criteria <- C1
+  }
+  else{
+    crisp_criteria <- C2
+  }
+  while(C1_search == TRUE && discrepant_category < 2){
+    foci_label <- make_foci_mask(offset_factor,bg,crowded_foci,img_orig_foci,brush_size,brush_sigma)
+    foci_label <- channel(foci_label, "grey")
+    foci_candidates <- data.frame(computeFeatures.shape(foci_label))
+    foci_areas <- foci_candidates$s.area
+    coincident_foci <- get_overlap_mask(strands, foci_label, watershed_stop, img_orig_foci, watershed_radius, watershed_tol)
+    overlap_candidates <- data.frame(computeFeatures.shape(coincident_foci))
+    overlap <- overlap_candidates$s.area
+    percent_px <- sum(overlap)/sum(foci_areas)
+    foci_per_cell <- get_foci_per_cell(img_file,offset_px,stage,strands,watershed_stop,foci_label,annotation, cell_count,img_orig, img_orig_foci, artificial_amp_factor,coincident_foci)
+    C1 <- get_C1(foci_areas, foci_per_cell,C_weigh_foci_number)
+    if(is.na(C1)){
+      C1 <- 100
+    }
+    if(C1 < crisp_criteria){
+      C1_search <- FALSE
+      print("i got one")
+    }
+    else{
+      discrepant_category <- discrepant_category + 1
+      C1_search <- FALSE
+    }
+  }
+  alone_foci <- nrow(foci_candidates) - foci_per_cell
+  if(annotation=="on"){
+    annotate_foci_counting(img_file,cell_count,img_orig,img_orig_foci,artificial_amp_factor,strands,coincident_foci, foci_label,alone_foci,percent_px,foci_per_cell)
+  }
+  image_mat <- as.matrix(img_orig_foci)
+  image_mat <- image_mat[image_mat > 1e-06]
+  df_cells <- append_data_frame(WT_str,KO_str,WT_out,KO_out,img_file,foci_areas,df_cells,cell_count,stage,foci_per_cell,image_mat,percent_px,alone_foci,discrepant_category,C1)
+  return(df_cells)
+  }

@@ -18,7 +18,7 @@ get_overlap_mask(
 
 \item{foci_label}{black and white mask of foci channel}
 
-\item{watershed_stop}{Turn off default watershed method with "off"}
+\item{watershed_stop}{Stop default watershed method with "on"}
 
 \item{img_orig_foci}{cropped foci channel}
 
@@ -26,6 +26,9 @@ get_overlap_mask(
 in foci channel. Defaults to 1 (small)}
 
 \item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}
+}
+\value{
+mask with coincident foci on strands
 }
 \description{
 creates mask for coincident foci
