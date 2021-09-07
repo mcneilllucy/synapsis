@@ -91,6 +91,8 @@ You can type
 ??auto_crop_fast
 ```
 There is an annotation setting, which we switch to "on".  max_cell_area and  min_cell_area have been calibrated to our data set, where the subject are mouse cells and magnification kept constant. You could run it on the first five images by setting e.g. test_amount = 5. But for now we will just look at the single image.
+
+### without cell separation with watershed
 ```{r}
 #source("~/Documents/svi/synapsis/R/auto_crop_fast.R")
 auto_crop_fast(path, annotation = "on", max_cell_area = 30000, min_cell_area = 7000, file_ext = "tif")
@@ -99,7 +101,9 @@ Here we called path, plus other optional parameters (that would otherwise take o
 
 A crops folder with three channels per "viable cell" should have been generated inside the folder where these images are kept i.e. in path.
 
-Now we will see one of the useful feautres of synapsis. It can separate cells by making use of EBImage's watershed and distmap functions. If we set crowded_cells = TRUE, then 
+### with cell separation with watershed 
+
+Now we will see one of the useful features of synapsis. It can separate cells by making use of EBImage's watershed and distmap functions. If we set crowded_cells = TRUE, then 
 
 ```{r}
 #source("~/Documents/svi/synapsis/R/auto_crop_fast.R")
@@ -111,14 +115,16 @@ auto_crop_fast(path, annotation = "on", max_cell_area = 30000, min_cell_area = 7
 SYCP3_stats <- get_pachytene(path,ecc_thresh = 0.8, area_thresh = 0.04, annotation = "on",file_ext = "tif")
 ```
 SYCP3_stats is a data frame summarizing some features of the cells classified as pachytene.
+
 ## Counting foci 
 
-foci_counts is a data frame summarizing some features (including foci counts) of the cells classified as pachytene.
 
 ```{r}
 #source("~/Documents/svi/synapsis/R/count_foci.R")
 foci_counts <- count_foci(path,offset_factor = 8, brush_size = 5, offset_px = 0.3, brush_sigma = 5, annotation = "on",stage = "pachytene",file_ext = "tif", watershed_stop= "on",  crowded_foci = FALSE, C1 = 0.03, disc_size_foci = 9)
-print(foci_counts)
 ```
 
-**note: count_foci and measure_distances_general take in the same arguments used to create the coincident foci mask. To save time, find the optimum settings for e.g. offset_factor, brush_size, brush_sigma, watershed_stop etc. with count_foci (a much faster function). When you are confident that these settings are identifying the correct amount of foci per cell, run measure_distances_general (slower)**
+```{r}
+print(foci_counts)
+```
+foci_counts is a data frame summarizing some features (including foci counts) of the cells classified as pachytene. The "verdict" column recommends to keep or discard an image based on how it compares to the "crispness criteria" (a measurement of how uniformly sized the foci identified are... empiracally indicative of a "clear" image with concident foci and low background)
