@@ -10,7 +10,8 @@ make_foci_mask(
   crowded_foci,
   img_orig_foci,
   brush_size,
-  brush_sigma
+  brush_sigma,
+  disc_size_foci
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ to avoid erasing foci.}
 
 \item{brush_sigma}{sigma for Gaussian smooth of foci channel. Should be
 small to avoid erasing foci.}
+
+\item{disc_size_foci}{size of disc for local background calculation in foci channel}
 }
 \value{
 foci mask

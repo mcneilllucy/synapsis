@@ -66,6 +66,14 @@ have foci > 100 or so.}
 
 \item{disc_size_foci}{size of disc for local background calculation in foci channel}
 
+\item{img_file}{cell's file name}
+
+\item{cell_count}{unique cell counter}
+
+\item{img_orig}{original strand crop}
+
+\item{img_orig_foci}{cropped foci channel}
+
 \item{stage, }{meiosis stage of interest. Currently count_foci determines
 this with thresholding/ object properties in the dna channel. But will be
 classified using ML model in future versions.}
@@ -82,9 +90,16 @@ Defaults to +/+.}
 \item{KO_out}{string in output csv in genotype column, for knockout.
 Defaults to -/-.}
 
+\item{C1_search}{TRUE or FALSE whether the image is still being modified
+until it meets the crispness criteria}
+
+\item{discrepant_category}{estimated number of foci that are NOT on a strand.}
+
 \item{C1}{Default crispness criteria = sd(foci_area)/(mean(foci_area)+1)}
 
 \item{C2}{Alternative crisp criteria.}
+
+\item{df_cells}{current data frame}
 
 \item{C_weigh_foci_number}{choose crispness criteria- defaults to TRUE to use
 C1 (weighing with number). Otherwise set to FALSE to use C2}

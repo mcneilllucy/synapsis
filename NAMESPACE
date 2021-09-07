@@ -3,7 +3,6 @@
 export(auto_crop_fast)
 export(count_foci)
 export(get_pachytene)
-export(measure_distances_general)
 importFrom(EBImage,bwlabel)
 importFrom(EBImage,channel)
 importFrom(EBImage,colorLabels)

@@ -29,7 +29,7 @@ count_foci(
   min_foci = -1,
   disc_size = 51,
   modify_problematic = "off",
-  disc_size_foci = 7,
+  disc_size_foci = 5,
   C1 = 0.02,
   C2 = 0.46,
   C_weigh_foci_number = TRUE
