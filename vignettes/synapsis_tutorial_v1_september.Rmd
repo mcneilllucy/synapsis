@@ -61,14 +61,13 @@ For the moment, we will use the example images which come with synapsis.
 
 ```{r}
 path = paste0(system.file("extdata",package = "synapsis"))
-path1 = "~/Documents/svi/vignette-test"
 ```
 
 ### MLH3 channel
 
 Look at the MLH3 channel
 ```{r}
-file_MLH3 <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-MLH3.jpeg")
+file_MLH3 <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-MLH3.tif")
 image_MLH3 <- readImage(file_MLH3)
 display(image_MLH3)
 ```
@@ -77,7 +76,7 @@ display(image_MLH3)
 ### SYCP3 channel
 
 ```{r}
-file_SYCP3 <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-SYCP3.jpeg")
+file_SYCP3 <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-SYCP3.tif")
 image_SYCP3 <- readImage(file_SYCP3)
 display(image_SYCP3)
 ```
@@ -93,7 +92,6 @@ You can type
 ```
 There is an annotation setting, which we switch to "on".  max_cell_area and  min_cell_area have been calibrated to our data set, where the subject are mouse cells and magnification kept constant. You could run it on the first five images by setting e.g. test_amount = 5. But for now we will just look at the single image.
 ```{r}
-path = path1
 #source("~/Documents/svi/synapsis/R/auto_crop_fast.R")
 auto_crop_fast(path, annotation = "on", max_cell_area = 30000, min_cell_area = 7000, file_ext = "tif")
 ```
