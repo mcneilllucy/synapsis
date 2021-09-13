@@ -38,9 +38,9 @@
 #'  Used in thresholding to make blob mask.
 #' @param test_amount, Optional number of first N images you want to run
 #' function on. For troubleshooting/testing/variable calibration purposes.
-#' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
+#' @param brush_size_blob, Brush size for smudging the synaptonemal complex channel to make blobs
 #' @param cell_aspect_ratio Maximum aspect ratio of blob to be defined as a cell
-#' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel
+#' @param sigma_blob, Sigma in Gaussian brush for smudging the synaptonemal complex channel
 #' to make blobs
 #' @param channel1_string String appended to the files showing the channel
 #' illuminating foci. Defaults to MLH3
@@ -66,9 +66,9 @@
 #' auto_crop_fast(demo_path, annotation = "on", max_cell_area = 30000,
 #' min_cell_area = 7000)
 #' @author Lucy McNeill
-#' @return cropped SC and foci channels around single cells, regardless of stage
+#' @return cropped synaptonemal complex and foci channels around single cells, regardless of stage
 
-auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path, resize_l = 720, crowded_cells = "FALSE", watershed_radius = 50, watershed_tol = 0.2, cropping_factor =1)
+auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path, resize_l = 720, crowded_cells = "FALSE", watershed_radius = 50, watershed_tol = 0.2, cropping_factor =1.3)
 {
   file_list <- list.files(img_path)
   dir.create(paste0(path_out,"/crops"))
@@ -78,7 +78,6 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
   antibody1_store <- 0
   antibody2_store <- 0
   antibody3_store <- 0
-  ## for each image that is *-dna.jpeg,
   for (img_file in file_list){
     file_base <- img_file
     filename_path_test <- paste0(img_path,"/",img_file)
@@ -92,9 +91,9 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       }
     }
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
-      file_dna <- img_file
+      file_sc <- img_file
       print(file)
-      image <- readImage(file_dna)
+      image <- readImage(file_sc)
       img_orig <- channel(image, "grey")
       img_orig_highres <- img_orig
       img_orig <- resize(img_orig, w = resize_l, h = resize_l)
@@ -165,10 +164,10 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
         ### row of interest is the counter_final'th row of x_final
         cell_count <- cell_count +1
         if(third_channel=="on"){
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_dna,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_sc,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor)
         }
         else{
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_dna,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor)
+          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_sc,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor)
         }
       }
       antibody1_store <- 0
@@ -176,7 +175,9 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       antibody3_store <- 0
     }
   }
-cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " ")
+crop_count <- nrow(as.data.frame(list.files(paste0(img_path,"/crops-RGB/"))))
+print(crop_count)
+cat("out of",image_count,"images, we got",crop_count,"viable cells \n", sep = " ")
 }
 
 
@@ -193,7 +194,7 @@ cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " 
 #' @param img_orig, description
 #' @param img_orig_foci, description
 #' @param img_orig_DAPI, description
-#' @param file_dna, filename of dna channel image
+#' @param file_sc, filename of synaptonemal complex channel image
 #' @param file_foci, filename of foci channel image
 #' @param file_DAPI, filename of DAPI channel image
 #' @param cell_count, counter for successful crops around cells
@@ -225,7 +226,7 @@ cat("out of",image_count,"images, we got",cell_count,"viable cells \n", sep = " 
 #' watershed.
 #' @return Crops around all candidates in both channels
 #'
-crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_dna,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l, crowded_cells,cropping_factor){
+crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI="blank",file_sc,file_foci,file_DAPI = "blank",cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l, crowded_cells,cropping_factor){
   tmp_img <- retained
   ###added
   y <- distmap(tmp_img)
@@ -265,7 +266,7 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
   if(third_channel == "on"){
     noise_gone_DAPI <- bwlabel(resize(tmp_img, h =  new_l, w =  new_l))*as.matrix(img_orig_DAPI)
   }
-  crop_r_highres <- floor(cropping_factor*floor(r_max[counter_final]*round( new_l/resize_l)))
+  crop_r_highres <- round(cropping_factor*floor(r_max[counter_final]*round( new_l/resize_l)))
   cx_highres <- cx[counter_final]*( new_l/resize_l)
   cy_highres <- cy[counter_final]*( new_l/resize_l)
   top_left_x_highres <- floor(cx_highres-crop_r_highres)
@@ -292,31 +293,31 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
     mean_factor <- mean_pix/orig_mean
     new_img <- new_img*mean_factor
     file_stub <- paste0('-',channel2_string,'.',file_ext)
-    file_dna <- gsub(file_stub,'', file_base)
-    filename_crop <- paste0(img_path_out,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+    file_sc <- gsub(file_stub,'', file_base)
+    filename_crop <- paste0(img_path_out,"/crops/", file_sc,"-crop-",cell_count,file_stub)
     writeImage(new_img, filename_crop)
     new_img_foci <- noise_gone_foci[ix, iy]
     file_stub <- paste0('-',channel1_string,'.',file_ext)
     file_foci <- gsub(file_stub,'', file_foci)
-    filename_crop_foci <- paste0(img_path_out,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+    filename_crop_foci <- paste0(img_path_out,"/crops/", file_sc,"-crop-",cell_count,file_stub)
     writeImage(new_img_foci, filename_crop_foci)
     ### add RGB channel
     ch1 <-channel(new_img,"grey")
     ch2 <- channel(new_img_foci,"grey")
     RGB_img <- rgbImage(ch1,ch2,0*ch1)
-    filename_crop_RGB <- paste0(img_path_out,"/crops-RGB/", file_dna,"-crop-",cell_count,file_stub)
+    filename_crop_RGB <- paste0(img_path_out,"/crops-RGB/", file_sc,"-crop-",cell_count,file_stub)
     writeImage(RGB_img, filename_crop_RGB)
     if(third_channel == "on"){
       new_img_DAPI <- noise_gone_DAPI[ix, iy]
       file_stub <- paste0('-',channel3_string,'.',file_ext)
       file_DAPI <- gsub(file_stub,'', file_DAPI)
-      filename_crop_DAPI <- paste0(img_path_out,"/crops/", file_dna,"-crop-",cell_count,file_stub)
+      filename_crop_DAPI <- paste0(img_path_out,"/crops/", file_sc,"-crop-",cell_count,file_stub)
       writeImage(new_img_DAPI, filename_crop_DAPI)
     }
 
     if(annotation=="on"){
       print("from the file:")
-      print(file_dna)
+      print(file_sc)
       plot(img_orig)
       print("I cropped this cell:")
       plot(new_img)
@@ -356,8 +357,8 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
 #' to make blob mask.
 #' @param final_blob_amp, Contrast factor to multiply smoothed/smudged image.
 #' Used in thresholding to make blob mask.
-#' @param brush_size_blob, Brush size for smudging the dna channel to make blobs
-#' @param sigma_blob, Sigma in Gaussian brush for smudging the dna channel to
+#' @param brush_size_blob, Brush size for smudging the synaptonemal complex channel to make blobs
+#' @param sigma_blob, Sigma in Gaussian brush for smudging the synaptonemal complex channel to
 #' make blobs
 #' @param watershed_radius Radius (ext variable) in watershed method used
 #' in strand channel. Defaults to 1 (small)
@@ -371,7 +372,7 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
 get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_amp, brush_size_blob,sigma_blob, watershed_tol, watershed_radius, crowded_cells,annotation){
   thresh <- blob_factor*img_orig
   # subfunction: big blur to blobs
-  img_tmp_dna <- img_orig
+  img_tmp_sc <- img_orig
   img_tmp <- thresh
   w <- makeBrush(size = brush_size_blob, shape = 'gaussian', sigma = sigma_blob)
   img_flo <- filter2(img_tmp, w)

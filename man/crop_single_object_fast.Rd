@@ -11,7 +11,7 @@ crop_single_object_fast(
   img_orig,
   img_orig_foci,
   img_orig_DAPI = "blank",
-  file_dna,
+  file_sc,
   file_foci,
   file_DAPI = "blank",
   cell_count,
@@ -50,7 +50,7 @@ all other cells where counter_single not equal to counter_final.}
 
 \item{img_orig_DAPI, }{description}
 
-\item{file_dna, }{filename of dna channel image}
+\item{file_sc, }{filename of synaptonemal complex channel image}
 
 \item{file_foci, }{filename of foci channel image}
 

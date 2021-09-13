@@ -36,7 +36,7 @@ get_coincident_foci(
 )
 }
 \arguments{
-\item{offset_px, }{Pixel value offset used in thresholding of dna channel}
+\item{offset_px, }{Pixel value offset used in thresholding of synaptonemal complex channel}
 
 \item{offset_factor, }{Pixel value offset used in thresholding of foci channel}
 
@@ -62,7 +62,7 @@ have foci > 100 or so.}
 
 \item{strand_amp}{multiplication of strand channel to make masks}
 
-\item{disc_size}{size of disc for local background calculation in dna channel}
+\item{disc_size}{size of disc for local background calculation in synaptonemal complex channel}
 
 \item{disc_size_foci}{size of disc for local background calculation in foci channel}
 
@@ -75,7 +75,7 @@ have foci > 100 or so.}
 \item{img_orig_foci}{cropped foci channel}
 
 \item{stage, }{meiosis stage of interest. Currently count_foci determines
-this with thresholding/ object properties in the dna channel. But will be
+this with thresholding/ object properties in the synaptonemal complex channel. But will be
 classified using ML model in future versions.}
 
 \item{WT_str}{string in filename corresponding to wildtype genotype.

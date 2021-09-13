@@ -29,7 +29,7 @@ get_pachytene(
 
 \item{species_num, }{number of chromosomes in the species}
 
-\item{offset, }{Pixel value offset used in therholding for the dna (SYCP3) channel}
+\item{offset, }{Pixel value offset used in therholding for the synaptonemal complex (SYCP3) channel}
 
 \item{ecc_thresh, }{The minimum average eccentricity of all objects in mask determined by computefeatures, for a cell to be pachytene.}
 
@@ -60,7 +60,7 @@ get_pachytene(
 \item{resize_l}{length of resized square cell image.}
 }
 \value{
-Pairs of foci and SC channel crops for pachytene
+Pairs of foci and synaptonemal channel crops for pachytene
 }
 \description{
 Identifies crops in pachytene

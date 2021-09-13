@@ -22,7 +22,7 @@ get_foci_per_cell(
 \arguments{
 \item{img_file}{cell's file name}
 
-\item{offset_px, }{Pixel value offset used in thresholding of dna channel}
+\item{offset_px, }{Pixel value offset used in thresholding of synaptonemal complex channel}
 
 \item{stage}{meitoic stage, currently pachytene or not.}
 

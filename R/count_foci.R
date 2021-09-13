@@ -1,6 +1,6 @@
 #' count_foci
 #'
-#' Calculates coincident foci in SC and foci channel, per cell
+#' Calculates coincident foci in synaptonemal complex and foci channel, per cell
 #'
 #' In this function, masks for the synaptonemal complex (SC) and foci channel
 #' are created from the saved crops of single/individual cells.
@@ -15,9 +15,9 @@
 #' @export count_foci
 #' @param img_path, path containing crops to analyse
 #' @param stage, meiosis stage of interest. Currently count_foci determines
-#' this with thresholding/ object properties in the dna channel. But will be
+#' this with thresholding/ object properties in the synaptonemal complex channel. But will be
 #' classified using ML model in future versions.
-#' @param offset_px, Pixel value offset used in thresholding of dna channel
+#' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small
 #' to avoid erasing foci.
@@ -47,7 +47,7 @@
 #' @param artificial_amp_factor Amplification of foci channel, for annotation only.
 #' @param strand_amp multiplication of strand channel to make masks
 #' @param min_foci minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4
-#' @param disc_size size of disc for local background calculation in dna channel
+#' @param disc_size size of disc for local background calculation in synaptonemal complex channel
 #' @param modify_problematic option for synapsis to try and "save" images which
 #' have likely been counted incorrectly due to a number of reasons. Default
 #' settings are optimized for mouse pachytene. Defaults to "off"
@@ -88,9 +88,9 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
     }
     img_file <- filename_path_test
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
-      file_dna <- img_file
+      file_sc <- img_file
       image_count <- image_count +1
-      image <- readImage(file_dna)
+      image <- readImage(file_sc)
       img_orig <- channel(strand_amp*image, "grey")
       antibody1_store <- 1
     }
@@ -352,10 +352,10 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,
 #'
 #' creates strand mask for strand channel crop
 #'
-#' @param offset_px, Pixel value offset used in thresholding of dna channel
+#' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
 #' @param stage meitoic stage, currently pachytene or not.
 #' @param img_orig original strand crop
-#' @param disc_size size of disc for local background calculation in dna channel
+#' @param disc_size size of disc for local background calculation in synaptonemal complex channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small
 #' to avoid erasing foci.
 #' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be
@@ -416,7 +416,7 @@ get_overlap_mask<- function(strands, foci_label, watershed_stop, img_orig_foci, 
 #' creates mask for coincident foci
 #'
 #' @param img_file cell's file name
-#' @param offset_px, Pixel value offset used in thresholding of dna channel
+#' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
 #' @param stage meitoic stage, currently pachytene or not.
 #' @param strands black white mask of strand channel
 #' @param watershed_stop Stop default watershed method with "on"
@@ -519,9 +519,9 @@ get_C1 <- function(foci_areas, foci_per_cell, C_weigh_foci_number){
 #' C1 (weighing with number). Otherwise set to FALSE to use C2
 #'
 #' @param stage, meiosis stage of interest. Currently count_foci determines
-#' this with thresholding/ object properties in the dna channel. But will be
+#' this with thresholding/ object properties in the synaptonemal complex channel. But will be
 #' classified using ML model in future versions.
-#' @param offset_px, Pixel value offset used in thresholding of dna channel
+#' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small
 #' to avoid erasing foci.
@@ -544,7 +544,7 @@ get_C1 <- function(foci_areas, foci_per_cell, C_weigh_foci_number){
 #' have foci > 100 or so.
 #' @param artificial_amp_factor Amplification of foci channel, for annotation only.
 #' @param strand_amp multiplication of strand channel to make masks
-#' @param disc_size size of disc for local background calculation in dna channel
+#' @param disc_size size of disc for local background calculation in synaptonemal complex channel
 #' @param disc_size_foci size of disc for local background calculation in foci channel
 #' @param C_weigh_foci_number choose crispness criteria- defaults to TRUE to use
 #' C1 (weighing with number). Otherwise set to FALSE to use C2

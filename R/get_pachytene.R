@@ -15,7 +15,7 @@
 #' @param img_path, path containing crops analyse
 #' @param path_out, user specified output path. Defaults to img_path
 #' @param species_num, number of chromosomes in the species
-#' @param offset, Pixel value offset used in therholding for the dna (SYCP3) channel
+#' @param offset, Pixel value offset used in therholding for the synaptonemal complex (SYCP3) channel
 #' @param ecc_thresh, The minimum average eccentricity of all objects in mask determined by computefeatures, for a cell to be pachytene.
 #' @param area_thresh, The minimum ratio of pixels included in mask to total, for a cell to be classified as pachytene.
 #' @param channel1_string String appended to the files showing the channel illuminating foci. Defaults to MLH3
@@ -32,7 +32,7 @@
 #' @examples demo_path = paste0(system.file("extdata",package = "synapsis"))
 #' SYCP3_stats <- get_pachytene(demo_path,ecc_thresh = 0.8, area_thresh = 0.04, annotation = "on")
 #' @author Lucy McNeill
-#' @return Pairs of foci and SC channel crops for pachytene
+#' @return Pairs of foci and synaptonemal channel crops for pachytene
 #'
 
 
@@ -65,10 +65,10 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
     filename_path_test <- paste0(img_path,"/crops/", img_file)
     img_file <- filename_path_test
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
-      file_dna <- img_file
-      file_base_dna <- file_base
+      file_sc <- img_file
+      file_base_sc <- file_base
       image_count <- image_count +1
-      image <- readImage(file_dna)
+      image <- readImage(file_sc)
       img_orig_highres <- channel(image, "grey")
       img_orig <- channel(strand_amp*image, "grey")
       img_orig <- resize(img_orig, w = resize_l, h = resize_l)
@@ -130,8 +130,8 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
             stage_classification <- "pachytene"
             df_cells <- rbind(df_cells,t(c(img_file,cell_count,genotype,px_mask, px_total,px_fraction, mean_ecc,mean_ratio,skew,sd_bright_px,stage_classification)))
             pachytene_count <- pachytene_count + 1
-            file_dna <- tools::file_path_sans_ext(file_base_dna)
-            filename_crop <- paste0(img_path_out,"/pachytene/", file_dna,'.',file_ext)
+            file_sc <- tools::file_path_sans_ext(file_base_sc)
+            filename_crop <- paste0(img_path_out,"/pachytene/", file_sc,'.',file_ext)
             writeImage(img_orig_highres, filename_crop)
             if(annotation == "on"){
               print("decided the following is pachytene")
@@ -144,7 +144,7 @@ get_pachytene <- function(img_path, species_num = 20, offset = 0.2,ecc_thresh = 
             ch1 <-channel(img_orig_highres,"grey")
             ch2 <- channel(img_orig_foci,"grey")
             RGB_img <- rgbImage(ch1,ch2,0*ch1)
-            filename_crop_RGB <- paste0(img_path_out,"/pachytene-RGB/", file_dna,'.',file_ext)
+            filename_crop_RGB <- paste0(img_path_out,"/pachytene-RGB/", file_sc,'.',file_ext)
             writeImage(RGB_img, filename_crop_RGB)
           }
         }

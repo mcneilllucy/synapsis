@@ -33,9 +33,9 @@ to make blob mask.}
 \item{final_blob_amp, }{Contrast factor to multiply smoothed/smudged image.
 Used in thresholding to make blob mask.}
 
-\item{brush_size_blob, }{Brush size for smudging the dna channel to make blobs}
+\item{brush_size_blob, }{Brush size for smudging the synaptonemal complex channel to make blobs}
 
-\item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel to
+\item{sigma_blob, }{Sigma in Gaussian brush for smudging the synaptonemal complex channel to
 make blobs}
 
 \item{watershed_tol}{Intensity tolerance for watershed method. Defaults to 0.05.}

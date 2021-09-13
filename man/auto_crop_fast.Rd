@@ -59,9 +59,9 @@ Used in thresholding to make blob mask.}
 \item{test_amount, }{Optional number of first N images you want to run
 function on. For troubleshooting/testing/variable calibration purposes.}
 
-\item{brush_size_blob, }{Brush size for smudging the dna channel to make blobs}
+\item{brush_size_blob, }{Brush size for smudging the synaptonemal complex channel to make blobs}
 
-\item{sigma_blob, }{Sigma in Gaussian brush for smudging the dna channel
+\item{sigma_blob, }{Sigma in Gaussian brush for smudging the synaptonemal complex channel
 to make blobs}
 
 \item{channel3_string}{Optional. String appended to the files showing the
@@ -100,7 +100,7 @@ characteristic blob radius. Defaults to 1. May need to increase if using
 watershed.}
 }
 \value{
-cropped SC and foci channels around single cells, regardless of stage
+cropped synaptonemal complex and foci channels around single cells, regardless of stage
 }
 \description{
 crop an image around each viable cell candidate.
