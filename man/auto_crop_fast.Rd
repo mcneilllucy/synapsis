@@ -29,7 +29,7 @@ auto_crop_fast(
   crowded_cells = "FALSE",
   watershed_radius = 50,
   watershed_tol = 0.2,
-  cropping_factor = 1
+  cropping_factor = 1.3
 )
 }
 \arguments{
@@ -76,7 +76,8 @@ illuminating foci. Defaults to MLH3}
 
 \item{file_ext}{file extension of your images e.g. tif jpeg or png.}
 
-\item{third_channel}{Optional, defaults to "off".}
+\item{third_channel}{Optional, defaults to "off". Set to "on" if you would
+also like crops of the third channel.}
 
 \item{cell_aspect_ratio}{Maximum aspect ratio of blob to be defined as a cell}
 

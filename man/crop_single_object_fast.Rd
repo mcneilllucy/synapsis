@@ -86,7 +86,8 @@ illuminating foci. Defaults to MLH3}
 
 \item{file_ext}{file extension of your images e.g. tif jpeg or png.}
 
-\item{third_channel}{Optional, defaults to "off".}
+\item{third_channel}{Optional, defaults to "off". Set to "on" if you would
+also like crops of the third channel.}
 
 \item{path_out, }{user specified output path. Defaults to img_path}
 
