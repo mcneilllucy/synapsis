@@ -39,8 +39,10 @@ count_foci(
 \item{img_path, }{path containing crops to analyse}
 
 \item{stage, }{meiosis stage of interest. Currently count_foci determines
-this with thresholding/ object properties in the synaptonemal complex channel. But will be
-classified using ML model in future versions.}
+this with thresholding/ object properties in the synaptonemal complex channel
+by previosly calling the get_pachytene function.
+Note that if using this option, the count_foci function requires that the
+input directory contains a folder called “pachytene” with the crops in it.}
 
 \item{offset_px, }{Pixel value offset used in thresholding of synaptonemal complex channel}
 

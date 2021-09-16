@@ -15,8 +15,10 @@
 #' @export count_foci
 #' @param img_path, path containing crops to analyse
 #' @param stage, meiosis stage of interest. Currently count_foci determines
-#' this with thresholding/ object properties in the synaptonemal complex channel. But will be
-#' classified using ML model in future versions.
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
 #' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small
@@ -198,7 +200,11 @@ annotate_foci_counting <- function(img_file,cell_count,img_orig,img_orig_foci,
 #' Defaults to +/+.
 #' @param foci_areas pixel area of each foci
 #' @param df_cells current data frame
-#' @param stage meiotic stage
+#' @param stage, meiosis stage of interest. Currently count_foci determines
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
 #' @param foci_per_cell foci count for cell
 #' @param image_mat matrix with all pixel values above zero
 #' @param percent_px percentage of foci mask that coincides with strand channel
@@ -358,7 +364,11 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,
 #' creates strand mask for strand channel crop
 #'
 #' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
-#' @param stage meitoic stage, currently pachytene or not.
+#' @param stage, meiosis stage of interest. Currently count_foci determines
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
 #' @param img_orig original strand crop
 #' @param disc_size size of disc for local background calculation in synaptonemal complex channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small
@@ -419,7 +429,11 @@ get_overlap_mask<- function(strands, foci_label, watershed_stop, img_orig_foci, 
 #'
 #' @param img_file cell's file name
 #' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
-#' @param stage meitoic stage, currently pachytene or not.
+#' @param stage, meiosis stage of interest. Currently count_foci determines
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
 #' @param strands black white mask of strand channel
 #' @param watershed_stop Stop default watershed method with "on"
 #' @param foci_label black and white mask of foci channel
@@ -519,10 +533,11 @@ get_C1 <- function(foci_areas, foci_per_cell, C_weigh_foci_number){
 #' @param df_cells current data frame
 #' @param C_weigh_foci_number choose crispness criteria- defaults to TRUE to use
 #' C1 (weighing with number). Otherwise set to FALSE to use C2
-#'
 #' @param stage, meiosis stage of interest. Currently count_foci determines
-#' this with thresholding/ object properties in the synaptonemal complex channel. But will be
-#' classified using ML model in future versions.
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
 #' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small
