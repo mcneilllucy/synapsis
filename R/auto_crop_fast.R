@@ -49,7 +49,8 @@
 #' @param channel3_string Optional. String appended to the files showing the
 #' channel illuminating cell structures. Defaults to DAPI, if
 #' third channel == "on".
-#' @param third_channel Optional, defaults to "off".
+#' @param third_channel Optional, defaults to "off". Set to "on" if you would
+#' also like crops of the third channel.
 #' @param strand_amp multiplication of strand channel for get_blobs function.
 #' @param file_ext file extension of your images e.g. tif jpeg or png.
 #' @param resize_l length for resized image
