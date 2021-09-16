@@ -323,7 +323,16 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,
   foci_mask_crop <- img_orig_foci
   offset <- offset_factor*bg
   if(crowded_foci == TRUE){
-    foci_th <- foci_mask_crop > bg + offset
+    ### do local background calculation instead. but still don't smooth.
+    #foci_th <- foci_mask_crop > bg + offset
+    ### using local bg
+    disc_size <- disc_size_foci
+    new_img<-foci_mask_crop
+    disc <- makeBrush(disc_size, "disc")
+    disc <- disc / sum(disc)
+    localBackground <- filter2(new_img, disc)
+    offset <- 1/(2.8*offset_factor)
+    foci_th <- (new_img - localBackground > offset)
   }
   else{
     ### smooth it
@@ -342,10 +351,6 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,
   }
   foci_label <- bwlabel(foci_th)
   return(foci_label)
-  # here check whether there is a huge blob. Remove it
-  # remove_XY()
-  #
-
 }
 
 #' make_strand_mask
@@ -363,12 +368,9 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,
 #' @return strand mask
 #'
 make_strand_mask <- function(offset_px, stage, img_orig, disc_size,brush_size,brush_sigma){
-  ### smooth it
-  ### smooth it
   img_tmp_contrast <- img_orig
   w <- makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
   img_flo <- filter2(img_orig, w)
-  #### local bg
   new_img<-img_flo
   disc <- makeBrush(disc_size, "disc")
   disc <- disc / sum(disc)
