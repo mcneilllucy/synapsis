@@ -216,7 +216,8 @@ cat("out of",image_count,"images, we got",crop_count,"viable cells \n", sep = " 
 #' @param channel3_string Optional. String appended to the files showing the
 #' channel illuminating cell structures. Defaults to DAPI,
 #' if third channel == "on".
-#' @param third_channel Optional, defaults to "off".
+#' @param third_channel Optional, defaults to "off". Set to "on" if you would
+#' also like crops of the third channel.
 #' @param img_orig_highres the original strand image with original resolution
 #' @param file_ext file extension of your images e.g. tif jpeg or png.
 #' @param resize_l length of square to resize original image to.
