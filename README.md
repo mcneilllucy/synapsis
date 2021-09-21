@@ -7,7 +7,7 @@
 `synapsis` will be available on [bioconductor](https://www.bioconductor.org). For now, please download from the [github](https://github.com/mcneilllucy/synapsis) repository using
 
 ```r
-# install from gitlab
+# install from github
 devtools::install_git('https://github.com/mcneilllucy/synapsis')
 ```
 
