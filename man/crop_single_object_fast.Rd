@@ -11,7 +11,7 @@ crop_single_object_fast(
   img_orig,
   img_orig_foci,
   img_orig_DAPI = "blank",
-  file_dna,
+  file_sc,
   file_foci,
   file_DAPI = "blank",
   cell_count,
@@ -50,7 +50,7 @@ all other cells where counter_single not equal to counter_final.}
 
 \item{img_orig_DAPI, }{description}
 
-\item{file_dna, }{filename of dna channel image}
+\item{file_sc, }{filename of synaptonemal complex channel image}
 
 \item{file_foci, }{filename of foci channel image}
 
@@ -86,7 +86,8 @@ illuminating foci. Defaults to MLH3}
 
 \item{file_ext}{file extension of your images e.g. tif jpeg or png.}
 
-\item{third_channel}{Optional, defaults to "off".}
+\item{third_channel}{Optional, defaults to "off". Set to "on" if you would
+also like crops of the third channel.}
 
 \item{path_out, }{user specified output path. Defaults to img_path}
 

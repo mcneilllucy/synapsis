@@ -14,13 +14,17 @@ make_strand_mask(
 )
 }
 \arguments{
-\item{offset_px, }{Pixel value offset used in thresholding of dna channel}
+\item{offset_px, }{Pixel value offset used in thresholding of synaptonemal complex channel}
 
-\item{stage}{meitoic stage, currently pachytene or not.}
+\item{stage, }{meiosis stage of interest. Currently count_foci determines
+this with thresholding/ object properties in the synaptonemal complex channel
+by previosly calling the get_pachytene function.
+Note that if using this option, the count_foci function requires that the
+input directory contains a folder called “pachytene” with the crops in it.}
 
 \item{img_orig}{original strand crop}
 
-\item{disc_size}{size of disc for local background calculation in dna channel}
+\item{disc_size}{size of disc for local background calculation in synaptonemal complex channel}
 
 \item{brush_size, }{size of brush to smooth the foci channel. Should be small
 to avoid erasing foci.}

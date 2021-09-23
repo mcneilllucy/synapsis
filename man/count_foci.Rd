@@ -29,7 +29,7 @@ count_foci(
   min_foci = -1,
   disc_size = 51,
   modify_problematic = "off",
-  disc_size_foci = 7,
+  disc_size_foci = 5,
   C1 = 0.02,
   C2 = 0.46,
   C_weigh_foci_number = TRUE
@@ -39,10 +39,12 @@ count_foci(
 \item{img_path, }{path containing crops to analyse}
 
 \item{stage, }{meiosis stage of interest. Currently count_foci determines
-this with thresholding/ object properties in the dna channel. But will be
-classified using ML model in future versions.}
+this with thresholding/ object properties in the synaptonemal complex channel
+by previosly calling the get_pachytene function.
+Note that if using this option, the count_foci function requires that the
+input directory contains a folder called “pachytene” with the crops in it.}
 
-\item{offset_px, }{Pixel value offset used in thresholding of dna channel}
+\item{offset_px, }{Pixel value offset used in thresholding of synaptonemal complex channel}
 
 \item{offset_factor, }{Pixel value offset used in thresholding of foci channel}
 
@@ -92,7 +94,7 @@ have foci > 100 or so.}
 
 \item{min_foci}{minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4}
 
-\item{disc_size}{size of disc for local background calculation in dna channel}
+\item{disc_size}{size of disc for local background calculation in synaptonemal complex channel}
 
 \item{modify_problematic}{option for synapsis to try and "save" images which
 have likely been counted incorrectly due to a number of reasons. Default
@@ -111,7 +113,7 @@ C1 (weighing with number). Otherwise set to FALSE to use C2}
 data frame with foci count per cell
 }
 \description{
-Calculates coincident foci in SC and foci channel, per cell
+Calculates coincident foci in synaptonemal complex and foci channel, per cell
 }
 \details{
 In this function, masks for the synaptonemal complex (SC) and foci channel

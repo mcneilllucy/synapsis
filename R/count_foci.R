@@ -1,6 +1,6 @@
 #' count_foci
 #'
-#' Calculates coincident foci in SC and foci channel, per cell
+#' Calculates coincident foci in synaptonemal complex and foci channel, per cell
 #'
 #' In this function, masks for the synaptonemal complex (SC) and foci channel
 #' are created from the saved crops of single/individual cells.
@@ -15,9 +15,11 @@
 #' @export count_foci
 #' @param img_path, path containing crops to analyse
 #' @param stage, meiosis stage of interest. Currently count_foci determines
-#' this with thresholding/ object properties in the dna channel. But will be
-#' classified using ML model in future versions.
-#' @param offset_px, Pixel value offset used in thresholding of dna channel
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
+#' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small
 #' to avoid erasing foci.
@@ -47,7 +49,7 @@
 #' @param artificial_amp_factor Amplification of foci channel, for annotation only.
 #' @param strand_amp multiplication of strand channel to make masks
 #' @param min_foci minimum pixel area for a foci. Depends on your dpi etc. Defaults to 4
-#' @param disc_size size of disc for local background calculation in dna channel
+#' @param disc_size size of disc for local background calculation in synaptonemal complex channel
 #' @param modify_problematic option for synapsis to try and "save" images which
 #' have likely been counted incorrectly due to a number of reasons. Default
 #' settings are optimized for mouse pachytene. Defaults to "off"
@@ -63,7 +65,7 @@
 #' @return data frame with foci count per cell
 
 
-count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1, strand_amp = 2, min_foci =-1, disc_size = 51, modify_problematic = "off", disc_size_foci = 7, C1 = 0.02, C2 = 0.46, C_weigh_foci_number = TRUE)
+count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor = 2, brush_size = 3, brush_sigma = 3, foci_norm = 0.01, annotation = "off",channel2_string = "SYCP3", channel1_string = "MLH3",file_ext = "jpeg", KO_str = "--",WT_str = "++",KO_out = "-/-", WT_out = "+/+", watershed_stop = "off", watershed_radius = 1, watershed_tol = 0.05, crowded_foci = TRUE, artificial_amp_factor = 1, strand_amp = 2, min_foci =-1, disc_size = 51, modify_problematic = "off", disc_size_foci = 5, C1 = 0.02, C2 = 0.46, C_weigh_foci_number = TRUE)
 {
   cell_count <- 0
   image_count <-0
@@ -88,9 +90,9 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
     }
     img_file <- filename_path_test
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
-      file_dna <- img_file
+      file_sc <- img_file
       image_count <- image_count +1
-      image <- readImage(file_dna)
+      image <- readImage(file_sc)
       img_orig <- channel(strand_amp*image, "grey")
       antibody1_store <- 1
     }
@@ -141,7 +143,10 @@ count_foci <- function(img_path, stage = "none", offset_px = 0.2, offset_factor 
 #' @param foci_per_cell number of foci counted per cell
 #' @return displays key steps from raw image to coincident foci count
 #'
-annotate_foci_counting <- function(img_file,cell_count,img_orig,img_orig_foci,artificial_amp_factor,strands,coincident_foci, foci_label,alone_foci,percent_px,foci_per_cell){
+annotate_foci_counting <- function(img_file,cell_count,img_orig,img_orig_foci,
+                                   artificial_amp_factor,strands,
+                                   coincident_foci, foci_label,alone_foci,
+                                   percent_px,foci_per_cell){
   cat("\n at file",img_file, sep = " ")
   cat("\n cell counter is", cell_count, sep= " ")
   cat("\n original images")
@@ -195,7 +200,11 @@ annotate_foci_counting <- function(img_file,cell_count,img_orig,img_orig_foci,ar
 #' Defaults to +/+.
 #' @param foci_areas pixel area of each foci
 #' @param df_cells current data frame
-#' @param stage meiotic stage
+#' @param stage, meiosis stage of interest. Currently count_foci determines
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
 #' @param foci_per_cell foci count for cell
 #' @param image_mat matrix with all pixel values above zero
 #' @param percent_px percentage of foci mask that coincides with strand channel
@@ -311,14 +320,25 @@ remove_XY <- function(foci_label, foci_candidates, foci_areas){
 #' to avoid erasing foci.
 #' @param brush_sigma sigma for Gaussian smooth of foci channel. Should be
 #' small to avoid erasing foci.
+#' @param disc_size_foci size of disc for local background calculation in foci channel
 #' @return foci mask
 #'
 #'
-make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,brush_size,brush_sigma){
+make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,
+                           brush_size,brush_sigma,disc_size_foci){
   foci_mask_crop <- img_orig_foci
   offset <- offset_factor*bg
   if(crowded_foci == TRUE){
-    foci_th <- foci_mask_crop > bg + offset
+    ### do local background calculation instead. but still don't smooth.
+    #foci_th <- foci_mask_crop > bg + offset
+    ### using local bg
+    disc_size <- disc_size_foci
+    new_img<-foci_mask_crop
+    disc <- makeBrush(disc_size, "disc")
+    disc <- disc / sum(disc)
+    localBackground <- filter2(new_img, disc)
+    offset <- 1/(2.8*offset_factor)
+    foci_th <- (new_img - localBackground > offset)
   }
   else{
     ### smooth it
@@ -326,7 +346,7 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,brush_siz
     w <- makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
     img_flo <- filter2(img_tmp_contrast, w)
     ### using local bg
-    disc_size = 5
+    disc_size <- disc_size_foci
     new_img<-img_flo
     disc <- makeBrush(disc_size, "disc")
     disc <- disc / sum(disc)
@@ -337,20 +357,20 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,brush_siz
   }
   foci_label <- bwlabel(foci_th)
   return(foci_label)
-  # here check whether there is a huge blob. Remove it
-  # remove_XY()
-  #
-
 }
 
 #' make_strand_mask
 #'
 #' creates strand mask for strand channel crop
 #'
-#' @param offset_px, Pixel value offset used in thresholding of dna channel
-#' @param stage meitoic stage, currently pachytene or not.
+#' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
+#' @param stage, meiosis stage of interest. Currently count_foci determines
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
 #' @param img_orig original strand crop
-#' @param disc_size size of disc for local background calculation in dna channel
+#' @param disc_size size of disc for local background calculation in synaptonemal complex channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small
 #' to avoid erasing foci.
 #' @param brush_sigma, sigma for Gaussian smooth of foci channel. Should be
@@ -358,12 +378,9 @@ make_foci_mask <- function(offset_factor,bg,crowded_foci,img_orig_foci,brush_siz
 #' @return strand mask
 #'
 make_strand_mask <- function(offset_px, stage, img_orig, disc_size,brush_size,brush_sigma){
-  ### smooth it
-  ### smooth it
   img_tmp_contrast <- img_orig
   w <- makeBrush(size = brush_size, shape = 'gaussian', sigma = brush_sigma)
   img_flo <- filter2(img_orig, w)
-  #### local bg
   new_img<-img_flo
   disc <- makeBrush(disc_size, "disc")
   disc <- disc / sum(disc)
@@ -411,8 +428,12 @@ get_overlap_mask<- function(strands, foci_label, watershed_stop, img_orig_foci, 
 #' creates mask for coincident foci
 #'
 #' @param img_file cell's file name
-#' @param offset_px, Pixel value offset used in thresholding of dna channel
-#' @param stage meitoic stage, currently pachytene or not.
+#' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
+#' @param stage, meiosis stage of interest. Currently count_foci determines
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
 #' @param strands black white mask of strand channel
 #' @param watershed_stop Stop default watershed method with "on"
 #' @param foci_label black and white mask of foci channel
@@ -428,7 +449,6 @@ get_overlap_mask<- function(strands, foci_label, watershed_stop, img_orig_foci, 
 get_foci_per_cell <- function(img_file,offset_px,stage,strands,watershed_stop,foci_label, annotation, cell_count, img_orig, img_orig_foci, artificial_amp_factor, coincident_foci){
   coincident_df <- data.frame(computeFeatures.shape(coincident_foci))
   if(annotation == "on"){
-    print(coincident_df)
   }
   coincident_df <- coincident_df[coincident_df$s.area,]
   ### multiply strands by foci_label
@@ -503,14 +523,22 @@ get_C1 <- function(foci_areas, foci_per_cell, C_weigh_foci_number){
 #'
 #' calculates the statistic to compare to crisp_criteria, which determines
 #' whether the foci count will be reliable
-#'
+#' @param img_file cell's file name
+#' @param cell_count unique cell counter
+#' @param img_orig original strand crop
+#' @param img_orig_foci cropped foci channel
+#' @param C1_search TRUE or FALSE whether the image is still being modified
+#' until it meets the crispness criteria
+#' @param discrepant_category estimated number of foci that are NOT on a strand.
+#' @param df_cells current data frame
 #' @param C_weigh_foci_number choose crispness criteria- defaults to TRUE to use
 #' C1 (weighing with number). Otherwise set to FALSE to use C2
-#'
 #' @param stage, meiosis stage of interest. Currently count_foci determines
-#' this with thresholding/ object properties in the dna channel. But will be
-#' classified using ML model in future versions.
-#' @param offset_px, Pixel value offset used in thresholding of dna channel
+#' this with thresholding/ object properties in the synaptonemal complex channel
+#' by previosly calling the get_pachytene function.
+#' Note that if using this option, the count_foci function requires that the
+#' input directory contains a folder called “pachytene” with the crops in it.
+#' @param offset_px, Pixel value offset used in thresholding of synaptonemal complex channel
 #' @param offset_factor, Pixel value offset used in thresholding of foci channel
 #' @param brush_size, size of brush to smooth the foci channel. Should be small
 #' to avoid erasing foci.
@@ -533,7 +561,7 @@ get_C1 <- function(foci_areas, foci_per_cell, C_weigh_foci_number){
 #' have foci > 100 or so.
 #' @param artificial_amp_factor Amplification of foci channel, for annotation only.
 #' @param strand_amp multiplication of strand channel to make masks
-#' @param disc_size size of disc for local background calculation in dna channel
+#' @param disc_size size of disc for local background calculation in synaptonemal complex channel
 #' @param disc_size_foci size of disc for local background calculation in foci channel
 #' @param C_weigh_foci_number choose crispness criteria- defaults to TRUE to use
 #' C1 (weighing with number). Otherwise set to FALSE to use C2
@@ -556,7 +584,7 @@ get_coincident_foci <- function(offset_px, offset_factor, brush_size, brush_sigm
     crisp_criteria <- C2
   }
   while(C1_search == TRUE && discrepant_category < 2){
-    foci_label <- make_foci_mask(offset_factor,bg,crowded_foci,img_orig_foci,brush_size,brush_sigma)
+    foci_label <- make_foci_mask(offset_factor,bg,crowded_foci,img_orig_foci,brush_size,brush_sigma,disc_size_foci)
     foci_label <- channel(foci_label, "grey")
     foci_candidates <- data.frame(computeFeatures.shape(foci_label))
     foci_areas <- foci_candidates$s.area
@@ -571,7 +599,6 @@ get_coincident_foci <- function(offset_px, offset_factor, brush_size, brush_sigm
     }
     if(C1 < crisp_criteria){
       C1_search <- FALSE
-      print("i got one")
     }
     else{
       discrepant_category <- discrepant_category + 1

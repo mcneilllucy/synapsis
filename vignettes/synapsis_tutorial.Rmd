@@ -1,0 +1,184 @@
+---
+title: "Using synapsis"
+author: "Lucy McNeill"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+
+# 1. Getting started
+
+To run this tutorial, you will need the following packages:
+
+- knitr
+- rmarkdown
+
+```{r setup}
+library(knitr)
+library(rmarkdown)
+```
+
+## a. installing required packages
+
+To install `synapsis`, you will need:
+
+- devtools
+
+```{r}
+library(devtools)
+```
+
+To use `synapsis`, you will need the following packages:
+
+- stats
+- EBImage
+- graphics
+- utils
+
+## b. installing `synapsis` from GitHub
+
+You can install `synapsis` directly from the github repository by pasting the following into the Rstudio console:
+
+```{r, eval = FALSE}
+devtools::install_git('https://github.com/mcneilllucy/synapsis', dependencies  = TRUE)
+```
+
+## c. loading synapsis
+
+```{r}
+library(synapsis)
+```
+## d. checking documentation
+
+You can type 
+
+```{r,  eval = FALSE}
+??auto_crop_fast
+```
+
+to explore the first function we will use in the "help" window in Rstudio.
+
+## e. Data preparation
+
+For the moment, we will use the example images which come with synapsis.
+
+```{r}
+path = paste0(system.file("extdata",package = "synapsis"))
+```
+
+### i. MLH3 channel
+
+Look at the MLH3 channel
+```{r}
+library(EBImage)
+file_MLH3 <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-MLH3.tif")
+image_MLH3 <- readImage(file_MLH3)
+display(2*image_MLH3)
+```
+
+
+### ii. SYCP3 channel
+
+```{r}
+file_SYCP3 <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-SYCP3.tif")
+image_SYCP3 <- readImage(file_SYCP3)
+display(2*image_SYCP3)
+```
+
+### iii. Comment on resolution and size
+
+Many of the input parameters in synapsis are in pixel units. It's good to get a feel of this before you start analysing them. Let's
+
+```{r}
+cat("dimension of image:", dim(image_MLH3)[1], " x ", dim(image_MLH3)[2], sep = " ")
+```
+or size
+
+```{r}
+mb = 1e06
+cat("file size in mb:", file.size(file_MLH3)/mb, sep = " ")
+```
+
+The image is 1000 x 1000 pixels and 4mb. If we recall the SYCP3 channel image, keeping in mind that it is 1000 pixels wide, a single cell looks like it takes up roughly 1/8th of the width, i.e. 125 pixels. Keeping this approximate **width of a cell** in **pixels** will come in handly when determining input parameters for your own images.
+
+# 2. calling `synapsis` functions on sample image
+
+Here we will demonstrate the functionality of synapsis. Given an image whose *foci* channel (MLH3) is shown in `MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-MLH3.tif`, and *synaptonemal complex* channel (SYCP3) shown in `MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-SYCP3.tif`, we can:
+
+- Crop the image around individual cells (**a**)
+- Determine whether these cells are in the pachytene phase (**b**, optional)
+- Count the number of foci per cell (**c**)
+
+which are currently the three main features of `synapsis`. 
+
+Some noteable features mentioned in the tutorial are:
+
+- Separate cells which are close / overlapping (**a ii**)
+- Make a note of whether the image is likely have a good count compared with a manual count (**c i**)
+
+## a. Cropping routine
+
+
+
+### i. without cell separation using watershed
+```{r}
+auto_crop_fast(path, annotation = "on", max_cell_area = 30000, min_cell_area = 7000, file_ext = "tif")
+```
+Here we called path, plus other optional parameters (that would otherwise take on default values). But only path is essential. This is because auto_crop_fast has built-in default values which are assumed when the user doesn't specify.
+
+A crops folder with three channels per "viable cell" should have been generated inside the folder where these images are kept i.e. in path.
+
+### ii. with cell separation using watershed 
+
+We will redo this with different settings, so let's delete the crops folder.
+
+```{r}
+unlink(paste0(path,"/crops-RGB/"), recursive = TRUE) 
+unlink(paste0(path,"/crops/"), recursive = TRUE) 
+```
+
+Now we will see one of the useful features of synapsis. It can separate cells by making use of EBImage's watershed and distmap functions. If we set crowded_cells = TRUE, then 
+
+```{r}
+auto_crop_fast(path, annotation = "on", max_cell_area = 30000, min_cell_area = 7000, file_ext = "tif",crowded_cells = TRUE)
+```
+
+Instead of 1 cell (before we said that crowded_cells = TRUE), 3 cells were identified. 
+
+## b. Getting pachytene 
+
+```{r}
+SYCP3_stats <- get_pachytene(path,ecc_thresh = 0.8, area_thresh = 0.04, annotation = "on",file_ext = "tif")
+```
+SYCP3_stats is a data frame summarizing some features of the cells classified as pachytene.
+
+## c. Counting foci 
+
+Now that we have the cropped images, and those which have been selected as our stage of interest (pachytene), we can count foci per cell.
+
+Note the option crowded_foci = FALSE, because for our antibodies we only typically expect a couple dozen foci per cell. If you are dealing with an antibody that typically has in excess of ~100 foci per cell, it's recommended to use crowded_foci = TRUE.
+. 
+```{r}
+foci_counts <- count_foci(path,offset_factor = 8, brush_size = 5, offset_px = 0.3, brush_sigma = 5, annotation = "on", stage = "pachytene",file_ext = "tif", watershed_stop= "on",  crowded_foci = FALSE, C1 = 0.03, disc_size_foci = 9)
+```
+
+### i. reading the data frame
+
+Let's look at the results:
+
+```{r}
+print(foci_counts)
+```
+
+foci_counts is a data frame summarizing some features (including foci counts) of the cells classified as pachytene. 
+
+The "verdict" column recommends to keep or discard an image based on how it compares to the "crispness criteria" C1 (a measurement of how uniformly sized the foci identified are... empirically indicative of a "clear" image with concident foci and low background). 
+
+This is currently how we can identify (to ignore) cells with low signal / high background etc in the foci channel which passed through the automated pipeline.
+
+Let's clean up the crops folders we just generated..  
+
+```{r}
+unlink(paste0(path,"/crops-RGB/"), recursive = TRUE) 
+unlink(paste0(path,"/crops/"), recursive = TRUE) 
+```

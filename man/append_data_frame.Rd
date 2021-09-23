@@ -43,7 +43,11 @@ Defaults to -/-.}
 
 \item{cell_count}{unique cell counter}
 
-\item{stage}{meiotic stage}
+\item{stage, }{meiosis stage of interest. Currently count_foci determines
+this with thresholding/ object properties in the synaptonemal complex channel
+by previosly calling the get_pachytene function.
+Note that if using this option, the count_foci function requires that the
+input directory contains a folder called “pachytene” with the crops in it.}
 
 \item{foci_per_cell}{foci count for cell}
 

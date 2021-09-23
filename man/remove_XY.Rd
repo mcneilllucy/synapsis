@@ -4,10 +4,17 @@
 \alias{remove_XY}
 \title{remove_XY}
 \usage{
-remove_XY()
+remove_XY(foci_label, foci_candidates, foci_areas)
 }
 \arguments{
-\item{mask}{current foci mask}
+\item{foci_label}{black and white mask of foci channel}
+
+\item{foci_candidates}{computeFeatures data frame of foci channel}
+
+\item{foci_areas}{the areas of the foci objects}
+}
+\value{
+mask with XY blob removed
 }
 \description{
 applies new row to data frame
