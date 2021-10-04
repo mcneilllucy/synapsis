@@ -16,7 +16,7 @@ Description: Synapsis is a Bioconductor software package for automated (unbiased
 biocViews: Software, SingleCell
 Depends: 
     R (>= 4.1)
-Imports: EBImage, stats, utils, graphics, BiocManager
+Imports: EBImage, stats, utils, graphics
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.1.1

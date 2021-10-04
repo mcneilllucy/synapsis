@@ -2,11 +2,7 @@
 title: "Using synapsis"
 author: "Lucy McNeill"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: BiocStyle::html_document
-vignette: >
-  %\VignetteIndexEntry{Using-synapsis}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: html_document
 ---
 
 
