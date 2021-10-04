@@ -4,7 +4,7 @@ author: "Lucy McNeill"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Get-Started-With-comapr}
+  %\VignetteIndexEntry{Using-synapsis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
