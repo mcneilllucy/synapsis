@@ -1,7 +1,7 @@
 Package: synapsis
 Type: Package
 Title: An R package to automate the analysis of double-strand break repair during meiosis
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: 
     c(person(given = "Lucy",
              family = "McNeill",
