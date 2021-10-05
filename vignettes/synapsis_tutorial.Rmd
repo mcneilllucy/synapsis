@@ -72,9 +72,12 @@ path = paste0(system.file("extdata",package = "synapsis"))
 
 ### i. MLH3 channel
 
-Look at the MLH3 channel
 ```{r}
 library(EBImage)
+```
+
+Look at the MLH3 channel
+```{r, eval = FALSE}
 file_MLH3 <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-MLH3.tif")
 image_MLH3 <- readImage(file_MLH3)
 display(2*image_MLH3)
@@ -83,7 +86,7 @@ display(2*image_MLH3)
 
 ### ii. SYCP3 channel
 
-```{r}
+```{r, eval = FALSE}
 file_SYCP3 <- paste0(path,"/MLH3rabbit488_SYCP3mouse594_fancm_fvb_x_fancm_bl6_724++_slide01_006-SYCP3.tif")
 image_SYCP3 <- readImage(file_SYCP3)
 display(2*image_SYCP3)
