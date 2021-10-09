@@ -328,14 +328,14 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
     }
     #### strand related stuff here
   },
-  error = function(e) {
-    if(annotation=="on"){
+  #error = function(e) {
+  #  if(annotation=="on"){
       #str(e) # #prints structure of exception
-      print("couldn't crop it since cell is on the edge. Neglected the following mask of a cell candidate:")
-      plot(tmp_img)
-      plot(noise_gone_highres)
-    }
-  }
+  #    print("couldn't crop it since cell is on the edge. Neglected the following mask of a cell candidate:")
+  #    plot(tmp_img)
+  #    plot(noise_gone_highres)
+  #  }
+  #}
   )
 }
 
