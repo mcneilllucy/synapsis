@@ -118,7 +118,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
         break
       }
       #### blur the image with get_blobs. call it on img_orig, optional offset
-      blob_th <- get_blobs(strand_amp*img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp,brush_size_blob, sigma_blob,  watershed_tol, watershed_radius, crowded_cells, annotation)
+      blob_th <- invisible(get_blobs(strand_amp*img_orig,blob_factor, bg_blob_factor, offset,final_blob_amp,brush_size_blob, sigma_blob,  watershed_tol, watershed_radius, crowded_cells, annotation))
       if(crowded_cells != "TRUE"){
         blob_label <- bwlabel(blob_th)
         blob_label <- channel(blob_label, "gray")
@@ -129,7 +129,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       }
       
       ## remove things that aren't cells
-      retained <- keep_cells(candidate, max_cell_area, min_cell_area,cell_aspect_ratio, crowded_cells, annotation)
+      retained <- invisible(keep_cells(candidate, max_cell_area, min_cell_area,cell_aspect_ratio, crowded_cells, annotation))
       ### crop over each cell
       ## Loop over all objects in this final "removed" image
       if(crowded_cells == "TRUE"){
@@ -164,10 +164,10 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
         ### row of interest is the counter_final'th row of x_final
         cell_count <- cell_count +1
         if(third_channel=="on"){
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_sc,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor)
+          invisible(crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_sc,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor))
         }
         else{
-          crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_sc,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor)
+          invisible(crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_foci,file_sc,file_foci,file_foci,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor))
         }
       }
       antibody1_store <- 0
@@ -328,14 +328,14 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
     }
     #### strand related stuff here
   },
-  #error = function(e) {
-  #  if(annotation=="on"){
+  error = function(e) {
+    if(annotation=="on"){
       #str(e) # #prints structure of exception
-  #    print("couldn't crop it since cell is on the edge. Neglected the following mask of a cell candidate:")
-  #    plot(tmp_img)
-  #    plot(noise_gone_highres)
-  #  }
-  #}
+      print("couldn't crop it since cell is on the edge. Neglected the following mask of a cell candidate:")
+      plot(tmp_img)
+      plot(noise_gone_highres)
+    }
+  }
   )
 }
 
