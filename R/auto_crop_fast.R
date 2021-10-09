@@ -71,6 +71,7 @@
 
 auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path, resize_l = 720, crowded_cells = "FALSE", watershed_radius = 50, watershed_tol = 0.2, cropping_factor =1.3)
 {
+  sink(nullfile())
   file_list <- list.files(img_path)
   dir.create(paste0(path_out,"/crops"))
   dir.create(paste0(path_out,"/crops-RGB"))
@@ -177,8 +178,8 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
     }
   }
 crop_count <- nrow(as.data.frame(list.files(paste0(img_path,"/crops-RGB/"))))
-print(crop_count)
 cat("out of",image_count,"images, we got",crop_count,"viable cells \n", sep = " ")
+sink()
 }
 
 
