@@ -165,6 +165,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
         counter_final <- counter_final+1
         ### row of interest is the counter_final'th row of x_final
         cell_count <- cell_count +1
+        sink()
         if(third_channel=="on"){
           crop_single_object_fast(retained,OOI_final,counter_final,img_orig,img_orig_foci,img_orig_DAPI,file_sc,file_foci,file_DAPI,cell_count, mean_pix, annotation, file_base, img_path, r_max, cx, cy,channel3_string,channel2_string,channel1_string,file_ext,third_channel,path_out, img_orig_highres, resize_l,crowded_cells, cropping_factor)
         }
@@ -179,7 +180,6 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
   }
 crop_count <- nrow(as.data.frame(list.files(paste0(img_path,"/crops-RGB/"))))
 cat("out of",image_count,"images, we got",crop_count,"viable cells \n", sep = " ")
-sink()
 }
 
 
