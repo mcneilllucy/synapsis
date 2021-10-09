@@ -72,8 +72,8 @@
 auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 7000, mean_pix = 0.08, annotation = "off", blob_factor = 15, bg_blob_factor = 10,  offset = 0.2, final_blob_amp = 10, test_amount = 0,brush_size_blob = 51, sigma_blob = 15, channel3_string = "DAPI", channel2_string = "SYCP3", channel1_string = "MLH3", file_ext = "jpeg", third_channel = "off",cell_aspect_ratio = 2, strand_amp = 2, path_out = img_path, resize_l = 720, crowded_cells = "FALSE", watershed_radius = 50, watershed_tol = 0.2, cropping_factor =1.3)
 {
   file_list <- list.files(img_path)
-  dir.create(paste0(path_out,"/crops"))
-  dir.create(paste0(path_out,"/crops-RGB"))
+  invisible(dir.create(paste0(path_out,"/crops")))
+  invisible(dir.create(paste0(path_out,"/crops-RGB")))
   cell_count <- 0
   image_count <-0
   antibody1_store <- 0
@@ -93,7 +93,6 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
     }
     if(grepl(paste0('*',channel2_string,'.',file_ext,'$'), img_file)){
       file_sc <- img_file
-      print(file)
       image <- readImage(file_sc)
       img_orig <- channel(image, "grey")
       img_orig_highres <- img_orig
@@ -128,7 +127,7 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       else{
         candidate <- blob_th
       }
-
+      
       ## remove things that aren't cells
       retained <- keep_cells(candidate, max_cell_area, min_cell_area,cell_aspect_ratio, crowded_cells, annotation)
       ### crop over each cell
@@ -176,9 +175,8 @@ auto_crop_fast <- function(img_path,  max_cell_area = 20000, min_cell_area = 700
       antibody3_store <- 0
     }
   }
-crop_count <- nrow(as.data.frame(list.files(paste0(img_path,"/crops-RGB/"))))
-print(crop_count)
-cat("out of",image_count,"images, we got",crop_count,"viable cells \n", sep = " ")
+  crop_count <- nrow(as.data.frame(list.files(paste0(img_path,"/crops-RGB/"))))
+  cat("out of",image_count,"images, we got",crop_count,"viable cells \n", sep = " ")
 }
 
 
@@ -259,7 +257,7 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
       }
     }
   }
-
+  
   #### resize your images here?
   dim_orig <- dim(img_orig_highres)
   new_l <- as.integer(dim_orig[1])
@@ -284,8 +282,8 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
   iy <- top_left_y_highres:bottom_left_y_highres
   ####### end high res stuff
   #########
-
-### cropping finished
+  
+  ### cropping finished
   ## cropping part
   tryCatch({
     img_path_out <- path_out
@@ -316,7 +314,7 @@ crop_single_object_fast <- function(retained, OOI_final,counter_final,img_orig,i
       filename_crop_DAPI <- paste0(img_path_out,"/crops/", file_sc,"-crop-",cell_count,file_stub)
       writeImage(new_img_DAPI, filename_crop_DAPI)
     }
-
+    
     if(annotation=="on"){
       print("from the file:")
       print(file_sc)
@@ -381,10 +379,10 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
   ## default amplification
   bg <- mean(bg_blob_factor*img_tmp)
   blob_th <- final_blob_amp*img_flo > bg + offset
-
+  
   if(crowded_cells != "TRUE"){
     blob_th <- final_blob_amp*img_flo > bg + offset
-
+    
   }
   else{
     y <- distmap(blob_th)
@@ -405,9 +403,9 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
     else{
       plot(blob_th)
     }
-
+    
   }
-
+  
   return(blob_th)
 }
 
@@ -427,7 +425,7 @@ get_blobs <- function(img_orig, blob_factor, bg_blob_factor, offset,final_blob_a
 
 #' @return Mask of cell candidates which meet size criteria
 keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_ratio, crowded_cells, annotation){
-
+  
   # delete everything that's too small
   colorimg<- colorLabels(candidate, normalize = TRUE)
   x <- computeFeatures.shape(candidate)
@@ -460,7 +458,7 @@ keep_cells <- function(candidate, max_cell_area, min_cell_area, cell_aspect_rati
       error = function(e) {
       }
       )
-
+      
     }
     else{
       plot(retained)
