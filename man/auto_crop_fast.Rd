@@ -120,7 +120,7 @@ directory, or a crops folder at the location of the image files.
 \examples{
 demo_path = paste0(system.file("extdata",package = "synapsis"))
 auto_crop_fast(demo_path, annotation = "on", max_cell_area = 30000,
-min_cell_area = 7000)
+min_cell_area = 7000, file_ext = "tif",crowded_cells = TRUE)
 }
 \author{
 Lucy McNeill
