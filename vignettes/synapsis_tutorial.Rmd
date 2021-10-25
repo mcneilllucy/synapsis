@@ -241,7 +241,7 @@ The output is stored in a folder called “crops” with square images (from all
 
 (2) Identifying cells in the pachytene phase. This is optional and was made for niche biological problems that are relevant to this meiotic substage. 
 
-If you use this, a folder called “pachytene” inside the folder “crops” is generated with the pachytene cell candidates. Make sure you specify this for the counting function (3) with stage = pachytene, so that R (`synapsis`?) knows to look in this folder. 
+If you use this, a folder called “pachytene” inside the folder “crops” is generated with the pachytene cell candidates. Make sure you specify this for the counting function (3) with stage = pachytene, so that `synapsis` knows to look in this folder. 
 
 (3) counting coincident foci on synaptonemal complexes. 
 
