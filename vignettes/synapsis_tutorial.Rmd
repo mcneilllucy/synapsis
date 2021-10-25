@@ -207,7 +207,7 @@ Now that we have the cropped images, and those which have been selected as our s
 Note the option crowded_foci = FALSE, because for our antibodies we only typically expect a couple dozen foci per cell. If you are dealing with an antibody that typically has in excess of ~100 foci per cell, e.g. DMC1, it's recommended to use crowded_foci = TRUE.
 . 
 ```{r}
-foci_counts <- count_foci(path,offset_factor = 8, brush_size = 3, offset_px = 0.3, brush_sigma = 3, annotation = "on", stage = "pachytene",file_ext = "tif", watershed_stop= "on",  crowded_foci = FALSE, C1 = 0.03, disc_size_foci = 9)
+foci_counts <- count_foci(path,offset_factor = 8, brush_size = 3, offset_px = 0.6, brush_sigma = 3, annotation = "on", stage = "pachytene",file_ext = "tif", watershed_stop= "on",  crowded_foci = FALSE, C1 = 0.03, disc_size_foci = 9)
 ```
 
 ### reading the data frame
